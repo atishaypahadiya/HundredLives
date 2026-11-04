@@ -4,7 +4,7 @@ I give an LLM agent a made-up background and a goal, for example "grew up in the
 
 Project page: https://atishaypahadiya.github.io/hundred-lives/
 
-Early. Nothing runs yet.
+Parked in November 2026 after three experiments. Results are on the project page; each experiment's plan and results are in `experiments/`.
 
 ## Questions
 
@@ -48,17 +48,58 @@ analysis/          notebooks
 docs/              project page
 ```
 
-## Running it
+## Run it
+
+Needs macOS with [OrbStack](https://orbstack.dev) (or Docker), [uv](https://docs.astral.sh/uv/), and `gh` logged in for deploys.
 
 ```bash
 git clone https://github.com/atishaypahadiya/hundred-lives.git
 cd hundred-lives
-cp .env.example .env     # add ANTHROPIC_API_KEY (only needed for Claude runs)
-uv sync
+cp .env.example .env     # add ANTHROPIC_API_KEY, only for Claude runs
+make up                  # uv sync, start OrbStack, Gitea and the agent image, then the viewer
+```
+
+### Viewer
+
+```bash
+make viewer              # http://127.0.0.1:8711, read-only on every runs dir that exists
+```
+
+It reads `runs/` and the experiment worktrees' `runs/` (`../hundred-lives-viewer`, `../hundred-lives-exp02b`, `../hundred-lives-exp03`). Run logs are gitignored, so a fresh clone has none.
+
+### A run
+
+A free run on a local model checks the loop, sandbox and logging:
+
+```bash
 OLLAMA_CONTEXT_LENGTH=16384 ollama serve &
-uv run python -m orchestrator.run --persona agents/personas/maya.yaml --runs 10                 # 52 weeks each; --horizon 260 for five years
-uv run python -m orchestrator.run --persona agents/personas/maya.yaml --runs 3 --model claude-opus-5-5
-uv run python analysis/summarize.py runs/*.jsonl
+uv run python -m orchestrator.sandbox up         # skip if `make up` already ran
+uv run python -m orchestrator.run --persona agents/personas/maya.yaml --runs 1 --horizon 4
+uv run python analysis/summarize.py runs/maya-*.jsonl
+```
+
+Real experiments use Claude models and cost money. Launch them from a script file with a budget guard, as `experiments/03-launch.sh` does:
+
+```bash
+uv run python -m orchestrator.sandbox check      # 20/20 before launching
+bash experiments/03-launch.sh                    # Self x 5 on world v3, 104 weeks, $15 guard
+```
+
+### Publish and deploy
+
+```bash
+uv run python analysis/site_facts.py             # refill the project page's numbers and quotes from the logs
+scripts/publish_runs.sh                          # rebuild docs/runs/ locally
+make deploy                                      # site_facts --check, then publish docs/ and docs/runs/ to gh-pages
+```
+
+`make deploy` refuses while `docs/` has uncommitted changes, so commit on master first. Which batches the Runs page shows is set in `viewer/publish.yaml`.
+
+### Checks and stopping
+
+```bash
+make check               # the project page matches the logs, and the sandbox's 20 isolation probes pass
+make down                # stop Gitea (its data is kept)
 ```
 
 ## Plan
