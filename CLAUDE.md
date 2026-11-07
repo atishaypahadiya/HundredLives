@@ -2,6 +2,8 @@
 
 Run one LLM persona many times through a simulated life and compare the paths. Design: README.md and docs/index.html (the project page; its persona, tool table, and loop are the spec).
 
+Every page on the site follows docs/THEME.md. Read it before any UI work.
+
 ## Status
 
 **Status: parked (Nov 2026).** Finished: experiments 01–03, and the site is live (project page, Runs page, replays). To resume: `make up` (uv sync, OrbStack, Gitea and the agent image, then the viewer at http://127.0.0.1:8711), then `make check` (site facts plus the 20 sandbox probes) before any run. The paid run logs exist only in `runs/` and the three experiment worktrees (`../hundred-lives-viewer`, `../hundred-lives-exp02b`, `../hundred-lives-exp03`), so keep those directories. Open items: a person's labels for the provisional self-blame check, Track B's first live test, the footer email, and the unpurged `self-tracka3` Gitea user. README "Run it" has every command.
