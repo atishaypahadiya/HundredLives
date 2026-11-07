@@ -7,11 +7,12 @@
                                        // or an array of {points: [[x, z], ...] one per week from week 0, stray: bool}
                                        // (real lives, e.g. docs/data/positions.json): each is placed by the fraction of
                                        // its own length, so lives of 26, 52 or 104 weeks all end together
-     hero: 31,                         // index of the life the chase shots follow (gold)
+     hero: 31,                         // optional: index of the life the chase shots follow (gold); leave it out for no hero
      strays: {31: [150, -130], ...},   // count mode: index -> [x, z] target; every other life walks to `corner`
      corner: [-150, 40],               // count mode: where the flock ends up
      weeks: 104,                       // weeks per life (the week counter runs 1..weeks)
-     time: [.1, .95],                  // scroll range over which time runs from the first week to the last
+     time: [.1, .95],                  // scroll range over which time runs from the first week to the last (eased);
+                                       // false: progress is the lives' own time, linearly (a week slider)
      ghost: [.29, .36, .6, .68],       // others fade to ghosts from [0] to [1] and come back from [2] to [3]
      shots: [{p, pos, look}, ...],     // camera rails: pos and look are [x, y, z], 'hut', or 'chase' (pos) for the ghost cam
      chaseSmooth: {weeks: 4, maxTurn: 1}, // optional, real lives: the ghost cam faces the way the life moved over the last
@@ -22,6 +23,9 @@
    valley.update(progress)  // per animation frame: scroll progress 0..1 in; eases toward it, renders,
                             // and returns {progress (the eased value), u (life time 0..1), week (the hero's own week)}
    valley.resize()          // after the canvas changes size
+   valley.setLives(lives)   // swap the flock for another array of real lives (pages without a hero only)
+   valley.setShots(shots)   // new camera rails, e.g. when the canvas crosses the narrow-screen width
+   valley.setDim(flags)     // flags[i] true: draw life i as a ghost (a page's filter); setLives clears it
    valley.camera, valley.sheepPosition(i), valley.cameraAt(p)  // for checks: the camera, where life i's sheep stands,
                                                                // and the un-eased camera, look and hero at scroll p
 */
@@ -185,10 +189,11 @@ function createValley(cv,opts){
    lives.push({stray:stray,curve:new T.CatmullRomCurve3(pts,false,'centripetal'),phase:R()*6});
   }
  }else{ // given paths, e.g. from positions.json
-  opts.lives.forEach(function(L){
-   var pts=L.points.map(function(q){return new T.Vector3(q[0],0,q[1]);});
-   lives.push({stray:!!L.stray,curve:new T.CatmullRomCurve3(pts,false,'centripetal'),phase:R()*6,timed:true,weeks:pts.length-1});
-  });
+  opts.lives.forEach(function(L){lives.push(realLife(L,R));});
+ }
+ function realLife(L,rand){
+  var pts=L.points.map(function(q){return new T.Vector3(q[0],0,q[1]);});
+  return {stray:!!L.stray,curve:new T.CatmullRomCurve3(pts,false,'centripetal'),phase:rand()*6,timed:true,weeks:pts.length-1};
  }
  function lifeAt(L,u){ // u in [0,1]
   // made-up paths are walked at an even pace (by arc length); real lives by week (one curve point per week)
@@ -198,18 +203,22 @@ function createValley(cv,opts){
  function ribbon(L,wd,lift){var rib=[],ix=[];for(var s=0;s<=SEG;s++){var t=s/SEG*.9999,a=L.timed?L.curve.getPoint(t):L.curve.getPointAt(t),b=L.timed?L.curve.getTangent(t):L.curve.getTangentAt(t),nx=-b.z,nz=b.x,l=Math.hypot(nx,nz)||1;
    rib.push(a.x+nx/l*wd,H(a.x+nx/l*wd,a.z+nz/l*wd)+lift,a.z+nz/l*wd,a.x-nx/l*wd,H(a.x-nx/l*wd,a.z-nz/l*wd)+lift,a.z-nz/l*wd);if(s<SEG){var o=s*2;ix.push(o,o+1,o+2,o+1,o+3,o+2);}}
   var g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(rib,3));g.setIndex(ix);g.setDrawRange(0,0);return g;}
- lives.forEach(function(L,idx){
+ function addTrail(L,idx){
   var isHero=idx===HERO;
   var m=new T.MeshBasicMaterial({color:isHero?'#ffb938':(L.stray?'#ffd98a':'#ffffff'),transparent:true,opacity:isHero?1:(L.stray?.85:.5),depthWrite:false,side:T.DoubleSide,
    polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
   var mesh=new T.Mesh(ribbon(L,isHero?.6:(L.stray?.6:.32),isHero?.22:.18),m);mesh.renderOrder=isHero?3:2;scene.add(mesh);trails.push(mesh);
- });
+ }
+ lives.forEach(addTrail);
 
  /* ---------- sheep ---------- */
  var woolG=new T.IcosahedronGeometry(1,1), headG=new T.SphereGeometry(1,10,8), legG=new T.CylinderGeometry(.09,.08,1,5);legG.translate(0,-.5,0);
  var woolM=new T.MeshLambertMaterial({color:'#f3eee3',transparent:true}), faceM=new T.MeshLambertMaterial({color:'#2b2420',transparent:true});
  var heroWool=new T.MeshLambertMaterial({color:'#fff6e0',emissive:'#5a3a00',emissiveIntensity:.18});
  var heroFace=new T.MeshLambertMaterial({color:'#2b2420'});
+ // lives a page sets aside (setDim): drawn as ghosts, at the ghost cam's opacity
+ var woolDim=new T.MeshLambertMaterial({color:'#f3eee3',transparent:true,opacity:.38,depthWrite:false}), faceDim=new T.MeshLambertMaterial({color:'#2b2420',transparent:true,opacity:.38,depthWrite:false});
+ var DIM=[];
  function makeSheep(hero){
   var g=new T.Group(),body=new T.Group();g.add(body);
   var wm=hero?heroWool:woolM,fm=hero?heroFace:faceM;
@@ -223,7 +232,7 @@ function createValley(cv,opts){
  lives.forEach(function(L,idx){L.mesh=makeSheep(idx===HERO);});
 
  /* ---------- camera rails ---------- */
- var TIME=opts.time||[0,1], GHOST=opts.ghost, STILL=!!opts.still;
+ var TIME=opts.time===false?null:(opts.time||[0,1]), GHOST=opts.ghost, STILL=!!opts.still;
  var hero=lives[HERO], shots=opts.shots;
  /* The ghost cam's heading, precomputed over the whole life so the camera stays a function of scroll alone.
     Real lives stand still for weeks and jitter in place; facing each small move would swing the camera around. */
@@ -261,7 +270,7 @@ function createValley(cv,opts){
   var P=A[0].lerp(B[0],f);P.y=Math.max(P.y,H(P.x,P.z)+(P.y>60?40:3));return [P,A[1].lerp(B[1],f)];
  }
  function timeAt(p){ // scroll -> life progress u. Time stands still before TIME[0] (the aerial intro).
-  return sm(TIME[0],TIME[1],p)*.999;
+  return (TIME?sm(TIME[0],TIME[1],p):Math.min(1,Math.max(0,p)))*.999;
  }
 
  /* ---------- per frame ---------- */
@@ -282,7 +291,7 @@ function createValley(cv,opts){
    ud.head.position.y=moving?.25:.25-(.5+.5*Math.sin(time*1.3+L.phase))*.35; // graze when still
    ud.legs.forEach(function(l,n){l.rotation.z=moving?Math.sin(ph+(n%2?Math.PI:0))*.45:0;});
    var cnt=Math.max(0,Math.round(u*SEG));trails[idx].geometry.setDrawRange(0,cnt*6);
-   if(idx!==HERO&&!L.stray)trails[idx].material.opacity=.5*(1-ghost*.35);
+   trails[idx].material.opacity=(idx===HERO?1:L.stray?.85:.5*(1-ghost*.35))*(DIM[idx]?.3:1);
   });
   var c=camAt(cur,u);
   if(first||STILL){camPos.copy(c[0]);camLook.copy(c[1]);first=false;}else{camPos.lerp(c[0],1-Math.exp(-dt*6));camLook.lerp(c[1],1-Math.exp(-dt*6));}
@@ -292,8 +301,21 @@ function createValley(cv,opts){
   var week=hero&&hero.timed?Math.max(1,Math.ceil(u*hero.weeks-1e-9)):Math.max(1,Math.round(1+u*(WEEKS-1)));
   return {progress:cur,u:u,week:week};
  }
- return {update:update,resize:resize,camera:cam,sheepPosition:function(i){return lives[i].mesh.position.clone();},
-  cameraAt:function(p){var u=timeAt(p),c=camAt(p,u);return {pos:c[0],look:c[1],hero:lifeAt(hero,u),u:u};}};
+ var lifeSeed=1000;
+ function setLives(arr){ // a new flock in the same world; its random phases come from their own stream
+  if(HERO!=null)throw new Error('setLives is for pages without a followed life');
+  lives.forEach(function(L,idx){scene.remove(L.mesh);scene.remove(trails[idx]);trails[idx].geometry.dispose();trails[idx].material.dispose();});
+  var rand=rng(lifeSeed++);lives=arr.map(function(L){return realLife(L,rand);});trails=[];
+  lives.forEach(addTrail);lives.forEach(function(L){L.mesh=makeSheep(false);});DIM=[];
+  first=true; // the new flock appears where it stands, not eased from the old one's week
+ }
+ function setDim(flags){ // flags[i] true: life i is drawn as a ghost (e.g. it doesn't match a filter)
+  DIM=flags||[];
+  lives.forEach(function(L,idx){var d=!!DIM[idx];L.mesh.traverse(function(o){if(!o.isMesh)return;
+   if(o.material===woolM||o.material===woolDim)o.material=d?woolDim:woolM;else if(o.material===faceM||o.material===faceDim)o.material=d?faceDim:faceM;});});
+ }
+ return {update:update,resize:resize,setLives:setLives,setDim:setDim,setShots:function(sh){shots=sh;first=true;},camera:cam,sheepPosition:function(i){return lives[i].mesh.position.clone();},
+  cameraAt:function(p){var u=timeAt(p),c=camAt(p,u);return {pos:c[0],look:c[1],hero:hero?lifeAt(hero,u):null,u:u};}};
 }
 createValley.terrain={height:H,wallMask:wallMask}; // for checks that points sit on the valley floor (analysis/positions.py)
 window.createValley=createValley;
