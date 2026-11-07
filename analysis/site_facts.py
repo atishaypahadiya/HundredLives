@@ -188,6 +188,14 @@ def hero_and_story():
 
 # ---------------------------------------------------------------- experiment 01
 
+def job_at_end(path) -> bool:
+    """Experiment 01's 'ended in a full-time job': a commitment costing 5 actions (Maya's full time), not an
+    accelerator, in the last week_end. analysis/positions.py checks its job corner against this."""
+    last = [json.loads(l) for l in open(path) if '"week_end"' in l][-1]
+    return any((c.get("time_cost") or 0) >= 5 and not (c.get("opening_id") or "").startswith("acc-")
+               for c in last["state"]["commitments"])
+
+
 def exp01():
     conds = {}
     for c in "abcd":
@@ -196,10 +204,6 @@ def exp01():
     allr = [r for rs in conds.values() for r in rs]
     fact("e01.n", len(allr), "runs/maya-exp01{a,b,c,d}-*.jsonl: lives that reached week 52 (analysis/diversity.py)")
 
-    def job_at_end(path):
-        last = [json.loads(l) for l in open(path) if '"week_end"' in l][-1]
-        return any((c.get("time_cost") or 0) >= 5 and not (c.get("opening_id") or "").startswith("acc-")
-                   for c in last["state"]["commitments"])
     files = [f for c in "abcd" for f in logs(ROOT / f"runs/maya-exp01{c}-*.jsonl")]
     jobs = sum(job_at_end(f) for f in files)
     fact("e01.jobs", jobs, "same logs: a full-time commitment (time cost 5, not an accelerator) in the last week_end")
