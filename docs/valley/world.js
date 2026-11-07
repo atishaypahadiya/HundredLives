@@ -265,5 +265,6 @@ function createValley(cv,opts){
  }
  return {update:update,resize:resize};
 }
+createValley.terrain={height:H,wallMask:wallMask}; // for checks that points sit on the valley floor (analysis/positions.py)
 window.createValley=createValley;
 })();
