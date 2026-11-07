@@ -63,7 +63,8 @@ Grain overlay (copy exactly):
 - **Camera rails:** a list of shots `{p, pos, look}`, blended with smoothstep. Two shots can be `'chase'`, which is the ghost cam behind one life. The camera never goes below the terrain.
 - **Story lines:** `.line` elements with `data-a`/`data-b` scroll ranges that fade in and out. One idea per line, short.
 - **Ghost cam:** while chasing one life, everyone else drops to ~38% opacity and the followed life stays solid, with its trail in gold.
-- **Terrain:** eroded-noise mountains with per-pixel rock, strata and snow. Reuse it as is, don't rebuild it per page. Pull the world into `docs/valley/world.js` once a second page needs it.
+- **Terrain:** eroded-noise mountains with per-pixel rock, strata and snow. Reuse it as is, don't rebuild it per page.
+- **The world lives in `docs/valley/world.js`,** and every page reuses it: noise, terrain and its shader, sky, lights, clouds, the hut, ground scatter, sheep, trails and the camera rails. A page calls `createValley(canvas, {lives, hero, strays, corner, weeks, time, ghost, shots})` and gets back `{update(progress), resize()}`; the options are documented at the top of the file. Pages keep their own story lines, HUD and scroll handling.
 - **Message bubbles:** for a life's actual messages, grainy paper bubbles (warm off-white, the same grain, slight rotation). Never chat-app UI.
 
 ## Pages
