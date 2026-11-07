@@ -9,7 +9,7 @@ to exports/<run_id>-scrub-report.json (gitignored, outside the published directo
 the contacts for review).
 
 --all: publishes every finished run that viewer/publish.yaml selects (see that file for the rules)
-as a static site: <out>/index.html (the grid, grouped by experiment), <out>/runs.json (one trimmed
+as a static site: <out>/index.html (viewer/runs.html: the valley and the table of runs), <out>/runs.json (one trimmed
 summary per run), <out>/<run_id>/index.html + data.json (one life, fetched when opened), and
 <out>/assets/viewer.{css,js} shared by every page. It's built in a temporary directory and replaces
 <out> only if every run passes the scrub; one refusal and nothing is written. The combined report
@@ -51,6 +51,7 @@ from .normalize import normalize
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGE = Path(__file__).resolve().parent / "index.html"
+RUNS_PAGE = Path(__file__).resolve().parent / "runs.html"  # the Runs page (docs/runs/index.html): the valley, then the table
 PUBLISH = Path(__file__).resolve().parent / "publish.yaml"
 REPORTS = ROOT / "exports"  # gitignored: scrub reports stay out of the published directory
 EMAIL = re.compile(r"[^\s@<>\"'()\[\]{},;:]+@[^\s@<>\"'()\[\]{},;:]+\.[^\s@<>\"'()\[\]{},;:.]{2,}")
@@ -258,7 +259,7 @@ def export_all(out: Path, deny: list[str]) -> dict:
         groups = [{k: g.get(k) for k in ("id", "short", "title", "line", "findings")} for g in publish["groups"]
                   if any(r["group"] == g["id"] for r in grid)]
         (tmp / "runs.json").write_text(json.dumps({"groups": groups, "runs": grid}, separators=(",", ":")))
-        (tmp / "index.html").write_text(_stub(shell, "Runs · Hundred Lives", "assets/", {"page": "grid", "runs": "runs.json", "home": "../"}))
+        (tmp / "index.html").write_text(RUNS_PAGE.read_text())  # reads runs.json and ../data/positions.json
         (tmp / "assets").mkdir()
         (tmp / "assets" / "viewer.css").write_text(css)
         (tmp / "assets" / "viewer.js").write_text(js)

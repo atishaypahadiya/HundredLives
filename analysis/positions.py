@@ -31,7 +31,9 @@ and saved in docs/data/positions-pca.json, so reruns give the same positions. Th
 at WOBBLE units, is smoothed over the weeks and added to the path, then shortened wherever it would carry a sheep
 into a corner zone its unwobbled path isn't in.
 
-Strays: lives that don't end in their group's most common ending (ties go to the earlier corner in END_ORDER).
+Strays: lives that don't end in their group's most common ending. When several endings tie for most common, none
+wins: the group gets tie: true and the tied corners, most_common_end is null, and the strays are the lives outside
+every tied corner.
 """
 import argparse
 import hashlib
@@ -244,16 +246,16 @@ def checks(lives: list, groups: list) -> bool:
     print("End states per group (counts):")
     for g in groups:
         c = Counter(L["end"] for L in g["lives"])
-        tie = " (tie, broken by corner order)" if g["mode_tie"] else ""
+        tie = " (tie: " + " and ".join(g["tied"]) + ")" if g["mode_tie"] else ""
         print(f"  {g['id']:9} {len(g['lives']):3} lives  " + ", ".join(f"{k} {c[k]}" for k in END_ORDER if c[k])
-              + f"  | most common: {g['mode']}{tie}")
+              + f"  | most common: {g['mode'] or 'none'}{tie}")
     e01 = [L for L in lives if L["group"] == "exp01"]
     ours = sum(L["end"] == "job" for L in e01)
     theirs = sum(job_at_end(L["path"]) for L in e01)
     differ = [L["run_id"] for L in e01 if (L["end"] == "job") != job_at_end(L["path"])]
     print(f"\nExperiment 01 job corner: {ours} of {len(e01)}; site_facts.job_at_end: {theirs}; lives that differ: {differ or 'none'}")
     ok &= not differ
-    print("\nStrays (not ending in their group's most common corner):")
+    print("\nStrays (not ending in their group's most common corner, or in any of the tied ones):")
     for g in groups:
         for L in g["lives"]:
             if L["stray"]:
@@ -318,11 +320,11 @@ def main(argv=None) -> int:
             continue
         c = Counter(L["end"] for L in gl)
         top = max(c.values())
-        mode = next(k for k in END_ORDER if c[k] == top)
+        tied = [k for k in END_ORDER if c[k] == top]
         for L in gl:
-            L["stray"] = L["end"] != mode
-        groups.append({"id": g["id"], "title": g["title"], "mode": mode,
-                       "mode_tie": sum(v == top for v in c.values()) > 1, "lives": gl})
+            L["stray"] = L["end"] not in tied
+        groups.append({"id": g["id"], "title": g["title"], "mode": tied[0] if len(tied) == 1 else None,
+                       "mode_tie": len(tied) > 1, "tied": tied if len(tied) > 1 else [], "lives": gl})
 
     out = {
         "about": "Where each published life stands in the valley, week by week. Built by analysis/positions.py; "
@@ -331,7 +333,7 @@ def main(argv=None) -> int:
         "corners": {k: {**c, "zone": ZONE} for k, c in CORNERS.items()},
         "letters": {v: k for k, v in LETTER.items()},
         "wobble": {"model": MODEL, "pca": PCA_PATH.name, "max": WOBBLE},
-        "groups": [{"id": g["id"], "title": g["title"], "most_common_end": g["mode"], "tie": g["mode_tie"],
+        "groups": [{"id": g["id"], "title": g["title"], "most_common_end": g["mode"], "tie": g["mode_tie"], "tied": g["tied"],
                     "lives": [{"run_id": L["run_id"], "title": L["title"], "batch": L["batch"], "weeks": len(L["weeks"]),
                                "end": L["end"], "stray": L["stray"], "states": "".join(LETTER[s] for s in L["states"]),
                                "points": L["points"]} for L in g["lives"]]} for g in groups],
