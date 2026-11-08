@@ -45,7 +45,7 @@ flowchart LR
     R --> D{{"<b>Keyed dice</b><br/>sha256(dice_seed, kind, id, n)"}}
     D -- "accepted · rejected · no reply" --> L
     C --> J
-    L --> J[("runs/&lt;id&gt;.jsonl<br/>every call, draw and cost")]
+    L --> J[("runs/*.jsonl, one per life<br/>every call, draw and cost")]
     J --> F["site_facts.py<br/>every number"]
     J --> Q["positions.py<br/>every path"]
     J --> E["export.py<br/>every life page"]
