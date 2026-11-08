@@ -20,7 +20,8 @@
                                        // its heading while the life stands still (`minMove` units, default 1.5)
      still: false                      // prefers-reduced-motion: no easing toward the scroll position, no sheep animation
      fov: 42                           // optional: the lens's vertical angle in degrees; default 42, or 58 below 700px wide
-     clouds: true                      // false: no clouds (the share image)
+     clouds: true,                     // false: no clouds (the share image)
+     trailWidth: 1                     // trail width multiplier (the share image draws them thicker)
    });
    valley.update(progress)  // per animation frame: scroll progress 0..1 in; eases toward it, renders,
                             // and returns {progress (the eased value), u (life time 0..1), week (the hero's own week)}
@@ -114,6 +115,7 @@ function landMaterial(){
  return landMat;
 }
 
+var HUT_XZ=[10,-20];  // where the hut (the referee) stands
 function createValley(cv,opts){
  var renderer=new T.WebGLRenderer({canvas:cv,antialias:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
@@ -156,7 +158,7 @@ function createValley(cv,opts){
  }
 
  /* ---------- the hut (the referee) ---------- */
- var HUT=new T.Vector3(10,0,-20);HUT.y=H(HUT.x,HUT.z);
+ var HUT=new T.Vector3(HUT_XZ[0],0,HUT_XZ[1]);HUT.y=H(HUT.x,HUT.z);
  var hut=new T.Group();
  var wall=new T.Mesh(new T.BoxGeometry(7,3.2,5),new T.MeshLambertMaterial({color:'#ece6d8'}));wall.position.y=1.6;
  var roof=new T.Mesh(new T.CylinderGeometry(0,5.2,2.4,4,1),new T.MeshLambertMaterial({color:'#4f7fa6'}));roof.rotation.y=Math.PI/4;roof.scale.set(1.05,1,.75);roof.position.y=4.4;
@@ -219,7 +221,7 @@ function createValley(cv,opts){
   var isHero=idx===HERO;
   var m=new T.MeshBasicMaterial({color:isHero?'#ffb938':(L.stray?'#ffd98a':'#ffffff'),transparent:true,opacity:isHero?1:(L.stray?.85:.5),depthWrite:false,side:T.DoubleSide,
    polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
-  var mesh=new T.Mesh(ribbon(L,isHero?.6:(L.stray?.6:.32),isHero?.22:.18),m);mesh.renderOrder=isHero?3:2;scene.add(mesh);trails.push(mesh);
+  var tw=opts.trailWidth||1, mesh=new T.Mesh(ribbon(L,(isHero?.6:(L.stray?.6:.32))*tw,isHero?.22:.18),m);mesh.renderOrder=isHero?3:2;scene.add(mesh);trails.push(mesh);
  }
  lives.forEach(addTrail);
 
@@ -329,6 +331,6 @@ function createValley(cv,opts){
  return {update:update,resize:resize,setLives:setLives,setDim:setDim,setShots:function(sh){shots=sh;first=true;},camera:cam,sheepPosition:function(i){return lives[i].mesh.position.clone();},
   cameraAt:function(p){var u=timeAt(p),c=camAt(p,u);return {pos:c[0],look:c[1],hero:hero?lifeAt(hero,u):null,u:u};}};
 }
-createValley.terrain={height:H,wallMask:wallMask}; // for checks that points sit on the valley floor (analysis/positions.py)
+createValley.terrain={height:H,wallMask:wallMask};createValley.hut=HUT_XZ; // for checks that points sit on the valley floor (analysis/positions.py)
 window.createValley=createValley;
 })();
