@@ -187,6 +187,8 @@ def normalize(rec: dict, seq: int) -> list[dict]:
                    draw=rec.get("success_draw"), key=rec.get("success_key"), attempt=rec.get("attempt"),
                    outcome=rec.get("outcome"), reveal_week=rec.get("reveal_week"), position=rec.get("position"),
                    repo=rec.get("repo"), details=_t(rec.get("details"), 4000), rationale=_t(e.get("rationale"), 2000),
+                   # the letter delivered at reveal_week (the world appends its rule text after it in that week's news)
+                   letter=_t(e.get({"success": "message_if_success", "failure": "message_if_failure"}.get(rec.get("outcome"), "")), 4000),
                    model=rec.get("model"))]
     if t in ("outcome_applied", "outcome_expired"):
         return [ev("referee", event="reply" if t == "outcome_applied" else "no_reply",

@@ -3,17 +3,21 @@
     uv run python -m viewer.export <run_id> [--out docs/replays/<run_id>] [--deny names.txt]
     uv run python -m viewer.export --all --runs-dir runs --runs-dir ../other/runs [--out docs/runs] [--deny names.txt]
 
-One run: writes <out>/index.html (the viewer page with the run's normalized events, grid summary,
-and repo summaries embedded as JSON: no server, no fetches, no external fonts) and a scrub report
-to exports/<run_id>-scrub-report.json (gitignored, outside the published directory, since it lists
-the contacts for review).
+Both write viewer/life.html, the life page on the valley theme: a sticky valley that chases the life
+week by week while its weeks scroll beside it. It loads three.js (cdnjs, pinned with SRI), the site's
+fonts and docs/valley/world.js, so it belongs two levels under docs/ (docs/replays/<name>/, docs/runs/<id>/).
+
+One run: writes <out>/index.html with the run's normalized events, grid summary, repo summaries,
+persona name and contact names, and its experiment's paths from docs/data/positions.json
+embedded as JSON (no fetches), and a scrub report to exports/<run_id>-scrub-report.json (gitignored,
+outside the published directory, since it lists the contacts for review).
 
 --all: publishes every finished run that viewer/publish.yaml selects (see that file for the rules)
 as a static site: <out>/index.html (viewer/runs.html: the valley and the table of runs), <out>/runs.json (one trimmed
-summary per run), <out>/<run_id>/index.html + data.json (one life, fetched when opened), and
-<out>/assets/viewer.{css,js} shared by every page. It's built in a temporary directory and replaces
-<out> only if every run passes the scrub; one refusal and nothing is written. The combined report
-is exports/runs-scrub-report.json. It reads only the runs dirs; it never writes there.
+summary per run), and <out>/<run_id>/index.html + data.json (one life; the page fetches data.json and
+../../data/positions.json). It's built in a temporary directory and replaces <out> only if every run
+passes the scrub; one refusal and nothing is written. The combined report is exports/runs-scrub-report.json.
+It reads only the runs dirs; it never writes there.
 
 The scrub runs on the exported data, after normalizing, so what's checked is what's published:
 - local paths: the home directory becomes "~";
@@ -50,7 +54,8 @@ from . import server
 from .normalize import normalize
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = Path(__file__).resolve().parent / "index.html"
+LIFE_PAGE = Path(__file__).resolve().parent / "life.html"  # one life: the valley chasing it, its weeks beside it
+POSITIONS = ROOT / "docs" / "data" / "positions.json"  # where every published life stands (analysis/positions.py)
 RUNS_PAGE = Path(__file__).resolve().parent / "runs.html"  # the Runs page (docs/runs/index.html): the valley, then the table
 PUBLISH = Path(__file__).resolve().parent / "publish.yaml"
 REPORTS = ROOT / "exports"  # gitignored: scrub reports stay out of the published directory
@@ -58,7 +63,6 @@ EMAIL = re.compile(r"[^\s@<>\"'()\[\]{},;:]+@[^\s@<>\"'()\[\]{},;:]+\.[^\s@<>\"'
 SECRET_KEY = re.compile(r"(?i)(api[_-]?key|secret|password|passwd|token)$")
 URL_CREDENTIALS = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*://[^/\s:@]+:[^/\s@]+@")
 SITE_MARKER = "runs.json"  # --all only ever replaces a directory that it made (or an empty one)
-FONT_LINKS = re.compile(r'\s*<link rel="(preconnect|stylesheet)" href="https://fonts\.(googleapis|gstatic)\.com[^>]*>')
 
 
 class ScrubError(Exception):
@@ -125,31 +129,48 @@ def build(run_id: str, deny: list[str]) -> tuple[dict, dict]:
     if not persona_text:
         raise SystemExit(f"{run_id}'s run_start has no persona_text; can't list its contacts for review")
     persona = yaml.safe_load(persona_text)
+    # The page shows the persona's name and labels message bubbles with the contacts' names (fictional people).
+    # Nothing else from the persona file is exported.
+    shown = {"name": persona.get("name"),
+             "contacts": [{"id": c.get("id"), "name": c.get("name")} for c in persona.get("contacts") or []]}
     report = {"run_id": run_id, "paths": 0, "emails": [], "events": len(events), "repos": [r["repo"] for r in repos],
               "deny_list": len(deny), "persona": persona.get("name"),
               "contacts": [{"id": c.get("id"), "name": c.get("name"), "known_as": c.get("known_as")}
                            for c in persona.get("contacts") or []],
               "contact_messages": sum(e["kind"] == "message" for e in events)}
     home = str(Path.home())
-    data = scrub({"runs": [summary], "events": {run_id: events}, "repos": {run_id: repos}}, report, deny, home)
+    data = scrub({"runs": [summary], "events": {run_id: events}, "repos": {run_id: repos}, "persona": shown}, report, deny, home)
     report["emails"] = sorted(set(report["emails"]))
     return data, report
 
 
-def _page() -> str:
-    page = FONT_LINKS.sub("", PAGE.read_text())
-    if re.search(r'<link[^>]+href="https?://', page):
-        raise ScrubError("the page still loads something external")
-    return page
+def _positions() -> dict:
+    if not POSITIONS.is_file():
+        raise SystemExit(f"no {POSITIONS.relative_to(ROOT)}; run analysis/positions.py first")
+    return json.loads(POSITIONS.read_text())
+
+
+def _place(positions: dict, run_id: str) -> dict | None:
+    """The run's experiment as the life page needs it: the hut, the corners, and every life of that group."""
+    g = next((g for g in positions["groups"] if any(L["run_id"] == run_id for L in g["lives"])), None)
+    return g and {"hut": positions["hut"], "corners": positions["corners"], "group": g}
+
+
+def _life_page(config: dict, title: str) -> str:
+    blob = json.dumps(config, separators=(",", ":")).replace("</", "<\\/").replace("<!--", "<\\!--")
+    page = LIFE_PAGE.read_text()
+    page = re.sub(r"<title>.*?</title>", lambda m: f"<title>{html.escape(title)}: a life of hundred-lives</title>", page, count=1)
+    return page.replace("<!--CONFIG-->", f'<script type="application/json" id="hl-life">{blob}</script>', 1)
 
 
 def export(run_id: str, out: Path, deny: list[str]) -> dict:
     data, report = build(run_id, deny)
     home = str(Path.home())
-    blob = json.dumps(data, separators=(",", ":")).replace("</", "<\\/").replace("<!--", "<\\!--")
-    page = _page().replace("<title>", f"<title>{html.escape(run_id)} · ", 1)
-    page = page.replace("<main id=\"app\"></main>",
-                        f'<main id="app"></main>\n<script type="application/json" id="hl-replay">{blob}</script>', 1)
+    place = _place(_positions(), run_id)
+    if place is None:
+        raise SystemExit(f"{run_id} isn't in {POSITIONS.relative_to(ROOT)}; publish it (viewer/publish.yaml) and rerun analysis/positions.py")
+    life = next(L for L in place["group"]["lives"] if L["run_id"] == run_id)
+    page = _life_page({"page": "replay", "run_id": run_id, "runs": "../../runs/", "embedded": {"data": data, "place": place}}, life["title"])
     report["bytes"] = len(page.encode())
     report = scrub(report, {"paths": 0, "emails": []}, deny, home)
     out.mkdir(parents=True, exist_ok=True)
@@ -207,26 +228,6 @@ def grid_entry(summary: dict, c: dict) -> dict:
     return {**keep, "group": c["group"], "batch": c["batch"], "batch_label": c["batch_label"]}
 
 
-def _split_page(page: str) -> tuple[str, str, str]:
-    """The viewer page as a shell plus its one <style> and one <script>, so every page can share them."""
-    css = re.findall(r"<style>(.*?)</style>", page, re.S)
-    js = re.findall(r"<script>(.*?)</script>", page, re.S)
-    if len(css) != 1 or len(js) != 1:
-        raise SystemExit(f"viewer/index.html should have one <style> and one <script>; found {len(css)} and {len(js)}")
-    shell = re.sub(r"<style>.*?</style>", lambda m: "<!--CSS-->", page, count=1, flags=re.S)
-    shell = re.sub(r"<script>.*?</script>", lambda m: "<!--JS-->", shell, count=1, flags=re.S)
-    return shell, css[0], js[0]
-
-
-def _stub(shell: str, title: str, assets: str, config: dict) -> str:
-    blob = json.dumps(config, separators=(",", ":")).replace("</", "<\\/")
-    page = re.sub(r"<title>.*?</title>", f"<title>{html.escape(title)}</title>", shell, count=1)
-    page = page.replace("<!--CSS-->", f'<link rel="stylesheet" href="{assets}viewer.css">', 1)
-    page = page.replace("<main id=\"app\"></main>",
-                        f'<main id="app"></main>\n<script type="application/json" id="hl-static">{blob}</script>', 1)
-    return page.replace("<!--JS-->", f'<script src="{assets}viewer.js"></script>', 1)
-
-
 def export_all(out: Path, deny: list[str]) -> dict:
     publish = yaml.safe_load(PUBLISH.read_text())
     chosen, skipped = select(publish)
@@ -235,7 +236,7 @@ def export_all(out: Path, deny: list[str]) -> dict:
     if out.exists() and any(out.iterdir()) and not (out / SITE_MARKER).is_file():
         raise SystemExit(f"{out} exists and wasn't made by --all (no {SITE_MARKER}); refusing to replace it")
     home = str(Path.home())
-    shell, css, js = _split_page(_page())
+    titles = {L["run_id"]: L["title"] for g in _positions()["groups"] for L in g["lives"]}
     reports, refused, grid = [], [], []
     tmp = Path(tempfile.mkdtemp(prefix=".runs-", dir=out.parent))
     try:
@@ -249,8 +250,10 @@ def export_all(out: Path, deny: list[str]) -> dict:
             d.mkdir()
             blob = json.dumps(data, separators=(",", ":"))
             (d / "data.json").write_text(blob)
-            (d / "index.html").write_text(_stub(shell, f"{c['run_id']} · Hundred Lives", "../assets/",
-                                                {"page": "run", "run_id": c["run_id"], "data": "data.json", "grid": "../", "home": "../../"}))
+            if c["run_id"] not in titles:
+                raise SystemExit(f"{c['run_id']} isn't in {POSITIONS.relative_to(ROOT)}; rerun analysis/positions.py")
+            (d / "index.html").write_text(_life_page({"page": "run", "run_id": c["run_id"], "data": "data.json",
+                                                      "positions": "../../data/positions.json", "runs": "../"}, titles[c["run_id"]]))
             report["bytes"] = len(blob.encode())
             reports.append(scrub(report, {"paths": 0, "emails": []}, deny, home))
             grid.append(grid_entry(data["runs"][0], c))
@@ -260,9 +263,6 @@ def export_all(out: Path, deny: list[str]) -> dict:
                   if any(r["group"] == g["id"] for r in grid)]
         (tmp / "runs.json").write_text(json.dumps({"groups": groups, "runs": grid}, separators=(",", ":")))
         (tmp / "index.html").write_text(RUNS_PAGE.read_text())  # reads runs.json and ../data/positions.json
-        (tmp / "assets").mkdir()
-        (tmp / "assets" / "viewer.css").write_text(css)
-        (tmp / "assets" / "viewer.js").write_text(js)
         for f in tmp.rglob("*"):  # what's published is what was checked: every file, once more, as text
             if f.is_file():
                 text = f.read_text()
