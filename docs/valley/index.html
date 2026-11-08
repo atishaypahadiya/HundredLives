@@ -3,18 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Hundred Lives Valley B</title>
+<title>hundred-lives: the valley, reference build</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f1611">
+<!-- the site icon (docs/favicon.svg, inline so no page ever asks for favicon.ico); PNGs for browsers without SVG icons -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233d6328'/%3E%3Cg fill='%232b2420'%3E%3Crect x='10.5' y='19' width='2.6' height='6.5' rx='1'/%3E%3Crect x='17' y='19' width='2.6' height='6.5' rx='1'/%3E%3Cellipse cx='24.2' cy='13.6' rx='3.3' ry='3.9'/%3E%3C/g%3E%3Cg fill='%23f3f2ee'%3E%3Ccircle cx='10.4' cy='16.4' r='4.4'/%3E%3Ccircle cx='14.6' cy='12.6' r='4.8'/%3E%3Ccircle cx='19.4' cy='14' r='4.4'/%3E%3Ccircle cx='15.6' cy='18.4' r='4.6'/%3E%3Ccircle cx='19.8' cy='18.2' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Mockup B: a real 3D valley on rails. Scroll moves the camera along a fixed path and runs time forward. */
+/* The reference build for docs/THEME.md: a 3D valley on rails. Scroll moves the camera along a fixed path and runs time forward. */
 :root{--paper:#0f1611;--gold:#ffc960;--sans:"Inter Tight",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:#fff;font:16px/1.5 var(--sans)}
 .track{height:900vh;position:relative}
 .stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#bcd3e3}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
-/* Grain: the grunge layer you liked on the message bubbles, laid over the whole film */
+/* Grain over the whole scene (THEME.md, rule 7) */
 .stage::after{content:"";position:absolute;inset:-50%;pointer-events:none;mix-blend-mode:overlay;opacity:.42;animation:grain 1s steps(4) infinite;
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
@@ -23,13 +29,13 @@ body{margin:0;background:var(--paper);color:#fff;font:16px/1.5 var(--sans)}
 .line{position:absolute;left:0;right:0;font-weight:300;font-size:clamp(28px,5vw,70px);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;
  text-shadow:0 2px 30px rgba(20,40,60,.35);opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .9s ease;padding-inline:max(16px,env(safe-area-inset-left,0px))}
 .line.on{opacity:1;transform:none}
+.line small:empty{display:none}
 .line small{display:table;margin-inline:auto;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-top:18px;padding:7px 11px;background:rgba(20,30,40,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:3px;text-shadow:none}
 .hud{position:absolute;left:max(20px,env(safe-area-inset-left,0px));right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;pointer-events:none}
 .hud b{font:400 28px/1 var(--sans);letter-spacing:-.02em;display:block;text-transform:none;margin-top:4px}
 .chip{display:flex;align-items:center;gap:8px;opacity:0;transition:opacity .6s}
 .chip.on{opacity:1}
 .chip i{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(255,201,96,.3)}
-.chip em{font-style:normal;color:rgba(255,255,255,.65)}
 .load{position:absolute;inset:0;display:grid;place-items:center;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#2a3a33;transition:opacity .8s}
 .after{min-height:60vh;background:var(--paper);display:grid;place-items:center;text-align:center;padding:64px 16px}
 .after p{max-width:48ch;color:#b9c4bb;margin:0 auto}
@@ -47,18 +53,27 @@ body{margin:0;background:var(--paper);color:#fff;font:16px/1.5 var(--sans)}
    <div class="line" data-a=".12" data-b=".27">Every sheep starts at the same hut, with the same background and two years to live</div>
    <div class="line" data-a=".31" data-b=".46">Follow one<small>The others run beside it as ghosts</small></div>
    <div class="line" data-a=".5" data-b=".62">Same start, different weeks</div>
-   <div class="line" data-a=".68" data-b=".83">Most walked to the same corner of the field<small>77 of 80 lives ended in a full-time job</small></div>
-   <div class="line" data-a=".86" data-b="1.1">A few found their own way out<small>114 lives so far</small></div>
+   <div class="line" data-a=".68" data-b=".83">Most walked to the same corner of the field<small id="mainFact"></small></div>
+   <div class="line" data-a=".86" data-b="1.1">A few found their own way out<small id="totalFact"></small></div>
   </div>
-  <div class="hud"><div>week<b id="wk">1</b></div><div class="chip" id="chip"><i></i>Life 31 <em>· the one you're following</em></div></div>
+  <div class="hud"><div>week<b id="wk">1</b></div><div class="chip" id="chip"><i></i>The one you're following</div></div>
  </div>
 </div>
-<div class="after"><p>Mockup B of 3: a real 3D valley built in the browser. Scrolling moves the camera along a fixed path, from an aerial view down to one sheep, then back up to see where everyone went. Paths are illustrative.</p></div>
+<div class="after"><p>The reference build for the site's look. The lives here are made up and their paths are illustrative; the two numbers in the captions come from the real lives. The real paths are on the <a href="../" style="color:inherit">home page</a> and <a href="../runs/" style="color:inherit">Runs</a>.</p></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
 <script src="world.js"></script>
 <script>
 (function(){
+var still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// the captions' numbers come from the real lives (positions.json); until it loads they stay empty
+fetch('../data/positions.json').then(function(r){return r.json();}).then(function(P){
+ var g=P.groups.filter(function(x){return x.id==='exp01';})[0],n=g.lives.filter(function(L){return L.end===g.most_common_end;}).length,
+     total=P.groups.reduce(function(a,x){return a+x.lives.length;},0);
+ document.getElementById('mainFact').textContent=n+' of '+g.lives.length+' lives ended in a '+P.corners[g.most_common_end].label.toLowerCase();
+ document.getElementById('totalFact').textContent=total+' lives so far';
+}).catch(function(){});
 var valley=createValley(document.getElementById('gl'),{
+ still:still,
  lives:80, hero:31, weeks:104,
  strays:{31:[150,-130],12:[110,70],57:[60,-170]},  // the followed life and two others walk out of the valley
  corner:[-150,40],                                  // where everyone else ends up
@@ -76,9 +91,12 @@ var valley=createValley(document.getElementById('gl'),{
   {p:1,   pos:[170,320,430], look:[-40,30,-110]}
  ]
 });
+window.valley=valley;  // for the checks
 var track=document.getElementById('track'),lines=[].slice.call(document.querySelectorAll('.line')),wk=document.getElementById('wk'),chip=document.getElementById('chip');
-var target=0;
-function readScroll(){var r=track.getBoundingClientRect(),max=track.offsetHeight-innerHeight;target=Math.min(1,Math.max(0,-r.top/max));}
+var target=0,beats=lines.map(function(l){return (+l.dataset.a+Math.min(1,+l.dataset.b))/2;});
+// with reduced motion the camera holds a still frame at each story line's middle
+function readScroll(){var r=track.getBoundingClientRect(),max=track.offsetHeight-innerHeight;target=Math.min(1,Math.max(0,-r.top/max));
+ if(still)target=beats.reduce(function(a,b){return Math.abs(b-target)<Math.abs(a-target)?b:a;});}
 addEventListener('scroll',readScroll,{passive:true});
 addEventListener('resize',valley.resize);
 function frame(){

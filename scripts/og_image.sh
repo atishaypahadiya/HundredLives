@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
 # Render the project page's share image and icons with headless Chrome and macOS sips:
-#   docs/og.jpg              1200×630, the page's hero in ?og mode (headline, pull quote, landscape); JPEG so chat apps
-#                            that skip large preview images (WhatsApp) still show it
-#   docs/favicon-32.png      the dot mark, transparent
-#   docs/apple-touch-icon.png 180×180, the dot mark on the page background
-# docs/favicon.svg is hand-written. Rerun after changing the hero, then commit the PNGs.
+#   docs/og.jpg              1200×630, the home valley's opening shot in ?og mode (title only, no nav or HUD), shared by
+#                            the home and Runs pages; JPEG so chat apps that skip large preview images (WhatsApp) still show it
+#   docs/favicon-32.png      the sheep mark (docs/favicon.svg), transparent
+#   docs/apple-touch-icon.png 180×180, the sheep mark on the meadow green
+# docs/favicon.svg is hand-written; each page also carries it inline. Rerun after changing the opening shot or the icon,
+# then commit the images. The home page loads its data over HTTP, so the script serves docs/ on a local port.
 #   scripts/og_image.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 chrome="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
-shot() {  # out width height url [extra flags]
+shot() {  # out width height url [extra flags]; WebGL through SwiftShader, so the valley renders without a GPU
   local out=$1 w=$2 h=$3 url=$4; shift 4
-  "$chrome" --headless=new --disable-gpu --hide-scrollbars --force-prefers-reduced-motion \
-    --virtual-time-budget=6000 --window-size="$w,$h" --screenshot="$out" "$@" "$url" 2>/dev/null
+  "$chrome" --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --hide-scrollbars --force-prefers-reduced-motion \
+    --virtual-time-budget=15000 --window-size="$w,$h" --screenshot="$out" "$@" "$url" 2>/dev/null
 }
 root="file://$PWD"
-tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
-shot "$tmp/og.png" 1200 630 "$root/docs/index.html?og"
+tmp=$(mktemp -d)
+port=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')
+python3 -m http.server "$port" --bind 127.0.0.1 --directory docs >/dev/null 2>&1 & server=$!
+trap 'kill $server 2>/dev/null; rm -rf "$tmp"' EXIT
+for _ in $(seq 50); do curl -fs "http://127.0.0.1:$port/" >/dev/null && break; sleep 0.1; done
+shot "$tmp/og.png" 1200 630 "http://127.0.0.1:$port/?og"
 sips -s format jpeg -s formatOptions 82 "$tmp/og.png" --out docs/og.jpg >/dev/null
 # Headless Chrome renders tiny windows blank, so the icons are drawn at 512 and scaled down (sips, macOS).
 shot "$tmp/apple.png" 512 512 "$root/scripts/icon.html"
