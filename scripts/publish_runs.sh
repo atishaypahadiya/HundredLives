@@ -5,7 +5,8 @@
 #   scripts/publish_runs.sh --deploy   # then publish the site on gh-pages as one orphan commit
 #
 # The site is master's committed docs/ (the project page, replays/) plus the generated docs/runs/,
-# at the branch root, with .nojekyll. gh-pages always holds a single commit, so run data never
+# at the branch root, with .nojekyll, minus docs/valley/index.html (the theme's reference build stays in the repo
+# only; docs/valley/world.js, which every page loads, is published). gh-pages always holds a single commit, so run data never
 # enters any branch's history; GitHub Pages serves gh-pages. --deploy refuses while docs/ has
 # uncommitted changes, so what's published is what's on master. It needs `gh` logged in.
 #
@@ -26,6 +27,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 RUNS_DIRS=(runs ../hundred-lives-viewer/runs ../hundred-lives-exp02b/runs ../hundred-lives-exp03/runs)
+NOT_PUBLISHED=(valley/index.html)   # paths under docs/ that stay out of the site
 deploy=0
 for a in "$@"; do
   case "$a" in
@@ -57,6 +59,7 @@ trap 'rm -f "$index"' EXIT
 rm -f "$index"
 export GIT_INDEX_FILE=$index
 git read-tree "HEAD:docs"                                            # the committed page and replays
+for f in "${NOT_PUBLISHED[@]}"; do git update-index --force-remove -- "$f"; done  # repo-only pages
 (cd docs && git --git-dir="$gitdir" --work-tree=. add -f -- runs)   # the generated runs, only
 git update-index --add --cacheinfo "100644,$(git hash-object -w /dev/null),.nojekyll"
 tree=$(git write-tree)
