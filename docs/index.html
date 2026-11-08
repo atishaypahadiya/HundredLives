@@ -522,6 +522,7 @@ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og
   var base = chip.getAttribute('href'), heroId = (base.match(/run\/([^?#\/]+)/) || [])[1];
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var narrow = innerWidth < 700;  // world.js widens the lens below 700px too
+  var og = document.documentElement.classList.contains('og'), OG_LOOK_Y = 250, OG_FOV = 58;  // the share image's tilt and lens (scripts/og_image.sh)
   // With reduced motion, the camera holds still frames: one per story line, at its middle.
   var beats = lines.map(function(l){ return (+l.dataset.a + Math.min(1, +l.dataset.b)) / 2; });
   fetch('data/positions.json').then(function(r){ if (!r.ok) throw new Error('data/positions.json: ' + r.status); return r.json(); }).then(function(P){
@@ -533,12 +534,15 @@ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og
       time: [.1, .95],             // time stands still during the aerial intro
       ghost: [.29, .36, .6, .68],  // the others fade to ghosts while the camera chases the followed life
       still: still,
+      fov: og ? OG_FOV : undefined,  // the share image uses the phone's wider lens: peaks, sky and meadow in one frame
       chaseSmooth: {weeks: 4, maxTurn: 1},  // the ghost cam faces her way over the last 4 weeks and never swings
       // camera rails: [x, y, z], 'hut', or 'chase' (the ghost cam behind the followed life). The wide shots differ on a
       // narrow screen, looking west along the valley so the field runs up the screen, with the job corner and the strays
       // in frame (checked against the real paths).
       shots: [
-        {p: 0,   pos: [260, 250, 460], look: [-40, narrow ? 340 : 170, -300]},  // tilted up on a phone: the title takes two lines there and needs sky behind both
+        // tilted up on a phone (the title takes two lines there and needs sky behind both) and for the share image (?og:
+        // snow peaks and a band of sky behind the title, the meadow and the hut along the bottom)
+        {p: 0,   pos: [260, 250, 460], look: [-40, og ? OG_LOOK_Y : narrow ? 340 : 170, -300]},
         {p: .12, pos: [150, 95, 170],  look: 'hut'},
         {p: .27, pos: [78, 26, -38],   look: 'hut'},   // east of the hut, already facing the way she walks when the chase begins
         {p: .33, pos: 'chase', look: 'chase'},
