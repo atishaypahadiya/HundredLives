@@ -20,6 +20,7 @@
                                        // its heading while the life stands still (`minMove` units, default 1.5)
      still: false                      // prefers-reduced-motion: no easing toward the scroll position, no sheep animation
      fov: 42                           // optional: the lens's vertical angle in degrees; default 42, or 58 below 700px wide
+     clouds: true                      // false: no clouds (the share image)
    });
    valley.update(progress)  // per animation frame: scroll progress 0..1 in; eases toward it, renders,
                             // and returns {progress (the eased value), u (life time 0..1), week (the hero's own week)}
@@ -138,11 +139,21 @@ function createValley(cv,opts){
  scene.add(sun);scene.add(sun.target);
  // One seeded stream for everything random below, drawn in a fixed order (clouds, grass, flowers, rocks, lives),
  // so the same options always build the same valley.
- var cloudMat=new T.MeshLambertMaterial({color:'#ffffff',emissive:'#9fb3c4',emissiveIntensity:.35,transparent:true,opacity:.8,fog:false});
  var R=rng(21),i;
- for(i=0;i<14;i++){var g=new T.Group(),cx=(R()-.5)*3000,cz=-900-R()*1800,cy=900+R()*400;
-  for(var k=0;k<7;k++){var s=new T.Mesh(new T.SphereGeometry(1,12,8),cloudMat);s.scale.set(80+R()*90,22+R()*18,60+R()*60);s.position.set((R()-.5)*240,R()*20,(R()-.5)*100);g.add(s);}
-  g.position.set(cx,cy,cz);scene.add(g);}
+ for(i=0;i<630;i++)R();  // the draws the old disc clouds made, so everything after them stays where it was
+ /* Clouds: soft billboard puffs, each cloud a loose cluster of different sizes with a slightly greyer base.
+    They have their own seeded stream. opts.clouds === false leaves them out (the share image). */
+ if(opts.clouds!==false){
+  var pc=document.createElement('canvas');pc.width=pc.height=128;var px=pc.getContext('2d'),Rp=rng(5);
+  for(var b=0;b<14;b++){var bx=36+Rp()*56,by=40+Rp()*48,br=18+Rp()*26,gr=px.createRadialGradient(bx,by,0,bx,by,br);
+   gr.addColorStop(0,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');px.fillStyle=gr;px.fillRect(0,0,128,128);}
+  var puffTex=new T.CanvasTexture(pc), Rc=rng(33);
+  for(i=0;i<11;i++){var cx=(Rc()-.5)*3400,cz=-1000-Rc()*1900,cy=850+Rc()*500,size=.6+Rc()*1.1,np=6+Math.floor(Rc()*9);
+   for(var k=0;k<np;k++){var base=Rc()<.35,
+     sp=new T.Sprite(new T.SpriteMaterial({map:puffTex,color:base?'#dfe7ee':'#ffffff',transparent:true,depthWrite:false,fog:false,opacity:(base?.5:.62)+Rc()*.3}));
+    var w=(110+Rc()*150)*size;sp.scale.set(w,w*(.45+Rc()*.25),1);
+    sp.position.set(cx+(Rc()-.5)*300*size,cy+(base?-14:Rc()*34)*size,cz+(Rc()-.5)*120*size);scene.add(sp);}}
+ }
 
  /* ---------- the hut (the referee) ---------- */
  var HUT=new T.Vector3(10,0,-20);HUT.y=H(HUT.x,HUT.z);
