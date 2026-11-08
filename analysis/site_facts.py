@@ -5,7 +5,8 @@ and results files, never retyped. Writes them into the page and lists each with 
     uv run python analysis/site_facts.py --check    # exit 1 if the page isn't what the data says
 
 In the page:
-  <span data-fact="id">…</span>   the element's text becomes the fact's value
+  <span data-fact="id">…</span>   the element's text becomes the fact's value (also <title>)
+  <meta data-fact-content="id">   the content attribute becomes the fact's value (og:title, twitter:title)
   <a data-link="id" href="…">     the href becomes the fact's link (a replay week, a results file)
   <script id="site-data">          chart data, quotes and prediction tables, as JSON
 Claims the prose makes in words ("none of them", "every life") are asserted here, so the page
@@ -216,6 +217,11 @@ def exp01():
     fact("e01.per_cond", len(conds["a"]), "same logs: lives per condition")
     claim(len({len(rs) for rs in conds.values()}) == 1, "the four experiment 01 conditions have equal sizes", "same logs")
     fact("e01.groups", len(conds), "same logs: conditions (a, b, c, d)")
+    horizons = {json.loads(open(f).readline())["horizon"] for f in files}
+    claim(horizons == {52}, "every experiment 01 life is one year long (run_start.horizon = 52), so the title can say \"the same year\"",
+          "runs/maya-exp01{a,b,c,d}-*.jsonl: run_start.horizon")
+    fact("site.title", f"hundred-lives: an AI lives the same year {len(allr)} times",
+         "the page title, og:title and twitter:title; the count is e01.n (experiment 01's lives)")
     # chart: each life's weekly state, without the +raised suffix; sorted by the week a job first starts
     rows = []
     for c, rs in conds.items():
@@ -468,6 +474,12 @@ def render(page: str) -> str:
         return m.group(1) + html.escape(value, quote=False) + m.group(4)
     page = re.sub(r'(<(\w+)\b[^>]*\sdata-fact="([^"]+)"[^>]*>)[^<]*(</\2>)', fill, page)
 
+    def content(m):
+        if m.group(1) not in FACTS:
+            sys.exit(f"page uses unknown fact {m.group(1)!r}")
+        return re.sub(r'\scontent="[^"]*"', f' content="{html.escape(FACTS[m.group(1)]["value"])}"', m.group(0))
+    page = re.sub(r'<meta\b[^>]*\sdata-fact-content="([^"]+)"[^>]*>', content, page)
+
     def link(m):
         if not FACTS.get(m.group(1), {}).get("link"):
             sys.exit(f"page links unknown fact {m.group(1)!r}")
@@ -487,7 +499,7 @@ def render(page: str) -> str:
     page, n = re.subn(r'(<script id="site-data" type="application/json">).*?(</script>)', lambda m: m.group(1) + blob + m.group(2), page, flags=re.S)
     if n != 1:
         sys.exit("page has no <script id=\"site-data\"> block")
-    used = set(re.findall(r'data-(?:fact|link|cite)="([^"]+)"', page))
+    used = set(re.findall(r'data-(?:fact|fact-content|link|cite)="([^"]+)"', page))
     unused = sorted(set(FACTS) - used)
     if unused:
         print("note: facts not on the page:", ", ".join(unused), file=sys.stderr)
