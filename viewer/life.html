@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A life of hundred-lives</title>
 <meta name="theme-color" content="#0f1611">
-<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- the site icon (docs/favicon.svg, inline so no page ever asks for favicon.ico); PNGs for browsers without SVG icons -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233d6328'/%3E%3Cg fill='%232b2420'%3E%3Crect x='10.5' y='19' width='2.6' height='6.5' rx='1'/%3E%3Crect x='17' y='19' width='2.6' height='6.5' rx='1'/%3E%3Cellipse cx='24.2' cy='13.6' rx='3.3' ry='3.9'/%3E%3C/g%3E%3Cg fill='%23f3f2ee'%3E%3Ccircle cx='10.4' cy='16.4' r='4.4'/%3E%3Ccircle cx='14.6' cy='12.6' r='4.8'/%3E%3Ccircle cx='19.4' cy='14' r='4.4'/%3E%3Ccircle cx='15.6' cy='18.4' r='4.6'/%3E%3Ccircle cx='19.8' cy='18.2' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,7 +73,7 @@ button{font:inherit;color:inherit}
 
 /* the header: which life this is */
 .head h1{font:300 clamp(30px,3vw,44px)/1.06 var(--sans);letter-spacing:-.03em;color:#fff;margin:0 0 16px;text-wrap:balance}
-.head p{margin:0 0 10px;font-size:16.5px;color:#d5ddd6;max-width:60ch}
+.head p{margin:0 0 10px;font-size:16.5px;color:var(--ink-2);max-width:60ch}
 .head .gold{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin:0 7px 1px 0;vertical-align:middle}
 .head .flag{font-size:14px;color:var(--ochre)}
 details>summary{cursor:pointer;list-style:none;color:var(--grey-2);font-size:14.5px}
@@ -82,7 +83,7 @@ details[open]>summary::before{transform:rotate(90deg)}
 details>summary:hover{color:var(--ink-2)}
 .rundetails{margin-top:16px}
 .rundetails dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 16px;margin:10px 0 0;font-size:14.5px}
-.rundetails dt{color:var(--grey-2)} .rundetails dd{margin:0;overflow-wrap:anywhere;color:#d5ddd6}
+.rundetails dt{color:var(--grey-2)} .rundetails dd{margin:0;overflow-wrap:anywhere;color:var(--ink-2)}
 .head .start{margin-top:28px;font-size:14.5px;color:var(--grey-2)}
 .head{padding-bottom:38svh}
 
@@ -90,8 +91,8 @@ details>summary:hover{color:var(--ink-2)}
 .wk{padding:30px 0 34px;transition:opacity .3s}
 .wk-n{display:block;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey-2);margin:0 0 8px}
 .wk.on .wk-n{color:#fff}
-.digest{margin:0;font-size:16.5px;line-height:1.5;color:#e2e8e3;overflow-wrap:anywhere}
-.said{margin:12px 0 0;font-size:16px;color:#c9d3cb;overflow-wrap:anywhere;white-space:pre-wrap}
+.digest{margin:0;font-size:16.5px;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.said{margin:12px 0 0;font-size:16px;color:var(--ink-2);overflow-wrap:anywhere;white-space:pre-wrap}
 .said .who{display:block;font-size:13.5px;color:var(--grey-2);margin-bottom:2px;white-space:normal}
 .bubbles{display:flex;flex-direction:column;gap:14px;margin:20px 0 4px}
 .msg{display:flex;flex-direction:column;max-width:90%}
@@ -106,25 +107,25 @@ details>summary:hover{color:var(--ink-2)}
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .msg .after{font:400 12px/1.5 var(--mono);color:var(--grey-2);margin:6px 6px 0;overflow-wrap:anywhere}
 /* the world's rule text after a letter (what the acceptance does to the week), set like the referee lines */
-.msg .rule{font:400 12.5px/1.6 var(--mono);color:#cdd6ce;margin:8px 4px 0;overflow-wrap:anywhere}
+.msg .rule{font:400 12.5px/1.6 var(--mono);color:var(--ink-2);margin:8px 4px 0;overflow-wrap:anywhere}
 /* the hut's decisions: the technical-paper half */
-.ref{margin:16px 0 0;font:400 12.5px/1.6 var(--mono);color:#cdd6ce}
+.ref{margin:16px 0 0;font:400 12.5px/1.6 var(--mono);color:var(--ink-2)}
 .ref div{overflow-wrap:anywhere}
 .ref .k{color:var(--grey-2)}
-.facts{margin:14px 0 0;font-size:14.5px;line-height:1.5;color:#a8b5ab}
+.facts{margin:14px 0 0;font-size:14.5px;line-height:1.5;color:var(--body)}
 .more{margin-top:14px}
-.more .body{margin-top:12px;font-size:14.5px;color:#c3cdc5}
+.more .body{margin-top:12px;font-size:14.5px;color:var(--body)}
 .more dl{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin:0}
 .more dt{color:var(--grey-2);font-size:13.5px;margin-top:10px}
 .more dd{margin:0;overflow-wrap:anywhere}
 .more .t{white-space:pre-wrap}
 .more .item+.item{margin-top:8px}
 .more .meta{font:400 12px var(--mono);color:var(--grey-2)}
-.more pre,.pre{margin:4px 0 0;padding:10px 12px;background:rgba(0,0,0,.32);border-radius:3px;font:12px/1.5 var(--mono);color:#dfe6e0;
+.more pre,.pre{margin:4px 0 0;padding:10px 12px;background:rgba(0,0,0,.32);border-radius:3px;font:12px/1.5 var(--mono);color:var(--ink-2);
   white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto}
 .more details{margin-top:4px} .more details>summary{font-size:13.5px}
 .quiet{padding:22px 0}
-.quiet>summary{font-size:16px;color:#c9d3cb}
+.quiet>summary{font-size:16px;color:var(--ink-2)}
 .quiet>summary .wk-n{display:inline;margin:0 10px 0 0}
 .quiet.on>summary .wk-n{color:#fff}
 .quiet>.wk:first-of-type{padding-top:18px}
