@@ -523,11 +523,42 @@ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var narrow = innerWidth < 700;  // world.js widens the lens below 700px too
   var og = document.documentElement.classList.contains('og');  // the share image: the last frame (scripts/og_image.sh)
+  var OG_FOV = 60, OG_TRAIL = 1.7;  // the share image's lens, and its trails drawn thicker so they're over 2px at 1200x630
   // With reduced motion, the camera holds still frames: one per story line, at its middle.
   var beats = lines.map(function(l){ return (+l.dataset.a + Math.min(1, +l.dataset.b)) / 2; });
+  // The share image's camera (?og), its own frame rather than the home page's: looking north over the meadow through a
+  // wide lens, close enough that every path and the hut fill 70% of the width, with the paths' top edge 42% of the way
+  // down so the ridge shows along the top. Found by trying directions and lenses; the measurements are in window.ogFit.
+  function ogFrame(lives){
+    var T = THREE, Hh = createValley.terrain.height, hut = createValley.hut, pts = [new T.Vector3(hut[0], Hh(hut[0], hut[1]), hut[1])];
+    lives.forEach(function(L){ L.points.forEach(function(q){ pts.push(new T.Vector3(q[0], Hh(q[0], q[1]) + .5, q[1])); }); });
+    var lo = [1e9, 1e9], hi = [-1e9, -1e9];
+    pts.forEach(function(v){ lo = [Math.min(lo[0], v.x), Math.min(lo[1], v.z)]; hi = [Math.max(hi[0], v.x), Math.max(hi[1], v.z)]; });
+    var pitch = 29 * Math.PI / 180, WIDTH = .7, TOP = .42;
+    var cx = (lo[0] + hi[0]) / 2, cz = (lo[1] + hi[1]) / 2, dir = new T.Vector3(0, Math.sin(pitch), Math.cos(pitch));
+    var cam = new T.PerspectiveCamera(OG_FOV, innerWidth / innerHeight, .5, 6000), d = 300, lift = 0;
+    function measure(){
+      var look = new T.Vector3(cx, Hh(cx, cz) + lift, cz);
+      cam.position.copy(look).addScaledVector(dir, d); cam.lookAt(look); cam.updateMatrixWorld();
+      var x0 = 1, x1 = -1, y1 = -1, y0 = 1;
+      pts.forEach(function(v){ var p = v.clone().project(cam); x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); });
+      return {width: (x1 - x0) / 2, top: (1 - y1) / 2, bottom: (1 - y0) / 2, look: look};
+    }
+    for (var pass = 0; pass < 6; pass++) {
+      var a = 50, b = 8000;  // distance: farther when the paths are too wide
+      for (var k = 0; k < 40; k++) { d = (a + b) / 2; if (measure().width > WIDTH) a = d; else b = d; }
+      a = -400; b = 400;     // look height: raising it moves the paths down the frame
+      for (k = 0; k < 40; k++) { lift = (a + b) / 2; if (measure().top < TOP) a = lift; else b = lift; }
+    }
+    var m = measure();
+    window.ogFit = m;
+    var pos = cam.position.toArray(), look = m.look.toArray();
+    return [{p: 0, pos: pos, look: look}, {p: 1, pos: pos, look: look}];
+  }
   fetch('data/positions.json').then(function(r){ if (!r.ok) throw new Error('data/positions.json: ' + r.status); return r.json(); }).then(function(P){
     var g = P.groups.filter(function(x){ return x.id === 'exp01'; })[0];
     var hero = g.lives.map(function(L){ return L.run_id; }).indexOf(heroId);
+    var ogShots = og && ogFrame(g.lives);
     if (hero < 0) throw new Error('the followed life ' + heroId + ' is not in experiment 01');
     var valley = createValley(cv, {
       lives: g.lives.map(function(L){ return {points: L.points, stray: L.stray}; }), hero: hero,
@@ -535,11 +566,13 @@ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og
       ghost: [.29, .36, .6, .68],  // the others fade to ghosts while the camera chases the followed life
       still: still,
       clouds: !og,
+      fov: og ? OG_FOV : undefined,
+      trailWidth: og ? OG_TRAIL : 1,
       chaseSmooth: {weeks: 4, maxTurn: 1},  // the ghost cam faces her way over the last 4 weeks and never swings
       // camera rails: [x, y, z], 'hut', or 'chase' (the ghost cam behind the followed life). The wide shots differ on a
       // narrow screen, looking west along the valley so the field runs up the screen, with the job corner and the strays
       // in frame (checked against the real paths).
-      shots: [
+      shots: ogShots || [
         {p: 0,   pos: [260, 250, 460], look: [-40, narrow ? 340 : 170, -300]},  // tilted up on a phone: the title takes two lines there and needs sky behind both
         {p: .12, pos: [150, 95, 170],  look: 'hut'},
         {p: .27, pos: [78, 26, -38],   look: 'hut'},   // east of the hut, already facing the way she walks when the chase begins
