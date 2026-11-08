@@ -28,7 +28,7 @@ The voice: half technical paper, half human story. Exact numbers set in a quiet,
 3. **The camera moves on rails.** The reader scrolls, the camera follows a fixed path. No free orbit and no drag-to-rotate.
 4. **Every number comes from the data.** Numbers on the page come from `analysis/site_facts.py` or the trace files. Never type a number by hand.
 5. **Paths are honest.** Where a sheep stands must come from the run logs (see "What position means"). Until that's wired, any page that shows made-up paths says so in a line of small text.
-6. **One colour that means something.** Gold = the life you're following, plus the strays. White = everyone else. Nothing else gets an accent colour.
+6. **One colour that means something.** Gold = the life you're following, plus the strays. White = everyone else. Nothing else gets an accent colour. On a life page gold means only that life: the strays among its ghosts stay white, so gold is never ambiguous there.
 7. **Grain on everything.** The film grain overlay sits on every full-screen scene.
 8. **Respect reduced motion.** With `prefers-reduced-motion`, swap the scroll-driven camera for still frames at each story beat.
 
@@ -71,8 +71,8 @@ Grain overlay (copy exactly):
 
 - **Home (`docs/index.html`):** the valley scroll from the reference page, driven by the real lives, followed by the essay text on `--paper`.
 - **Runs (`docs/runs/`):** the same valley seen from the final wide shot. Pick an experiment (01, 02, 03) and the flock walks again with that experiment's lives. Below it, a plain table of the runs.
-- **One life (`docs/runs/<id>/`):** opens in the ghost cam on that sheep. Scroll moves through its weeks. Each week's real messages show as grainy bubbles beside the scene. The week counter is the spine.
-- **Self replay (`docs/replays/self/`):** the same as a life page, with that persona's details on top.
+- **One life (`docs/runs/<id>/`, template `viewer/life.html`):** the valley is a sticky full-screen stage, and the life's weeks scroll in a column over its right third (on a phone the stage is the top 45% and the weeks scroll underneath). The header gives the life's title, persona, experiment, ending and whether it's a stray. Each week is one section: the week number in mono, the digest as a plain sentence, the life's note and reflections quoted, its messages and replies as paper bubbles (its own on one side, everyone else's on the other; an opening's letter is a bubble and the world's rule text after it is a mono line), one mono referee line per decision (`applied to job-04 · odds 0.32 · rolled 0.18 · accepted`), and one line for commitments and cash. Everything else logged that week sits in a fold under it. Runs of quiet weeks (no messages, decisions or news, and no change in commitments) fold into one row ("Weeks 42–43: gigs, no change"). As a week reaches the middle of the screen, the ghost cam follows the life to that week, with the experiment's other lives as ghosts at the same point in their own lives. `?w=N` opens at week N. Below the weeks, the whole life: cash chart, totals, trend lines, every decision, repos, every week as a table.
+- **Self replay (`docs/replays/self/`):** the same template, with its data embedded in the page. Its header shows what it always did: the title and the run details.
 
 ## What position means
 
