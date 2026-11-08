@@ -19,6 +19,7 @@
                                        // `weeks` weeks, turning at most `maxTurn` degrees per 1/1000 of the life, and holds
                                        // its heading while the life stands still (`minMove` units, default 1.5)
      still: false                      // prefers-reduced-motion: no easing toward the scroll position, no sheep animation
+     fov: 42                           // optional: the lens's vertical angle in degrees; default 42, or 58 below 700px wide
    });
    valley.update(progress)  // per animation frame: scroll progress 0..1 in; eases toward it, renders,
                             // and returns {progress (the eased value), u (life time 0..1), week (the hero's own week)}
@@ -275,7 +276,7 @@ function createValley(cv,opts){
 
  /* ---------- per frame ---------- */
  var cur=0,camPos=new T.Vector3(),camLook=new T.Vector3(),first=true,clock=new T.Clock();
- function resize(){var w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.fov=w<700?58:42;cam.updateProjectionMatrix();}
+ function resize(){var w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.fov=opts.fov||(w<700?58:42);cam.updateProjectionMatrix();}
  function update(target){
   var dt=Math.min(.05,clock.getDelta()),time=STILL?0:clock.elapsedTime;
   cur+=(target-cur)*(1-Math.exp(-dt*5));if(first||STILL)cur=target;
