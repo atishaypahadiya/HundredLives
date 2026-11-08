@@ -2,6 +2,10 @@
 
 Run one LLM persona many times through a simulated life and compare the paths. Design: README.md and docs/index.html (the project page; its persona, tool table, and loop are the spec).
 
+Every page on the site follows docs/THEME.md. Read it before any UI work.
+
+On valley-theme, push after every commit. Never push to main or gh-pages, and never run publish_runs.sh --deploy, unless Atishay says so in that message. (The main branch here is `master`; `make deploy` runs publish_runs.sh --deploy.) Push with `git push -u origin valley-theme`.
+
 ## Status
 
 **Status: parked (Nov 2026).** Finished: experiments 01–03, and the site is live (project page, Runs page, replays). To resume: `make up` (uv sync, OrbStack, Gitea and the agent image, then the viewer at http://127.0.0.1:8711), then `make check` (site facts plus the 20 sandbox probes) before any run. The paid run logs exist only in `runs/` and the three experiment worktrees (`../hundred-lives-viewer`, `../hundred-lives-exp02b`, `../hundred-lives-exp03`), so keep those directories. Open items: a person's labels for the provisional self-blame check, Track B's first live test, the footer email, and the unpurged `self-tracka3` Gitea user. README "Run it" has every command.
@@ -49,6 +53,7 @@ scripts/smoke_v3.py      world v3 end to end with a scripted agent and canned re
 viewer/publish.yaml      which finished batches the Runs site publishes, grouped by experiment
 scripts/publish_runs.sh  rebuild docs/runs/; --deploy publishes the site to gh-pages
 analysis/site_facts.py   fills every number, quote, quote link and chart on docs/index.html from the logs and results files and lists their sources in analysis/site_facts.md; `--check` after any edit to the page
+analysis/positions.py    where each published life stands in the valley, week by week: docs/data/positions.json (+ the saved PCA, positions-pca.json) for docs/valley/world.js; `uv run --group positions python analysis/positions.py` (sentence-transformers lives in that uv group only)
 scripts/og_image.sh      the project page's share image (docs/og.jpg, from the page's ?og mode) and PNG icons, via headless Chrome
 experiments/             experiment plans (question, conditions, commands, measures, cost), one file each
 runs/                    <run_id>.jsonl, <run_id>/workspace/, <run_id>/repos/*.bundle, <batch>-referee-baseline.jsonl (gitignored)
@@ -67,7 +72,7 @@ uv run python -m viewer.server                  # http://127.0.0.1:8711, read-on
 uv run python -m viewer.export <run_id> --deny real-names.txt   # docs/replays/<run_id>/ + scrub-report.json
 ```
 
-- `viewer.export` (Phase 3) writes a self-contained replay: the page with the run's normalized events, summary and repo summaries embedded as JSON (no server, no fetches, no Google Fonts; opens from `file://`). It scrubs what it publishes: home paths → `~`, emails → `[email removed]`, and any secret-looking string, secret-named field, or `--deny` name (a local list of real people, never committed) refuses the export with nothing written. It lists the persona's contacts in `scrub-report.json` for a person to confirm they're fictional.
+- `viewer.export` (Phase 3) writes a replay on the life page template (`viewer/life.html`): the run's normalized events, summary and repo summaries are embedded as JSON (no data fetches), but the page loads three.js, the fonts and `../../valley/world.js`, so it needs the network and the site around it; it no longer works from `file://`. It scrubs what it publishes: home paths → `~`, emails → `[email removed]`, and any secret-looking string, secret-named field, or `--deny` name (a local list of real people, never committed) refuses the export with nothing written. It lists the persona's contacts in `scrub-report.json` for a person to confirm they're fictional.
 - The viewer never writes under `runs/` and renders every logged string as text, never HTML (agent-made content). It reads logs only, so anything it shows must be in the log. `idea` events are derived for now (reflections, files the agent wrote, launch pitches); thinking blocks aren't logged yet. Quiet git (`commit -q`, `push -q`) is read from the command text and labelled as such.
 
 - `--agent-model ollama:<model>` (default `ollama:qwen3:8b`; `--model` is an alias) or `claude-*` / `anthropic:<model>`. `--referee-model` and `--summary-model` default to the agent model. Both are logged in `run_start` and `run_end`, and every `llm_call` logs its model. For showcase runs keep the referee fixed at `claude-haiku-5-5` even when the agent model changes.

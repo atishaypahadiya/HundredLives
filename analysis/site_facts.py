@@ -21,6 +21,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "analysis"))
@@ -188,6 +190,14 @@ def hero_and_story():
 
 # ---------------------------------------------------------------- experiment 01
 
+def job_at_end(path) -> bool:
+    """Experiment 01's 'ended in a full-time job': a commitment costing 5 actions (Maya's full time), not an
+    accelerator, in the last week_end. analysis/positions.py checks its job corner against this."""
+    last = [json.loads(l) for l in open(path) if '"week_end"' in l][-1]
+    return any((c.get("time_cost") or 0) >= 5 and not (c.get("opening_id") or "").startswith("acc-")
+               for c in last["state"]["commitments"])
+
+
 def exp01():
     conds = {}
     for c in "abcd":
@@ -196,10 +206,6 @@ def exp01():
     allr = [r for rs in conds.values() for r in rs]
     fact("e01.n", len(allr), "runs/maya-exp01{a,b,c,d}-*.jsonl: lives that reached week 52 (analysis/diversity.py)")
 
-    def job_at_end(path):
-        last = [json.loads(l) for l in open(path) if '"week_end"' in l][-1]
-        return any((c.get("time_cost") or 0) >= 5 and not (c.get("opening_id") or "").startswith("acc-")
-                   for c in last["state"]["commitments"])
     files = [f for c in "abcd" for f in logs(ROOT / f"runs/maya-exp01{c}-*.jsonl")]
     jobs = sum(job_at_end(f) for f in files)
     fact("e01.jobs", jobs, "same logs: a full-time commitment (time cost 5, not an accelerator) in the last week_end")
@@ -222,6 +228,49 @@ def exp01():
     preds = results_table(res, "| # | prediction")
     DATA["e01"]["predictions"] = [{"n": r[0], "text": md_plain(r[1]), "result": md_plain(r[2]), "verdict": md_plain(r[3])} for r in preds]
     DATA["e01"]["predictions_source"] = f"{rel(res)}: predictions table"
+
+
+# ---------------------------------------------------------------- the valley scene (top of the page)
+
+POSITIONS = ROOT / "docs" / "data" / "positions.json"
+HERO = "maya-exp01d-20261029-025455-010"  # the life the ghost cam follows: experiment 01's stray that ended building
+
+
+def valley():
+    pos = json.loads(POSITIONS.read_text())
+    g = next(x for x in pos["groups"] if x["id"] == "exp01")
+    src = f"{rel(POSITIONS)} (analysis/positions.py), group exp01"
+    strays = [L for L in g["lives"] if L["stray"]]
+    fact("e01.strays", len(strays), f"{src}: lives marked stray (not ending in the job corner)")
+    claim(len(g["lives"]) == int(FACTS["e01.n"]["value"]), "the valley draws every experiment 01 life", src)
+    claim(sum(L["end"] == "job" for L in g["lives"]) == int(FACTS["e01.jobs"]["value"]),
+          "the valley's job corner holds exactly the lives site_facts counts as ending in a full-time job", src)
+    claim(len(strays) == int(FACTS["e01.n"]["value"]) - int(FACTS["e01.jobs"]["value"]), "the strays are the lives not ending in a full-time job", src)
+    hero = next(L for L in g["lives"] if L["run_id"] == HERO)
+    claim(hero["stray"] and hero["end"] == "building", "the followed life is a stray that ended building its own thing", src)
+
+    path = ROOT / "runs" / f"{HERO}.jsonl"
+    recs = [json.loads(line) for line in open(path)]
+    start = recs[0]
+    types = {o["id"]: o.get("type") for o in yaml.safe_load(start["sources"]["world_text"])["openings"]}
+    ends = [r for r in recs if r["type"] == "week_end"]
+    fact("hero.title", life_title(HERO, start["persona"]["name"]), f"{rel(path)}: run id, titled like the viewer", f"runs/#/run/{HERO}")
+    fact("hero.weeks", len(ends), f"{rel(path)}: week_end records")
+    started = [r for r in recs if r["type"] == "outcome_applied" and r.get("outcome") == "success"
+               and types.get(r["opening_id"]) in ("job", "accelerator") and any(
+                   c["opening_id"] == r["opening_id"] for e in ends if e["week"] == r["week"] for c in e["state"]["commitments"])]
+    first_job, acc = started[0], started[-1]
+    claim(types[first_job["opening_id"]] == "job" and types[acc["opening_id"]] == "accelerator" and len(started) == 2,
+          "the followed life held one job, then one accelerator", f"{rel(path)}: outcome_applied and week_end commitments")
+    ended = next(r for r in recs if r["type"] == "commitment_ended")
+    fact("hero.job_end", ended["week"], f"{rel(path)}: commitment_ended (reason {ended['reason']}), her first job")
+    gap = acc["week"] - ended["week"] - 1
+    fact("hero.gap", gap, f"{rel(path)}: weeks after her job ended and before the accelerator started")
+    between = [r for r in recs if ended["week"] < (r.get("week") or 0) < acc["week"]]
+    claim(not any(r["type"] == "outcome_applied" and r.get("outcome") == "success" for r in between)
+          and any(r["type"] == "gig" for r in between) and any(r["type"] == "referee_decision" for r in between),
+          "between her job and the accelerator she took gigs and applied, and nothing accepted her", f"{rel(path)}: weeks {ended['week'] + 1} to {acc['week'] - 1}")
+    fact("hero.acc_start", acc["week"], f"{rel(path)}: outcome_applied success for {acc['opening_id']} (an accelerator), started that week")
 
 
 # ---------------------------------------------------------------- experiment 02
@@ -467,6 +516,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
     hero_and_story()
     exp01()
+    valley()
     exp02()
     exp03()
     how()

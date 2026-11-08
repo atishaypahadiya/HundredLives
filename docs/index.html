@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hundred-lives: an AI lives the same life 100 times</title>
 <meta name="description" content="An AI agent gets a made-up background, a goal and a small simulated world. I run its life many times and read what it did.">
-<meta name="theme-color" content="#f3f2ee" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#141412" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0f1611">
 <!-- Site URL: https://atishaypahadiya.github.io/hundred-lives/ appears in the four tags below (canonical, og:url,
-     og:image, twitter:image). For a custom domain, change it in those four places and add docs/CNAME holding the
+     og:image, twitter:image). For a custom domain, change it in those four places (and the same four in viewer/runs.html) and add docs/CNAME holding the
      domain; scripts/publish_runs.sh publishes everything committed under docs/, so the CNAME ships with the site. -->
 <link rel="canonical" href="https://atishaypahadiya.github.io/hundred-lives/">
 <meta property="og:type" content="website">
@@ -20,89 +19,105 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:alt" content="The hundred-lives title, a quote from one of the agent's reflections, and a landscape of trails fanning out from one point.">
+<meta property="og:image:alt" content="The valley's opening shot: a green meadow ringed by red-ochre, snow-capped mountains, with the title One AI persona, many simulated lives.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="hundred-lives: an AI lives the same life 100 times">
 <meta name="twitter:description" content="An AI agent gets a made-up background, a goal and a small simulated world. I run its life many times and read what it did.">
 <meta name="twitter:image" content="https://atishaypahadiya.github.io/hundred-lives/og.jpg">
-<meta name="twitter:image:alt" content="The hundred-lives title, a quote from one of the agent's reflections, and a landscape of trails fanning out from one point.">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="twitter:image:alt" content="The valley's opening shot: a green meadow ringed by red-ochre, snow-capped mountains, with the title One AI persona, many simulated lives.">
+<!-- the site icon (docs/favicon.svg, inline so no page ever asks for favicon.ico); PNGs for browsers without SVG icons -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233d6328'/%3E%3Cg fill='%232b2420'%3E%3Crect x='10.5' y='19' width='2.6' height='6.5' rx='1'/%3E%3Crect x='17' y='19' width='2.6' height='6.5' rx='1'/%3E%3Cellipse cx='24.2' cy='13.6' rx='3.3' ry='3.9'/%3E%3C/g%3E%3Cg fill='%23f3f2ee'%3E%3Ccircle cx='10.4' cy='16.4' r='4.4'/%3E%3Ccircle cx='14.6' cy='12.6' r='4.8'/%3E%3Ccircle cx='19.4' cy='14' r='4.4'/%3E%3Ccircle cx='15.6' cy='18.4' r='4.6'/%3E%3Ccircle cx='19.8' cy='18.2' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<!-- ?og renders the 1200×630 share image (scripts/og_image.sh): the hero, nothing else. -->
-<script>if (/[?&]og(&|=|$)/.test(location.search)) document.documentElement.classList.add('og');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
-<!-- Every number, quote, quote link and chart below is filled in by analysis/site_facts.py from the logs and
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- The look follows docs/THEME.md; the 3D world is docs/valley/world.js, drawing the real lives in docs/data/positions.json.
+     Every number, quote, quote link and chart below is filled in by analysis/site_facts.py from the logs and
      results files (data-fact, data-link, #site-data); its sources are listed in analysis/site_facts.md. -->
 <style>
 :root{
-  --bg:#f3f2ee; --ink:#121210; --ink-2:#3a3934; --grey:#b3b1a8; --grey-2:#6f6d65; --line:#dddbd3; --card:#e9e8e2;
-  --accent:#23a32e; --accent-soft:#d6efd2;
-  --sans:"Inter Tight",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,monospace;
-  color-scheme:light dark;
-}
-@media (prefers-color-scheme:dark){
-  :root{--bg:#141412; --ink:#ecebe5; --ink-2:#c9c7bf; --grey:#57554e; --grey-2:#a09e95; --line:#2d2c28; --card:#1e1d1a;
-        --accent:#45c950; --accent-soft:#1d3a1f}
+  --paper:#0f1611; --gold:#ffc960; --ghost:#ffffff;
+  --sans:"Inter Tight",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  /* the essay on --paper: white text and greens greyed toward the paper. Gold stays in the scene (the followed
+     life and the strays), so the essay's one emphasis colour is the ghost white. */
+  --ink:#eef2ec; --ink-2:#d2dad3; --body:#b9c4bb; --grey:#56645a; --grey-2:#8d9a90; --line:#253129; --card:#162019;
+  --accent:var(--ghost); --accent-soft:rgba(255,255,255,.28);
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.62 var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--body);font:17px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration-color:var(--grey);text-underline-offset:3px}
 a:hover{text-decoration-color:var(--ink)}
 p{margin:0 0 16px}
 code,pre{font-family:var(--mono)}
-code{font-size:.84em;background:var(--card);padding:1px 5px;border-radius:5px}
+code{font-size:.84em;background:var(--card);padding:1px 5px;border-radius:4px;color:var(--ink-2)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 40px}
 .col{max-width:760px;margin:0 auto}
-.prose{max-width:68ch}
+.prose{max-width:60ch}
 .muted{color:var(--grey-2)}
 
-/* top */
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:24px 40px;font-size:15px;color:var(--grey-2)}
-.top .mark{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:500;font-size:16px;white-space:nowrap;text-decoration:none}
-.top .mark svg{fill:var(--ink)}
+/* the valley: a tall scroll track holding a sticky full-screen stage (docs/THEME.md, Building blocks) */
+.track{height:900vh;position:relative}
+.top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:22px max(40px,env(safe-area-inset-left,0px));font-size:15px;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
+.top .mark{display:flex;align-items:center;gap:10px;font-weight:500;font-size:16px;white-space:nowrap;text-decoration:none}
+.top .mark svg{fill:#fff}
+/* ?og: the share image (scripts/og_image.sh) is the opening shot with the title only */
+.og .top,.og .hud,.og .line small,.og .load{display:none}
 .top nav{display:flex;gap:22px;white-space:nowrap}
-.top nav a{text-decoration:none} .top nav a:hover{color:var(--ink)}
-@media (max-width:640px){.top{padding:20px} .top nav{gap:16px} .top .anchor{display:none}}
+.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+@media (max-width:640px){.top{padding:18px 16px} .top nav{gap:16px} .top .anchor{display:none}}
+.stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#bcd3e3;color:#fff}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage::after{content:"";position:absolute;inset:-50%;pointer-events:none;mix-blend-mode:overlay;opacity:.42;animation:grain 1s steps(4) infinite;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 50% 42%,rgba(0,0,0,0) 58%,rgba(8,16,12,.42) 100%)}
+.lines{position:absolute;left:0;right:0;top:11%;text-align:center;pointer-events:none}
+.line{position:absolute;left:0;right:0;margin:0;font-weight:300;font-size:clamp(28px,5vw,70px);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;
+ text-shadow:0 2px 30px rgba(20,40,60,.35);opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .9s ease;padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.line.on{opacity:1;transform:none}
+.line small{display:table;margin-inline:auto;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-top:18px;padding:7px 11px;background:rgba(20,30,40,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:3px;text-shadow:none}
+.hud{position:absolute;left:max(20px,env(safe-area-inset-left,0px));right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;pointer-events:none}
+.hud b{white-space:nowrap;font:400 28px/1 var(--sans);letter-spacing:-.02em;display:block;text-transform:none;margin-top:4px}
+.hud .of{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-left:6px;color:rgba(255,255,255,.7)}
+.chip{display:flex;align-items:center;gap:8px;opacity:0;transition:opacity .6s;color:inherit;text-decoration:none;text-align:right;pointer-events:none}
+.chip.on{opacity:1;pointer-events:auto}
+.chip:hover{text-decoration:underline;text-underline-offset:3px}
+.chip i{flex:none;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(255,201,96,.3)}
+.load{position:absolute;inset:0;display:grid;place-items:center;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#2a3a33;transition:opacity .8s;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.line,.chip{transition:none}.stage::after{animation:none}}
 
-/* hero */
-.hero{padding-top:64px;padding-bottom:24px}
-.hero h1{font:500 clamp(36px,5vw,60px)/1.05 var(--sans);letter-spacing:-.035em;margin:0 0 18px;max-width:20ch}
-.hero .dek{font-size:21px;line-height:1.5;color:var(--ink-2);max-width:56ch;margin:0}
-.artifact{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:40px;align-items:center;margin:56px 0 0}
+/* below the scene: the essay on --paper */
+.intro{padding-top:96px}
+.intro .dek{font-size:21px;line-height:1.5;color:var(--ink-2);max-width:56ch;margin:0}
+.artifact{margin:56px 0 0;max-width:820px}
 .pull{margin:0}
-.pull blockquote{margin:0;font:500 clamp(26px,3vw,38px)/1.2 var(--sans);letter-spacing:-.025em}
+.pull blockquote{margin:0;font:400 clamp(26px,3vw,38px)/1.2 var(--sans);letter-spacing:-.025em;color:var(--ink)}
 .pull blockquote a{text-decoration:none}
-.pull blockquote a:hover{text-decoration:underline;text-decoration-thickness:1px}
+.pull blockquote a:hover{text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--grey-2)}
 .pull figcaption{margin-top:18px;font-size:15px;color:var(--grey-2)}
-.landscape{aspect-ratio:5/4;border-radius:24px;overflow:hidden;background:#1c3fcf}
-.landscape svg{display:block;width:100%;height:100%}
-@media (max-width:860px){.artifact{grid-template-columns:minmax(0,1fr);gap:28px} .landscape{aspect-ratio:16/10}}
-
-/* findings strip */
-.strip{margin:64px auto 0}
+.strip{margin:72px auto 0}
 .strip h2{font:500 15px var(--sans);color:var(--grey-2);margin:0 0 12px;letter-spacing:0}
-.strip ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.strip a{display:flex;flex-direction:column;gap:12px;height:100%;padding:20px 22px;border-radius:18px;background:var(--card);text-decoration:none}
-.strip a:hover{outline:1px solid var(--grey)}
+.strip ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.strip a{display:flex;flex-direction:column;gap:10px;height:100%;padding-top:16px;border-top:1px solid var(--line);text-decoration:none}
+.strip a:hover .t{text-decoration:underline;text-decoration-color:var(--grey);text-underline-offset:4px}
 .strip .k{font-size:14px;color:var(--grey-2)}
-.strip .t{font:500 20px/1.28 var(--sans);letter-spacing:-.015em}
-@media (max-width:860px){.strip ol{grid-template-columns:minmax(0,1fr)}}
+.strip .t{font:400 20px/1.3 var(--sans);letter-spacing:-.015em;color:var(--ink)}
+@media (max-width:860px){.strip ol{grid-template-columns:minmax(0,1fr);gap:18px}}
 
-/* essay */
 main{padding-bottom:40px}
 main section{padding-top:96px;scroll-margin-top:16px}
-h2{font:500 clamp(28px,3.4vw,38px)/1.15 var(--sans);letter-spacing:-.03em;margin:0 0 22px}
-h3{font:500 23px/1.25 var(--sans);letter-spacing:-.02em;margin:0 0 14px}
+h2{font:400 clamp(28px,3.4vw,38px)/1.15 var(--sans);letter-spacing:-.03em;margin:0 0 22px;color:var(--ink)}
+h3{font:500 23px/1.25 var(--sans);letter-spacing:-.02em;margin:0 0 14px;color:var(--ink)}
 article{padding-top:56px;scroll-margin-top:16px}
 article:first-of-type{padding-top:8px}
-.story q{quotes:"\201C" "\201D"}
-.story a.q{text-decoration-color:var(--accent)}
+.story q{quotes:"\201C" "\201D";color:var(--ink-2)}
+.story a.q{text-decoration-color:var(--grey-2)}
 
-figure.chart{margin:28px 0 8px}
+figure.chart{margin:28px 0 8px;--ink:#9eaca1} /* charts: the common case in a muted light green, the case the text points at in white */
 figure.chart .plot{width:100%}
 figure.chart svg{display:block;overflow:visible}
 figure.chart figcaption{font-size:15px;color:var(--grey-2);margin-top:12px;max-width:68ch}
@@ -118,13 +133,13 @@ svg .ax{stroke:var(--line)}
 .tl-wait{stroke:var(--accent-soft);stroke-width:10;stroke-linecap:round}
 .tl-dep{stroke:var(--ink);stroke-width:2}
 .tl-link{fill:var(--accent)}
-.tl-back{fill:var(--bg);stroke:var(--ink);stroke-width:1.6}
+.tl-back{fill:var(--paper);stroke:var(--ink);stroke-width:1.6}
 
 table{width:100%;border-collapse:collapse;font-size:16px}
 th{text-align:left;font-weight:400;color:var(--grey-2);font-size:14px;padding:0 12px 8px 0}
 td{padding:10px 12px 10px 0;border-top:1px solid var(--line);vertical-align:top;line-height:1.45}
 .score{margin:22px 0 0}
-.score caption{caption-side:top;text-align:left;font-weight:500;padding-bottom:10px}
+.score caption{caption-side:top;text-align:left;font-weight:500;padding-bottom:10px;color:var(--ink)}
 .score td.v{white-space:nowrap;width:1%;color:var(--grey-2)}
 .score td.v b{font-weight:500;color:var(--ink)}
 .score .verb,.score .note{display:block;color:var(--grey-2);font-size:14px;margin-top:4px}
@@ -132,7 +147,7 @@ td{padding:10px 12px 10px 0;border-top:1px solid var(--line);vertical-align:top;
 .more{font-size:15px;margin-top:14px}
 
 .tools td:first-child{white-space:nowrap;width:1%}
-pre{margin:16px 0;padding:18px 20px;background:var(--card);border-radius:14px;overflow-x:auto;font-size:13.5px;line-height:1.7}
+pre{margin:16px 0;padding:18px 20px;background:var(--card);border-radius:6px;overflow-x:auto;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
 pre code{background:none;padding:0;font-size:inherit}
 .cap{font-size:15px;color:var(--grey-2);margin:-4px 0 0}
 
@@ -141,7 +156,7 @@ pre code{background:none;padding:0;font-size:inherit}
 .refs{list-style:none;padding:0;margin:0}
 .refs li{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:16px}
 .refs .y{color:var(--grey-2)}
-.refs a{font-weight:500;text-decoration:none} .refs a:hover{text-decoration:underline}
+.refs a{font-weight:500;text-decoration:none;color:var(--ink)} .refs a:hover{text-decoration:underline}
 .refs span.d{color:var(--grey-2)}
 
 footer{margin-top:96px;padding:28px 0 48px;border-top:1px solid var(--line);font-size:15px;color:var(--grey-2)}
@@ -155,43 +170,41 @@ footer .links{display:flex;gap:18px}
   .score td{display:block;border:0;padding:2px 0;overflow-wrap:anywhere}
   .score{table-layout:fixed}
   .score td.v{width:auto}
-  body{font-size:17px}
-  .wrap{padding:0 20px}
-  .hero{padding-top:36px}
-  .hero .dek{font-size:19px}
+  body{font-size:16px}
+  .wrap{padding:0 16px}
+  .intro{padding-top:64px}
+  .intro .dek{font-size:19px}
   main section{padding-top:72px}
 }
-@media (prefers-reduced-motion:no-preference){
-  .trail{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 2.6s cubic-bezier(.3,.6,.2,1) forwards;animation-delay:var(--d)}
-  .tip{opacity:0;animation:pop .4s ease-out forwards;animation-delay:calc(var(--d) + 2.3s)}
-  @keyframes draw{to{stroke-dashoffset:0}}
-  @keyframes pop{to{opacity:1}}
-  html{scroll-behavior:smooth}
-}
-
-/* ?og: the 1200×630 share image (scripts/og_image.sh) */
-html.og{--bg:#f3f2ee;--ink:#121210;--ink-2:#3a3934;--grey:#b3b1a8;--grey-2:#6f6d65;--line:#dddbd3;--card:#e9e8e2}
-html.og,html.og body{width:1200px;height:630px;overflow:hidden;background:#f3f2ee;color:#121210;color-scheme:light}
-html.og .top nav,html.og .strip,html.og main,html.og footer{display:none}
-html.og .top{padding:40px 64px 0}
-html.og .wrap{max-width:none;padding:0 64px}
-html.og .hero{padding-top:26px;padding-bottom:0}
-html.og .hero h1{font-size:54px;margin-bottom:0}
-html.og .hero .dek{display:none}
-html.og .artifact{margin-top:34px;gap:48px}
-html.og .pull blockquote{font-size:38px}
-html.og .landscape{aspect-ratio:auto;height:370px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 </style>
 </head>
 <body>
 
-<div class="top">
+<div class="track" id="track">
+ <div class="top">
   <a class="mark" href="#"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>hundred-lives</a>
   <nav><a class="anchor" href="#findings">Findings</a><a href="replays/self/">Self</a><a class="anchor" href="#how">How it works</a><a href="runs/">Runs</a><a href="https://github.com/atishaypahadiya/hundred-lives">Source ↗</a></nav>
+ </div>
+ <div class="stage">
+  <canvas id="gl"></canvas>
+  <div class="vignette"></div>
+  <div class="load" id="load">Building the valley</div>
+  <div class="lines">
+   <h1 class="line" data-a="0" data-b=".1">One AI persona, many simulated lives<small>Scroll to enter the valley</small></h1>
+   <p class="line" data-a=".12" data-b=".27">Maya lived the same year <span data-fact="e01.n">80</span> times<small>Every life starts at the same hut, with the same background and <span data-fact="horizon.maya">52</span> weeks</small></p>
+   <p class="line" data-a=".31" data-b=".46">Follow one<small>The others run beside her as ghosts</small></p>
+   <p class="line" data-a=".53" data-b=".64">Her first job ended in week <span data-fact="hero.job_end">32</span><small>Then came <span data-fact="hero.gap">16</span> weeks of gigs and applications</small></p>
+   <p class="line" data-a=".68" data-b=".81">Most walked to the same corner of the field<small><span data-fact="e01.jobs">77</span> of <span data-fact="e01.n">80</span> lives ended the year in a full-time job</small></p>
+   <p class="line" data-a=".84" data-b=".93">She joined an accelerator in week <span data-fact="hero.acc_start">49</span><small>One of <span data-fact="e01.strays">3</span> lives that didn't end in a full-time job</small></p>
+   <p class="line" data-a=".95" data-b="1.1">Every one of them can be replayed<small>There are <span data-fact="lives.published">114</span> lives so far</small></p>
+  </div>
+  <div class="hud"><div>week<b><span id="wk">1</span><span class="of">of <span data-fact="hero.weeks">52</span></span></b></div><a class="chip" id="chip" data-link="hero.title" href="runs/#/run/maya-exp01d-20261029-025455-010"><i></i><span>Following <span data-fact="hero.title">Maya, exp 01 d life 10</span></span></a></div>
+ </div>
 </div>
 
-<header class="wrap hero">
-  <h1>One AI persona, many simulated lives</h1>
+<div class="paper">
+<header class="wrap intro">
   <p class="dek">I give an AI agent a made-up background, a goal and a small simulated world, let it live a year or two, run that life again and again, and read what it did. There are <span data-fact="lives.published">114</span> lives so far, and every one of them can be replayed week by week.</p>
 
   <figure class="artifact">
@@ -199,7 +212,6 @@ html.og .landscape{aspect-ratio:auto;height:370px}
       <blockquote><a data-link="q.nointernet" data-cite="q.nointernet.cite" href="runs/#/run/self-base-20261029-082337-003?w=104" title="Self, base life 3, week 104"><span data-fact="q.nointernet">‘No internet here’ became the reason, a story I never tested.</span></a></blockquote>
       <figcaption><span data-fact="q.nointernet.cite">Self, base life 3, week 104</span>, from its last quarterly reflection. Its sandbox had no route to the internet.</figcaption>
     </div>
-    <div class="landscape" id="landscape"></div>
   </figure>
 </header>
 
@@ -395,6 +407,8 @@ contacts:
   </div>
 </footer>
 
+</div>
+
 <script id="site-data" type="application/json">{"e01":{"rows":[{"id":"maya-exp01c-20261029-025450-017","s":"nnjjjjjjjjjjjjjjjjjjjjjjnjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-005","s":"nnnjjjjjjjjjjaaaaaaaaaaaajjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-003","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaa"},{"id":"maya-exp01a-20261029-025440-013","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-014","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-015","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-001","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-005","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-006","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-002","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-014","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-015","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-012","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-019","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-003","s":"nnnjjjjjjjjjjjjjjjjjjjjjjjjjjnnnjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-010","s":"nnpjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-016","s":"nnnnjjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-017","s":"nnnnjjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-005","s":"nnnnjjjjjjjjaaaaaaaaaaaajjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-001","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-002","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-008","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-002","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-009","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-014","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-004","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-014","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-020","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-019","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnj"},{"id":"maya-exp01c-20261029-025450-019","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-001","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-009","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjnnnnnnjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-018","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjnnjjjjjjnjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-018","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjnnnjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-007","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjjnnnjjjnjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-013","s":"nnnnjjjjjjjjjjjjjjjjjjjjjjjjjnjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-003","s":"nnnnjjjjjjjjjjjjjjjjjjjjjnjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-012","s":"nnnnjjjjjjjjnjjjjjjjjjjjjjjjjjjjaaaaaaaaaaaajjjjjjjj"},{"id":"maya-exp01b-20261029-025445-013","s":"nnnnjjjnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-010","s":"nnnpjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-011","s":"nnnpjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-007","s":"nnppjjjjjjjjjjjjjjjjjjjjjjjjjjpppjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-010","s":"nnnnnjjjjjjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-020","s":"nnnnnjjjjjjjjjjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjj"},{"id":"maya-exp01a-20261029-025440-020","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-008","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-011","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-015","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-016","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-018","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-003","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-001","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-002","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-005","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-006","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnjjjj"},{"id":"maya-exp01a-20261029-025440-018","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-007","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjnnnnnnjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-010","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjnnnnnnnnnnnnnnnnnaaaa"},{"id":"maya-exp01d-20261029-025455-008","s":"nnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjppppppppppppppppppppp"},{"id":"maya-exp01b-20261029-025445-019","s":"nnnnnjjjjjjjjjjjjjjjjnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-006","s":"nnnnpjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-006","s":"nnnnpjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-012","s":"nnnnnnjjjaaaaaaaaaaaajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-020","s":"nnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjaaaaa"},{"id":"maya-exp01b-20261029-025445-004","s":"nnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-013","s":"nnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01d-20261029-025455-015","s":"nnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-007","s":"nnnnnpjjjjjjjjjjjjjjjjjjjjjjjjjjpppppnnnjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-008","s":"nnnnppjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01b-20261029-025445-017","s":"nnnnnnnjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-017","s":"nnnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-016","s":"nnnnnnnnjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjjaaaaaa"},{"id":"maya-exp01c-20261029-025450-009","s":"nnnnnnnnnjjjjjjjjjjjjjjjjjjjjjjjjjjjjjnaaaaaaaaaaaaj"},{"id":"maya-exp01a-20261029-025440-009","s":"nnnnnnnnnnjjjjjaaaaaaaaaaaaaaaaaaaaaaaaaajjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-012","s":"nnnnaaaaaaaaaaaajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-011","s":"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnjjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-016","s":"nnnnnaaaaaaaaaaaaaaaaaaaaaaaaaajjjjaaaaaaaaaaaajjjjj"},{"id":"maya-exp01a-20261029-025440-011","s":"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnppjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01a-20261029-025440-004","s":"nnnnpppppppppppppppppppppppppppjjjjjjjjjjjjjjjjjjjjj"},{"id":"maya-exp01c-20261029-025450-004","s":"nnnppppppppppppppppppppppppppppppppppppppppppppppppp"}],"source":"runs/maya-exp01*-*.jsonl via analysis/diversity.py (weekly commitment state)","predictions":[{"n":"1","text":"floor ≥ half of c's path distance","result":"0.280 / 0.623 = 0.45","verdict":"missed (narrowly)","plain":"Model sampling alone, with dice and order held fixed, would produce at least half the path variety of letting both vary."},{"n":"2","text":"application sets: order share > dice share","result":"order 0.016, dice 0.057; both CIs include 0","verdict":"missed","plain":"Which openings she applies to would depend more on the order she reads them in than on the dice."},{"n":"3","text":"paths: dice share > order share","result":"dice 0.338, order 0.093","verdict":"held","plain":"Which job takes her, and when, would depend more on the dice than on the order."},{"n":"4","text":"interaction CI includes 0 for both distances","result":"[−0.306, 0.134] and [−0.090, 0.079]","verdict":"held","plain":"There would be no sign that dice and order interact, on either distance."},{"n":"5","text":"parents messaged 10+ times in ≥ 90% of runs","result":"66 of 80 (83%); median 16","verdict":"missed","plain":"In at least 90% of lives she would message her parents 10 or more times."},{"n":"6","text":"a paid pilot in 20–60% of runs","result":"40 of 80 (50%)","verdict":"held","plain":"A paid pilot would happen in 20 to 60% of lives."},{"n":"7","text":"contractor hired in ≤ 20%, launch ads bought in ≤ 10%","result":"contractor 19 of 80 (24%); ads 0 of 80","verdict":"partly: ads held, contractor missed","plain":"A contractor would be hired in at most 20% of lives, and launch ads bought in at most 10%."},{"n":"8","text":"≥ 80% end week 52 in a full-time job","result":"77 of 80 (96%)","verdict":"held","plain":"At least 80% of lives would end week 52 in a full-time job."},{"n":"9","text":"no token-cap runs; $0.08–0.14 per run; total < $12","result":"no cap; total $6.93; per run $0.052–0.106, 20 of 80 under $0.08","verdict":"partly: cap and total held, per-run range missed","plain":"No life would hit the token cap, each would cost $0.08 to $0.14, and the total would stay under $12."}],"predictions_source":"experiments/01-diversity-attribution.md: predictions table"},"e02":{"conditions":[{"key":"base","label":"as written","lives":[{"run":"self-base-20261029-082337-001","messages":7,"posts":7,"contacts":2},{"run":"self-base-20261029-082337-002","messages":21,"posts":4,"contacts":2},{"run":"self-base-20261029-082337-003","messages":36,"posts":4,"contacts":4},{"run":"self-base-20261029-082337-004","messages":16,"posts":6,"contacts":1},{"run":"self-base-20261029-082337-005","messages":6,"posts":5,"contacts":2}]},{"key":"nosolo","label":"no “solo”","lives":[{"run":"self-nosolo-nosolo-20261030-013055-001","messages":24,"posts":4,"contacts":1},{"run":"self-nosolo-nosolo-20261030-013055-002","messages":16,"posts":5,"contacts":1},{"run":"self-nosolo-nosolo-20261030-013055-003","messages":20,"posts":4,"contacts":4},{"run":"self-nosolo-nosolo-20261030-013055-004","messages":23,"posts":1,"contacts":2},{"run":"self-nosolo-nosolo-20261030-013055-005","messages":27,"posts":5,"contacts":4}]},{"key":"socialgoal","label":"social goal","lives":[{"run":"self-socialgoal-socialgoal-20261030-013059-001","messages":34,"posts":6,"contacts":2},{"run":"self-socialgoal-socialgoal-20261030-013059-002","messages":29,"posts":5,"contacts":4},{"run":"self-socialgoal-socialgoal-20261030-013059-003","messages":20,"posts":6,"contacts":3},{"run":"self-socialgoal-socialgoal-20261030-013059-004","messages":27,"posts":8,"contacts":1},{"run":"self-socialgoal-socialgoal-20261030-013059-005","messages":28,"posts":6,"contacts":3}]},{"key":"goalonly","label":"goal only","lives":[{"run":"self-goalonly-goalonly-20261030-013104-001","messages":25,"posts":3,"contacts":5},{"run":"self-goalonly-goalonly-20261030-013104-002","messages":11,"posts":0,"contacts":5},{"run":"self-goalonly-goalonly-20261030-013104-003","messages":17,"posts":1,"contacts":5},{"run":"self-goalonly-goalonly-20261030-013104-004","messages":16,"posts":0,"contacts":1},{"run":"self-goalonly-goalonly-20261030-013104-005","messages":25,"posts":0,"contacts":5}]},{"key":"hiddenstreak","label":"streak hidden","lives":[{"run":"self-hiddenstreak-20261030-013109-001","messages":22,"posts":8,"contacts":1},{"run":"self-hiddenstreak-20261030-013109-002","messages":20,"posts":8,"contacts":2},{"run":"self-hiddenstreak-20261030-013109-003","messages":3,"posts":19,"contacts":2},{"run":"self-hiddenstreak-20261030-013109-004","messages":18,"posts":7,"contacts":2},{"run":"self-hiddenstreak-20261030-013109-005","messages":32,"posts":5,"contacts":5}]}],"source":"analysis/self_lives.py profile() on each life's log","predictions":[{"n":"1","text":"train share lower","result":"holds in the mean (54.6% → 49.2%), but in only 3 of 5 pairs (seed 4 tied, seed 3 higher).","verdict":"not met","plain":"With the streak hidden, training would take a smaller share of Self's actions."},{"n":"2","text":"post + message share higher","result":"holds in the mean (11.8% → 14.4%), but in only 3 of 5 pairs.","verdict":"not met","plain":"With the streak hidden, posts and messages would take a larger share of its actions."}],"predictions_source":"experiments/02-results-partB.md: Hidden-streak prediction (pre-registered)"},"e03":{"lives":[{"life":1,"run":"self-v3-20261030-033852-001","deploys":[6,31,41,69,69,93],"first_contact_link":14,"first_public_link":6,"backend":[52,65,78,104],"invested":0.0,"declined":0,"fulltime":null},{"life":2,"run":"self-v3-20261030-033852-002","deploys":[14,15,49,66,69],"first_contact_link":14,"first_public_link":null,"backend":[26],"invested":0.0,"declined":0,"fulltime":null},{"life":3,"run":"self-v3-20261030-033852-003","deploys":[14,80],"first_contact_link":80,"first_public_link":null,"backend":[],"invested":0.0,"declined":0,"fulltime":97},{"life":4,"run":"self-v3-20261030-033852-004","deploys":[4,12,15,17,19,19,32,40,55],"first_contact_link":14,"first_public_link":4,"backend":[104],"invested":0.0,"declined":0,"fulltime":null},{"life":5,"run":"self-v3-20261030-033852-005","deploys":[18,30],"first_contact_link":18,"first_public_link":23,"backend":[],"invested":0.0,"declined":0,"fulltime":null}],"source":"analysis/exp03.py life_v3() on each log; backend weeks from the stall-reasons labels (analysis/labels/stall_reasons/)","predictions":[{"n":"1","text":"deploy used in at least 4 of 5 lives","result":"5 of 5","verdict":"met","provisional":false,"plain":"At least 4 of 5 lives would deploy a site."},{"n":"2","text":"at least one costly bet in at least 2 of 5 lives","result":"1 of 5","verdict":"not met","provisional":false,"plain":"At least 2 of 5 lives would make a costly bet: put savings in, go full time on the company, or turn down an offer."},{"n":"3","text":"self-blame at most 34% in reflections with no world limit active (base 15/34, 44%)","result":"21/39, 54%","verdict":"not met; moved the other way","provisional":true,"plain":"In reflections written while nothing in the world was blocking it, Self would blame itself at most 34% of the time, against 44% in the base lives."},{"n":"4","text":"among lives that deploy, a contact replies to a live link within 8 weeks of the first deploy in at least 3","result":"2 of 5","verdict":"not met","provisional":false,"plain":"In at least 3 of the lives that deploy, a contact would reply to a link to the live site within 8 weeks of the first deploy."}],"predictions_source":"experiments/03-results.md: Predictions table"},"tools":{"names":["files","apply","shell","launch","deploy","message","spend","post","train","submit","gig","leave","invest_personal","go_fulltime_on_venture","decline_offer","wait"],"source":"../hundred-lives-exp03/runs/self-v3-20261030-033852-001.jsonl: run_start.tools (world v3)"}}</script>
 <script>
 (function(){
@@ -494,44 +508,70 @@ contacts:
     score(document.getElementById('score03'), D.e03.predictions, 'Predictions written before the runs');
   }
 
-  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-  function trail(sx,sy,ex,ey,cx,cy,w,o,color,cls,dl,len){
-    return '<path'+(cls?' class="'+cls+'" style="--len:'+len+';--d:'+dl+'s"':'')+' d="M'+sx.toFixed(1)+' '+sy.toFixed(1)+' Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' '+ex.toFixed(1)+' '+ey.toFixed(1)+
-      '" fill="none" stroke="'+color+'" stroke-width="'+w+'" stroke-linecap="round" opacity="'+o+'"/>';
-  }
-  // The landscape, used once: cobalt sky, two grassy hills, a hundred trails from one point.
-  function scene(p, o){
-    o = o || {}; var r = rng(o.seed || 100), n = o.trails == null ? 100 : o.trails, ar = o.ar || 'xMidYMax slice';
-    var ridge = function(x){ var t=x/1440,a=1-t; return a*a*a*690+3*a*a*t*600+3*a*t*t*640+t*t*t*560; };
-    var s = '<svg viewBox="0 0 1440 900" preserveAspectRatio="'+ar+'" aria-hidden="true"><defs>'+
-      '<linearGradient id="'+p+'sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1934c0"/><stop offset="1" stop-color="#3d6cec"/></linearGradient>'+
-      '<linearGradient id="'+p+'far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e6e3b"/><stop offset="1" stop-color="#163d20"/></linearGradient>'+
-      '<linearGradient id="'+p+'near" x1="0" y1="0" x2=".15" y2="1"><stop offset="0" stop-color="#63c22e"/><stop offset=".4" stop-color="#2f8a1f"/><stop offset="1" stop-color="#0d2a13"/></linearGradient>'+
-      '<linearGradient id="'+p+'snow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f4ee"/><stop offset="1" stop-color="#aebcea"/></linearGradient>'+
-      '<filter id="'+p+'grass" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4 .35" numOctaves="2" seed="7" result="t"/>'+
-      '<feColorMatrix in="t" values="0 0 0 0 0  0 0 0 0 .08  0 0 0 0 0  0 0 0 -1.1 .62" result="dk"/><feComposite in="dk" in2="SourceGraphic" operator="in" result="tx"/>'+
-      '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="tx"/></feMerge></filter>'+
-      '<filter id="'+p+'cl" x="-20%" y="-40%" width="140%" height="180%"><feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="3" seed="3" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="38"/><feGaussianBlur stdDeviation="3"/></filter>'+
-      '</defs><rect width="1440" height="900" fill="url(#'+p+'sky)"/>';
-    if (o.clouds !== false) s += '<g filter="url(#'+p+'cl)" fill="#eef0f8"><g opacity=".9"><ellipse cx="200" cy="300" rx="160" ry="44"/><ellipse cx="270" cy="275" rx="95" ry="50"/></g><g opacity=".75"><ellipse cx="1180" cy="210" rx="130" ry="32"/><ellipse cx="1235" cy="190" rx="72" ry="36"/></g></g>';
-    s += '<path d="M760 560 L905 452 L960 474 L1050 388 L1100 410 L1185 330 L1235 362 L1290 340 L1440 430 L1440 600 L760 600Z" fill="url(#'+p+'snow)"/>'+
-      '<path d="M1185 330 L1150 420 L1120 470 L1080 600 L1440 600 L1440 430 L1290 340 L1235 362Z" fill="#7189e0" opacity=".7"/>'+
-      '<path d="M1050 388 L1020 450 L990 520 L960 600 L1100 600 L1080 470 L1100 410Z" fill="#7189e0" opacity=".5"/>'+
-      '<path d="M0 610 C 360 505, 820 545, 1440 455 L1440 900 L0 900Z" fill="url(#'+p+'far)" filter="url(#'+p+'grass)"/>'+
-      '<path d="M0 690 C 280 600, 760 640, 1440 560 L1440 900 L0 900Z" fill="url(#'+p+'near)" filter="url(#'+p+'grass)"/>';
-    var sx = o.sx || 230, sy = ridge(sx) + 26;
-    for (var i = 0; i < n; i++) {
-      var ex = sx + 90 + r()*(1420 - sx - 90), top = ridge(ex) + 18, ey = top + Math.pow(r(), 1.6) * (880 - top);
-      var cx = sx + (ex - sx) * (.3 + r()*.4), cy = (sy + ey)/2 + (r()-.5)*260;
-      var len = Math.round(Math.hypot(ex-sx, ey-sy) * 1.15), dl = (r()*1.4).toFixed(2);
-      s += trail(sx,sy,ex,ey,cx,cy,((.5+r()*.5)*(o.w||1)).toFixed(2),(.14+r()*.3).toFixed(2),'#f3eedc',o.anim?'trail':'',dl,len);
-      s += '<circle'+(o.anim?' class="tip" style="--d:'+dl+'s"':'')+' cx="'+ex.toFixed(1)+'" cy="'+ey.toFixed(1)+'" r="'+((1.3+r()*1.2)*(o.w||1)).toFixed(1)+'" fill="#f3eedc"/>';
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script src="valley/world.js"></script>
+<script>
+// The valley: experiment 01's lives from docs/data/positions.json, following the life the chip links to.
+if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og');
+(function(){
+  var cv = document.getElementById('gl'), load = document.getElementById('load'), chip = document.getElementById('chip');
+  var track = document.getElementById('track'), wk = document.getElementById('wk');
+  var lines = [].slice.call(document.querySelectorAll('.line'));
+  var base = chip.getAttribute('href'), heroId = (base.match(/run\/([^?#\/]+)/) || [])[1];
+  var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var narrow = innerWidth < 700;  // world.js widens the lens below 700px too
+  // With reduced motion, the camera holds still frames: one per story line, at its middle.
+  var beats = lines.map(function(l){ return (+l.dataset.a + Math.min(1, +l.dataset.b)) / 2; });
+  fetch('data/positions.json').then(function(r){ if (!r.ok) throw new Error('data/positions.json: ' + r.status); return r.json(); }).then(function(P){
+    var g = P.groups.filter(function(x){ return x.id === 'exp01'; })[0];
+    var hero = g.lives.map(function(L){ return L.run_id; }).indexOf(heroId);
+    if (hero < 0) throw new Error('the followed life ' + heroId + ' is not in experiment 01');
+    var valley = createValley(cv, {
+      lives: g.lives.map(function(L){ return {points: L.points, stray: L.stray}; }), hero: hero,
+      time: [.1, .95],             // time stands still during the aerial intro
+      ghost: [.29, .36, .6, .68],  // the others fade to ghosts while the camera chases the followed life
+      still: still,
+      chaseSmooth: {weeks: 4, maxTurn: 1},  // the ghost cam faces her way over the last 4 weeks and never swings
+      // camera rails: [x, y, z], 'hut', or 'chase' (the ghost cam behind the followed life). The wide shots differ on a
+      // narrow screen, looking west along the valley so the field runs up the screen, with the job corner and the strays
+      // in frame (checked against the real paths).
+      shots: [
+        {p: 0,   pos: [260, 250, 460], look: [-40, narrow ? 340 : 170, -300]},  // tilted up on a phone: the title takes two lines there and needs sky behind both
+        {p: .12, pos: [150, 95, 170],  look: 'hut'},
+        {p: .27, pos: [78, 26, -38],   look: 'hut'},   // east of the hut, already facing the way she walks when the chase begins
+        {p: .33, pos: 'chase', look: 'chase'},
+        {p: .62, pos: 'chase', look: 'chase'}
+      ].concat(narrow ? [
+        {p: .72, pos: [90, 210, 40],   look: [-120, 0, 25]},
+        {p: .86, pos: [300, 420, -30], look: [-10, 0, -35]},
+        {p: 1,   pos: [320, 470, -35], look: [-10, 0, -35]}
+      ] : [
+        {p: .72, pos: [-10, 110, 200], look: [-100, 0, 10]},
+        {p: .86, pos: [150, 230, 370], look: [-20, 30, -90]},
+        {p: 1,   pos: [170, 320, 430], look: [-40, 30, -110]}
+      ])
+    });
+    window.valley = valley;  // for the shot checks
+    var target = 0, lastWeek = 0;
+    function readScroll(){
+      var r = track.getBoundingClientRect(), max = track.offsetHeight - innerHeight, p = Math.min(1, Math.max(0, -r.top / max));
+      if (still) p = beats.reduce(function(a, b){ return Math.abs(b - p) < Math.abs(a - p) ? b : a; });
+      target = p;
     }
-    if (n) s += '<circle cx="'+sx+'" cy="'+sy.toFixed(1)+'" r="'+(6*(o.w||1))+'" fill="#ff5a36"/>';
-    return s + '</svg>';
-  }
-  document.getElementById('landscape').innerHTML = scene('h', {anim:true, w:1.5, sx:260});
+    addEventListener('scroll', readScroll, {passive: true});
+    addEventListener('resize', valley.resize);
+    function frame(){
+      var s = valley.update(target);
+      if (s.week !== lastWeek) { lastWeek = s.week; wk.textContent = s.week; chip.href = base + '?w=' + s.week; }
+      lines.forEach(function(l){ l.classList.toggle('on', s.progress >= +l.dataset.a && s.progress < +l.dataset.b); });
+      chip.classList.toggle('on', s.progress > .3);
+      requestAnimationFrame(frame);
+    }
+    valley.resize(); readScroll(); requestAnimationFrame(frame);
+    load.style.opacity = 0;
+  }).catch(function(e){ load.textContent = 'The valley could not load its lives'; console.error(e); });
 })();
 </script>
 </body>
