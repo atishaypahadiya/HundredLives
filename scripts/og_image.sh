@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Render the project page's share image and icons with headless Chrome and macOS sips:
-#   docs/og.jpg              1200×630, the home valley's opening shot in ?og mode (title only, no nav or HUD), shared by
+#   docs/og.jpg              1200×630, the home valley's final wide shot in ?og mode (all trails, strays in gold; no text,
+#                            no clouds), shared by
 #                            the home and Runs pages; JPEG so chat apps that skip large preview images (WhatsApp) still show it
 #   docs/favicon-32.png      the sheep mark (docs/favicon.svg), transparent
 #   docs/apple-touch-icon.png 180×180, the sheep mark on the meadow green
