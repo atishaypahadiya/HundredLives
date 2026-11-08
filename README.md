@@ -111,7 +111,7 @@ Where a sheep stands is never made up. [`analysis/positions.py`](analysis/positi
 
 ## Limits on the agents
 
-| | |
+| Limit | How it's enforced |
 |---|---|
 | **No money** | No payment credentials anywhere. Personal cash can't be spent (in world v3 it can only be moved into company funds), and company funds only buy world items, like a contractor or launch ads. |
 | **No internet** | Every container network is internal. Each run gets its own network and its own Gitea user, purged when the run ends. `make check` runs 20 isolation probes. |
