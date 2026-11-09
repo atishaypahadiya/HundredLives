@@ -38,7 +38,7 @@ SOURCES = ROOT / "analysis" / "site_facts.md"
 VIEWER = ROOT.parent / "hundred-lives-viewer" / "runs"
 EXP02B = ROOT.parent / "hundred-lives-exp02b" / "runs"
 EXP03 = ROOT.parent / "hundred-lives-exp03" / "runs"
-REPO = "https://github.com/atishaypahadiya/hundred-lives/blob/master/"
+REPO = "https://github.com/atishaypahadiya/HundredLives/blob/master/"
 
 FACTS: dict[str, dict] = {}
 CLAIMS: list[tuple[str, str]] = []
@@ -220,7 +220,7 @@ def exp01():
     horizons = {json.loads(open(f).readline())["horizon"] for f in files}
     claim(horizons == {52}, "every experiment 01 life is one year long (run_start.horizon = 52), so the title can say \"the same year\"",
           "runs/maya-exp01{a,b,c,d}-*.jsonl: run_start.horizon")
-    fact("site.title", f"hundred-lives: an AI lives the same year {len(allr)} times",
+    fact("site.title", f"HundredLives: an AI lives the same year {len(allr)} times",
          "the page title, og:title and twitter:title; the count is e01.n (experiment 01's lives)")
     # chart: each life's weekly state, without the +raised suffix; sorted by the week a job first starts
     rows = []
