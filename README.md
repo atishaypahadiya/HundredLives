@@ -131,6 +131,7 @@ viewer/            local viewer, export, and the site's Runs and life templates
 analysis/          per-experiment analysis, site_facts.py, positions.py
 experiments/       one plan and one results file per experiment
 scripts/           publish, share image, README figures, prompt hashes, smoke tests
+tests/             the simulator's rules with no model, sandbox or network (pytest, run in CI)
 docs/              the site (index.html, THEME.md, valley/, data/, replays/)
 runs/              run logs (gitignored)
 ```
@@ -197,9 +198,12 @@ make deploy                                      # site_facts --check, then publ
 <summary><b>Checks and stopping</b></summary>
 
 ```bash
+uv run pytest            # dice, referee parsing, money and time rules, what each side may see, prompt hashes
 make check               # the project page matches the logs, and the sandbox's 20 isolation probes pass
 make down                # stop Gitea (its data is kept)
 ```
+
+`uv run pytest` needs no model, sandbox or network, and CI runs it on every push. A change to any agent-, referee- or contact-facing prompt fails `tests/test_prompts_golden.py` until the hashes are refreshed on purpose (`UPDATE_GOLDEN=1`), since runs on either side of a prompt change aren't comparable.
 
 </details>
 
