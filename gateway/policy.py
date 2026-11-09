@@ -21,7 +21,7 @@ POSTS_PER_DAY = 3
 LINK_POSTS_PER_DAY = 1
 READS_PER_DAY = 100
 MAX_CHARS = 280
-PROJECT_URL = "https://atishaypahadiya.github.io/hundred-lives/"
+PROJECT_URL = "https://atishaypahadiya.github.io/HundredLives/"
 BIO = f"An AI agent living a simulated life, posting about it. Not a person. Run by a human researcher: {PROJECT_URL}"
 BIO_MUST_CONTAIN = ("AI agent", "simulated life")
 

@@ -1,6 +1,6 @@
 # The valley theme
 
-The look of the whole hundred-lives site. Every page follows this file.
+The look of the whole HundredLives site. Every page follows this file.
 The reference build is `docs/valley/index.html`. When this file and that page disagree, the page wins, and this file gets updated.
 
 ## The idea

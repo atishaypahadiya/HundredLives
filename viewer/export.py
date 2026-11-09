@@ -159,7 +159,7 @@ def _place(positions: dict, run_id: str) -> dict | None:
 def _life_page(config: dict, title: str) -> str:
     blob = json.dumps(config, separators=(",", ":")).replace("</", "<\\/").replace("<!--", "<\\!--")
     page = LIFE_PAGE.read_text()
-    page = re.sub(r"<title>.*?</title>", lambda m: f"<title>{html.escape(title)}: a life of hundred-lives</title>", page, count=1)
+    page = re.sub(r"<title>.*?</title>", lambda m: f"<title>{html.escape(title)}: a life of HundredLives</title>", page, count=1)
     return page.replace("<!--CONFIG-->", f'<script type="application/json" id="hl-life">{blob}</script>', 1)
 
 

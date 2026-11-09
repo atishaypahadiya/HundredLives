@@ -1,14 +1,14 @@
 <p align="center">
-  <a href="https://atishaypahadiya.github.io/hundred-lives/"><img src=".github/readme/hero.jpg" alt="A green valley under snow-capped red mountains, with a small hut in the meadow where every simulated life starts" width="100%"></a>
+  <a href="https://atishaypahadiya.github.io/HundredLives/"><img src=".github/readme/hero.jpg" alt="A green valley under snow-capped red mountains, with a small hut in the meadow where every simulated life starts" width="100%"></a>
 </p>
 
-<h1 align="center">hundred-lives</h1>
+<h1 align="center">HundredLives</h1>
 
 <p align="center">
   One AI persona, many simulated lives.<br>
-  <a href="https://atishaypahadiya.github.io/hundred-lives/"><b>Project page</b></a> &nbsp;·&nbsp;
-  <a href="https://atishaypahadiya.github.io/hundred-lives/runs/">Every life</a> &nbsp;·&nbsp;
-  <a href="https://atishaypahadiya.github.io/hundred-lives/replays/self/">Self, replayed</a>
+  <a href="https://atishaypahadiya.github.io/HundredLives/"><b>Project page</b></a> &nbsp;·&nbsp;
+  <a href="https://atishaypahadiya.github.io/HundredLives/runs/">Every life</a> &nbsp;·&nbsp;
+  <a href="https://atishaypahadiya.github.io/HundredLives/replays/self/">Self, replayed</a>
 </p>
 
 <br>
@@ -140,8 +140,8 @@ runs/              run logs (gitignored)
 Needs macOS with [OrbStack](https://orbstack.dev) (the host reaches Gitea on an internal network, which OrbStack routes and Docker Desktop doesn't), [uv](https://docs.astral.sh/uv/), and `gh` logged in for deploys.
 
 ```bash
-git clone https://github.com/atishaypahadiya/hundred-lives.git
-cd hundred-lives
+git clone https://github.com/atishaypahadiya/HundredLives.git
+cd HundredLives
 cp .env.example .env     # add ANTHROPIC_API_KEY, only for Claude runs
 make up                  # uv sync, start OrbStack, Gitea and the agent image, then the viewer
 ```
