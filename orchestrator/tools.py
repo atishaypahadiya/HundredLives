@@ -402,9 +402,10 @@ class Workspace:
 
     def read(self, path: str) -> str:
         fd = self._open(self._parts(path), os.O_RDONLY)
+        if not stat.S_ISREG(os.fstat(fd).st_mode):  # before fdopen, which raises on a directory
+            os.close(fd)
+            raise ToolError(f"{path} is not a file")
         with os.fdopen(fd, "rb") as f:
-            if not stat.S_ISREG(os.fstat(f.fileno()).st_mode):
-                raise ToolError(f"{path} is not a file")
             return f.read(self.MAX_FILE_BYTES * 4).decode(errors="replace")
 
     def run(self, action: str, path: str | None = None, content: str | None = None) -> str:

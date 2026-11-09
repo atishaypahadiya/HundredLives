@@ -127,8 +127,6 @@ def test_reading_a_missing_file(ws):
         ws.run("read", "nope.md")
 
 
-@pytest.mark.xfail(strict=True, reason="bug: os.fdopen raises IsADirectoryError before the S_ISREG check, "
-                                       "and only ToolError is caught, so the run ends with reason 'error'")
 def test_reading_a_directory_is_a_tool_error(ws):
     ws.run("write", "app/main.py", "x")
     with pytest.raises(ToolError, match="not a file"):

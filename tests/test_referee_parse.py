@@ -137,8 +137,6 @@ def test_unusable_contact_output(text):
     assert out == {"reply": "", "offer": None} and problem
 
 
-@pytest.mark.xfail(strict=True, reason="bug: a non-string offer_kind is used as a dict key and raises TypeError, "
-                                       "which ends the run with reason 'error'")
 @pytest.mark.parametrize("kind", [["referral"], {"kind": "referral"}])
 def test_malformed_offer_kind_is_dropped(kind):
     out, problem = ref.parse_contact(j(reply="hi", offer_kind=kind), MAYA["priya"], OPENINGS, set())
