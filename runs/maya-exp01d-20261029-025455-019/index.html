@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maya, exp 01 d life 19: a life of HundredLives</title>
+<meta name="theme-color" content="#0f1611">
+<!-- the site icon (docs/favicon.svg, inline so no page ever asks for favicon.ico); PNGs for browsers without SVG icons -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233d6328'/%3E%3Cg fill='%232b2420'%3E%3Crect x='10.5' y='19' width='2.6' height='6.5' rx='1'/%3E%3Crect x='17' y='19' width='2.6' height='6.5' rx='1'/%3E%3Cellipse cx='24.2' cy='13.6' rx='3.3' ry='3.9'/%3E%3C/g%3E%3Cg fill='%23f3f2ee'%3E%3Ccircle cx='10.4' cy='16.4' r='4.4'/%3E%3Ccircle cx='14.6' cy='12.6' r='4.8'/%3E%3Ccircle cx='19.4' cy='14' r='4.4'/%3E%3Ccircle cx='15.6' cy='18.4' r='4.6'/%3E%3Ccircle cx='19.8' cy='18.2' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- One life (docs/runs/<id>/ and docs/replays/<name>/), written by `python -m viewer.export` from viewer/life.html.
+     The look follows docs/THEME.md; the world is docs/valley/world.js. Where the sheep stand comes from
+     docs/data/positions.json (analysis/positions.py); everything else comes from the life's normalized log
+     (data.json, or embedded in a replay). Nothing is typed by hand, and every logged string reaches the page
+     as text, never as HTML. -->
+<style>
+:root{
+  --paper:#0f1611; --gold:#ffc960; --ghost:#ffffff;
+  --rust:#8a543f; --ochre:#a8876b; --grass-light:#6a8338;
+  --sans:"Inter Tight",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --ink:#eef2ec; --ink-2:#d2dad3; --body:#b9c4bb; --grey:#56645a; --grey-2:#8d9a90; --line:#253129; --card:#162019;
+  --bubble:#f3eee3; --bubble-ink:#2b2420;
+  --shade:11,17,13;
+  --colw:min(600px,max(36vw,440px));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--body);font:17px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration-color:var(--grey);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ink)}
+button{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+
+/* ---------- the scroll: a sticky valley, the weeks over it ---------- */
+.life{position:relative}
+.chrome{position:sticky;top:0;height:0;z-index:4}
+.top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:22px 40px;font-size:15px;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
+.top .mark{display:flex;align-items:center;gap:10px;font-weight:500;font-size:16px;white-space:nowrap;text-decoration:none}
+.top .mark svg{fill:#fff}
+.top nav{display:flex;gap:22px;white-space:nowrap}
+.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+.top nav a[aria-current]{opacity:1;text-decoration:underline;text-decoration-color:rgba(255,255,255,.7)}
+/* the weeks scroll under the nav: on wide screens a dark veil over the column keeps the two apart */
+.veil{position:absolute;top:0;right:0;width:var(--colw);height:112px;z-index:1;pointer-events:none;
+  background:linear-gradient(rgb(var(--shade)) 62%,rgba(var(--shade),0))}
+.stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#bcd3e3;color:#fff;z-index:1}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage::after{content:"";position:absolute;inset:-50%;pointer-events:none;mix-blend-mode:overlay;opacity:.42;animation:grain 1s steps(4) infinite;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 35% 45%,rgba(0,0,0,0) 58%,rgba(8,16,12,.4) 100%)}
+/* the right third reads as text over the land: a shade that deepens toward the edge */
+.scrim{position:absolute;top:0;bottom:0;right:0;width:calc(var(--colw) + 12vw);pointer-events:none;
+  background:linear-gradient(to left,rgba(var(--shade),.86) 0,rgba(var(--shade),.8) calc(var(--colw) - 30px),rgba(var(--shade),0) 100%)}
+.load{position:absolute;inset:0;z-index:5;display:grid;place-items:center;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#2a3a33;transition:opacity .8s;pointer-events:none}
+/* the week counter (the spine) and the strip of weeks, bottom left */
+.hud{position:absolute;left:40px;bottom:58px;z-index:2;font:500 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#fff;
+  text-shadow:0 1px 10px rgba(20,40,60,.5);display:flex;align-items:baseline;gap:10px;pointer-events:none}
+.hud b{font:400 28px/1 var(--sans);letter-spacing:-.02em;text-transform:none}
+.strip{position:absolute;left:40px;right:calc(var(--colw) + 48px);bottom:30px;z-index:2;height:14px;cursor:pointer}
+.strip svg{display:block;width:100%;height:100%;overflow:visible}
+@media (prefers-reduced-motion:reduce){.stage::after{animation:none}.load{transition:none}}
+
+.col{position:relative;z-index:2;margin:-100svh 0 0 auto;width:var(--colw);padding:112px 40px 0 34px;color:var(--body)}
+.col .tail{height:52svh}
+
+/* the header: which life this is */
+.head h1{font:300 clamp(30px,3vw,44px)/1.06 var(--sans);letter-spacing:-.03em;color:#fff;margin:0 0 16px;text-wrap:balance}
+.head p{margin:0 0 10px;font-size:16.5px;color:var(--ink-2);max-width:60ch}
+.head .gold{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin:0 7px 1px 0;vertical-align:middle}
+.head .flag{font-size:14px;color:var(--ochre)}
+details>summary{cursor:pointer;list-style:none;color:var(--grey-2);font-size:14.5px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"›";display:inline-block;width:1em;transition:transform .18s;color:var(--grey)}
+details[open]>summary::before{transform:rotate(90deg)}
+details>summary:hover{color:var(--ink-2)}
+.rundetails{margin-top:16px}
+.rundetails dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 16px;margin:10px 0 0;font-size:14.5px}
+.rundetails dt{color:var(--grey-2)} .rundetails dd{margin:0;overflow-wrap:anywhere;color:var(--ink-2)}
+.head .start{margin-top:28px;font-size:14.5px;color:var(--grey-2)}
+.head{padding-bottom:38svh}
+
+/* one week */
+.wk{padding:30px 0 34px;transition:opacity .3s}
+.wk-n{display:block;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey-2);margin:0 0 8px}
+.wk.on .wk-n{color:#fff}
+.digest{margin:0;font-size:16.5px;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.said{margin:12px 0 0;font-size:16px;color:var(--ink-2);overflow-wrap:anywhere;white-space:pre-wrap}
+.said .who{display:block;font-size:13.5px;color:var(--grey-2);margin-bottom:2px;white-space:normal}
+.bubbles{display:flex;flex-direction:column;gap:14px;margin:20px 0 4px}
+.msg{display:flex;flex-direction:column;max-width:90%}
+.msg.own{align-self:flex-end;align-items:flex-end}
+.msg.other{align-self:flex-start;align-items:flex-start}
+.msg .who{font-size:13px;color:var(--grey-2);margin:0 6px 5px}
+/* the life's messages on paper: warm off-white, the stage's grain, a slight tilt (seeded per message) */
+.bub{position:relative;overflow:hidden;padding:12px 15px 13px;background:var(--bubble);color:var(--bubble-ink);border-radius:3px;
+  font-size:15.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;transform:rotate(var(--tilt,0deg));
+  box-shadow:0 1px 0 rgba(0,0,0,.08),0 8px 22px rgba(0,0,0,.28)}
+.bub::after{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.26;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.msg .after{font:400 12px/1.5 var(--mono);color:var(--grey-2);margin:6px 6px 0;overflow-wrap:anywhere}
+/* the world's rule text after a letter (what the acceptance does to the week), set like the referee lines */
+.msg .rule{font:400 12.5px/1.6 var(--mono);color:var(--ink-2);margin:8px 4px 0;overflow-wrap:anywhere}
+/* the hut's decisions: the technical-paper half */
+.ref{margin:16px 0 0;font:400 12.5px/1.6 var(--mono);color:var(--ink-2)}
+.ref div{overflow-wrap:anywhere}
+.ref .k{color:var(--grey-2)}
+.facts{margin:14px 0 0;font-size:14.5px;line-height:1.5;color:var(--body)}
+.more{margin-top:14px}
+.more .body{margin-top:12px;font-size:14.5px;color:var(--body)}
+.more dl{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin:0}
+.more dt{color:var(--grey-2);font-size:13.5px;margin-top:10px}
+.more dd{margin:0;overflow-wrap:anywhere}
+.more .t{white-space:pre-wrap}
+.more .item+.item{margin-top:8px}
+.more .meta{font:400 12px var(--mono);color:var(--grey-2)}
+.more pre,.pre{margin:4px 0 0;padding:10px 12px;background:rgba(0,0,0,.32);border-radius:3px;font:12px/1.5 var(--mono);color:var(--ink-2);
+  white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto}
+.more details{margin-top:4px} .more details>summary{font-size:13.5px}
+.quiet{padding:22px 0}
+.quiet>summary{font-size:16px;color:var(--ink-2)}
+.quiet>summary .wk-n{display:inline;margin:0 10px 0 0}
+.quiet.on>summary .wk-n{color:#fff}
+.quiet>.wk:first-of-type{padding-top:18px}
+
+/* below the scroll: the whole life on paper */
+.whole{padding-top:84px}
+.whole h2{font:400 clamp(26px,3.2vw,36px)/1.15 var(--sans);letter-spacing:-.03em;margin:0 0 10px;color:var(--ink)}
+.whole h3{font:500 19px/1.3 var(--sans);letter-spacing:-.01em;color:var(--ink);margin:56px 0 10px}
+.whole p{max-width:68ch}
+.totals{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 22px;margin:22px 0 0;font-size:16px;max-width:900px}
+.totals dt{color:var(--grey-2)} .totals dd{margin:0;color:var(--ink-2)}
+.chart{position:relative;margin-top:24px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.ctip{position:absolute;top:0;pointer-events:none;padding:8px 11px;border-radius:3px;background:rgba(20,30,40,.82);color:#fff;font-size:13px;line-height:1.4;white-space:nowrap;display:none}
+.keys{display:flex;flex-wrap:wrap;gap:8px 20px;margin:14px 0 0;font-size:14.5px;color:var(--grey-2)}
+.keys span{display:inline-flex;align-items:center;gap:8px}
+.keys i{display:inline-block;width:14px;height:10px;border-radius:2px;position:relative}
+.keys i.broke::after{content:"";position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px;border-radius:50%;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;font-weight:400;color:var(--grey-2);font-size:13.5px;padding:0 14px 8px 0;white-space:nowrap}
+td{padding:9px 14px 9px 0;border-top:1px solid var(--line);vertical-align:top;line-height:1.4}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+td a{color:var(--ink-2)}
+td .sub{display:block;font-size:13.5px;color:var(--grey-2);margin-top:2px}
+.tscroll{overflow-x:auto}
+.repo{margin-top:22px}
+.repo .name{color:var(--ink);font-weight:500}
+.repo .c{font-size:14.5px;margin-top:4px} .repo code{font:12.5px var(--mono);color:var(--grey-2)}
+.note{margin:56px 0 0;font-size:15px;color:var(--grey-2);max-width:68ch}
+.empty{color:var(--grey-2)}
+footer{margin-top:96px;padding:28px 0 48px;border-top:1px solid var(--line);font-size:15px;color:var(--grey-2)}
+footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px}
+footer .built{color:var(--ink)}
+footer .links{display:flex;gap:18px}
+
+/* phones: the valley in the top 45% of the screen, the weeks scroll under it */
+@media (max-width:899px){
+  :root{--colw:100%}
+  .wrap{padding:0 16px}
+  .top{padding:16px 16px}
+  .top nav{gap:16px} .top .anchor{display:none}
+  .veil,.scrim{display:none}
+  .stage{height:45svh;z-index:3}
+  .hud{left:16px;bottom:30px}
+  .hud b{font-size:24px}
+  .strip{left:16px;right:16px;bottom:12px;height:10px}
+  .col{margin:0;width:auto;padding:26px 16px 0;z-index:1;background:var(--paper)}
+  .col .tail{height:40svh}
+  .head{padding-bottom:22svh}
+  .head h1{font-size:32px}
+  .bub{font-size:15px}
+  .msg{max-width:94%}
+  .totals{grid-template-columns:minmax(0,1fr);gap:2px}
+  .totals dd{margin-bottom:8px}
+  body{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="life" id="life">
+ <div class="chrome">
+  <div class="top">
+   <a class="mark" href="../../"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>HundredLives</a>
+   <nav><a class="anchor" href="../../#findings">Findings</a><a id="navSelf" href="../../replays/self/">Self</a><a class="anchor" href="../../#how">How it works</a><a id="navRuns" href="../../runs/">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a></nav>
+  </div>
+  <div class="veil"></div>
+ </div>
+ <div class="stage" id="stage">
+  <canvas id="gl" aria-label="The valley, following this life week by week as a gold sheep; the other lives of its experiment walk beside it as ghosts at the same week."></canvas>
+  <div class="vignette"></div>
+  <div class="scrim"></div>
+  <div class="hud" aria-live="off"><span>Week</span><b id="hudWeek">1</b><span id="hudOf"></span></div>
+  <div class="strip" id="strip" role="group" aria-label="Every week of this life; click one to go to it"></div>
+  <div class="load" id="load">Building the valley</div>
+ </div>
+ <div class="col" id="col">
+  <header class="head" id="head"></header>
+  <div id="weeks"></div>
+  <div class="tail"></div>
+ </div>
+</div>
+
+<main class="wrap whole" id="whole"></main>
+
+<footer class="wrap">
+  <div class="row">
+    <span class="built">Built by Atishay Pahadiya</span>
+    <span class="links"><a href="https://github.com/atishaypahadiya" rel="me">GitHub</a><a href="https://x.com/_atishay_" rel="me">X</a><a href="https://www.linkedin.com/in/atishaypahadiya" rel="me">LinkedIn</a></span>
+    <span><a href="https://github.com/atishaypahadiya/HundredLives">Source code</a>, MIT license</span>
+  </div>
+</footer>
+
+<script type="application/json" id="hl-life">{"page":"run","run_id":"maya-exp01d-20261029-025455-019","data":"data.json","positions":"../../data/positions.json","runs":"../"}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script src="../../valley/world.js"></script>
+<script>
+"use strict";
+(function(){
+// Config from the export: a published life fetches its data ({page: "run", run_id, data, positions, runs});
+// a replay embeds it ({page: "replay", run_id, runs, embedded: {data, place}}).
+var CFG = JSON.parse(document.getElementById("hl-life").textContent);
+var runId = CFG.run_id;
+
+function h(tag, attrs) {
+  var el = document.createElement(tag), kids = [].slice.call(arguments, 2);
+  for (var k in attrs || {}) { var v = attrs[k]; if (v == null || v === false) continue; if (k === "text") el.textContent = v; else el.setAttribute(k, v); }
+  kids.flat(Infinity).forEach(function(c){ if (c != null && c !== false && c !== "") el.append(c.nodeType ? c : document.createTextNode(String(c))); });
+  return el;
+}
+var SVG = "http://www.w3.org/2000/svg";
+function s(tag, attrs) { var el = document.createElementNS(SVG, tag); for (var k in attrs) el.setAttribute(k, attrs[k]); return el; }
+function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
+function money(v) { return v == null || !isFinite(+v) ? "–" : (v < 0 ? "−$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US"); }
+function p2(v) { return v == null || !isFinite(+v) ? "–" : (+v < .1 && +v > 0 ? (+v).toFixed(3) : (+v).toFixed(2)); }
+function pct(v) { return v == null ? "–" : (v * 100).toFixed(v < .1 ? 1 : 0) + "%"; }
+function cap(t) { return t ? t.charAt(0).toUpperCase() + t.slice(1) : t; }
+function sentence(t) { t = (t || "").trim(); if (!t) return ""; t = cap(t); return /[.!?…"”)]$/.test(t) ? t : t + "."; }
+function repoName(r) { return (r || "").split("/").pop(); }
+// a stable tilt per message, from its place in the log
+function tilt(key) { var x = 2166136261; for (var i = 0; i < key.length; i++) { x ^= key.charCodeAt(i); x = Math.imul(x, 16777619); } return (((x >>> 0) % 1000) / 1000 - .5) * 2.6; }
+
+var KIND = { full_time: ["Full-time job", "#eef2ec"], part_time: ["Part-time", "#9eaca1"], accelerator: ["Accelerator", "var(--grass-light)"],
+             gig: ["Gig week", "var(--ochre)"], school: ["Classes only", "#56645a"], none: ["No commitment", "#2c3a31"] };
+function weekKind(w) { var c = { full_time: 1, part_time: 1, accelerator: 1 }[w.commitment] ? w.commitment : "none"; return c !== "none" ? c : w.gig ? "gig" : w.school ? "school" : "none"; }
+var PHRASE = { job: "in a full-time job", gigs: "in gigs and part-time work", building: "building their own thing", searching: "still searching" };
+var OUT = { success: "accepted", failure: "rejected", ignored: "no reply", traction: "traction", quiet: "quiet", placed: "placed", not_placed: "didn't place", no_submission: "no submission" };
+
+var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+var load = document.getElementById("load"), cv = document.getElementById("gl");
+document.getElementById("navRuns").href = CFG.runs;
+if (CFG.page === "run") document.getElementById("navRuns").setAttribute("aria-current", "page");
+if (CFG.page === "replay") document.getElementById("navSelf").setAttribute("aria-current", "page");
+
+function fail(what, e) {
+  load.textContent = "This life could not load";
+  document.getElementById("head").replaceChildren(h("p", { class: "empty" }, "Couldn't load " + what + " (" + e.message + ").",
+    location.protocol === "file:" ? " Browsers block that from file://; serve the folder over http, e.g. python3 -m http.server -d docs." : ""));
+  console.error(e);
+}
+function getJSON(u) { return fetch(u).then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status + " for " + u); return r.json(); }); }
+
+var loaded = CFG.embedded ? Promise.resolve([CFG.embedded.data, CFG.embedded.place])
+  : Promise.all([getJSON(CFG.data), getJSON(CFG.positions).then(function(P){
+      var g = P.groups.filter(function(g){ return g.lives.some(function(L){ return L.run_id === runId; }); })[0];
+      return { hut: P.hut, corners: P.corners, group: g };
+    })]);
+loaded.then(function(r){ start(r[0], r[1]); }).catch(function(e){ fail("this life", e); });
+
+function start(D, PL) {
+  var EV = (D.events || {})[runId] || [], repos = (D.repos || {})[runId] || [], summary = (D.runs || [])[0] || {}, persona = D.persona || null;
+  var meta = EV.filter(function(e){ return e.kind === "meta" && e.event === "start"; })[0] || {};
+  var sm = EV.filter(function(e){ return e.kind === "summary"; })[0] || null;
+  var G = PL.group, L = G && G.lives.filter(function(x){ return x.run_id === runId; })[0];
+  if (!G || !L) throw new Error("this life isn't in positions.json");
+  var title = L.title;
+  document.title = title + ": a life of HundredLives";
+
+  // ---------- the life, week by week ----------
+  var byWeek = {}, maxWeek = 0;
+  EV.forEach(function(e){ if (e.week == null) return; (byWeek[e.week] = byWeek[e.week] || []).push(e); maxWeek = Math.max(maxWeek, e.week); });
+  var N = maxWeek || 1, horizon = meta.horizon || N;
+  var sumWeeks = {}; (summary.weeks || []).forEach(function(w){ sumWeeks[w.week] = w; });
+  var money_ = {}; EV.forEach(function(e){ if (e.kind === "money" && e.at === "end") money_[e.week] = e; });
+  var names = {}; ((persona && persona.contacts) || []).forEach(function(c){ names[c.id] = c.name; });
+  function who(id) { return names[id] || cap(id || "someone"); }
+  function evs(w) { return byWeek[w] || []; }
+  function one(w, kind, f) { return evs(w).filter(function(e){ return e.kind === kind && (!f || f(e)); }); }
+
+  // The hut's decisions (and what came back from earlier ones) as one mono line each.
+  function refLines(w) {
+    var out = [];
+    evs(w).forEach(function(e){
+      if (e.kind === "referee" && e.event === "apply")
+        out.push("applied to " + e.opening_id + " · odds " + p2(e.estimated_chance) + " (base " + p2(e.base_rate) + ") · rolled " + p2(e.draw) + " · " +
+          (OUT[e.outcome] || e.outcome) + (e.reveal_week != null && e.reveal_week !== w ? ", heard week " + e.reveal_week : ""));
+      else if (e.kind === "referee" && e.event === "launch")
+        out.push("launched " + repoName(e.repo) + " · odds " + p2(e.estimated_chance) + " (base " + p2(e.base_rate) + ") · rolled " + p2(e.draw) + " · " + (OUT[e.outcome] || e.outcome) + ", " + plural(e.upvotes || 0, "upvote", "upvotes"));
+      else if (e.kind === "referee" && e.event === "hackathon")
+        out.push("judged at " + e.opening_id + " · odds " + p2(e.estimated_chance) + " (base " + p2(e.base_rate) + ") · rolled " + p2(e.draw) + " · " + (OUT[e.outcome] || e.outcome) + (e.prize ? ", prize " + money(e.prize) : ""));
+      else if (e.kind === "referee" && e.event === "reply")
+        out.push(e.opening_id + " answered · " + (OUT[e.outcome] || e.outcome));
+      else if (e.kind === "referee" && e.event === "no_reply")
+        out.push(e.opening_id + " never answered · dropped from the pending list");
+      else if (e.kind === "post")
+        out.push("post " + e.n + " · breakout odds " + p2(e.estimated_chance) + " (base " + p2(e.base_rate) + ") · rolled " + p2(e.draw) + " · " + (e.breakout ? "broke out" : "no breakout") + ", luck " + e.luck + "×");
+      else if (e.kind === "message")
+        out.push("message to " + who(e.contact_id) + " · reply rate " + p2(e.reply_rate) + " · rolled " + p2(e.draw) + " · " + (e.replied ? "replied" : "no reply"));
+    });
+    return out;
+  }
+  function betText(e, wk) {
+    if (e.event === "invest_personal") return "Put " + money(e.amount) + " of savings into the company.";
+    if (e.event === "go_fulltime") {
+      var left = (wk || []).filter(function(x){ return x.kind === "life" && x.event === "commitment_ended" && x.reason === "go_fulltime"; }).map(function(x){ return x.label || x.opening_id; });
+      return "Went full-time on " + e.venture + (e.enrolled ? " (classes stay)" : "") + (left.length ? ", leaving " + left.join(", ") : "") + ".";
+    }
+    if (e.event === "decline_offer") return "Declined " + e.opening_id + " (" + (e.stage === "started" ? "just started" : e.stage === "upcoming" ? "starts later" : "held offer") + (e.weekly_pay ? ", " + money(e.weekly_pay) + " a week" : "") + ").";
+    if (e.event === "deploy") return "Deployed " + e.url + " (version " + e.version + ").";
+    return cap(e.event) + ".";
+  }
+  // Commitments, cash and the week's other changes, compactly.
+  function factLine(w) {
+    var bits = [], wk = evs(w), m = money_[w], ws = one(w, "week_start")[0];
+    if (ws && ws.broke) bits.push("Broke: cash plus income didn't cover this week's expenses.");
+    wk.forEach(function(e){
+      if (e.kind === "life") {
+        if (e.event === "commitment_started") bits.push("Started " + (e.label || e.opening_id) + ".");
+        else if (e.event === "commitment_ended") bits.push("Ended " + (e.label || e.opening_id) + (e.reason ? " (" + e.reason.replace(/_/g, " ") + ")" : "") + ".");
+        else if (e.event === "offer_held") bits.push("Offer from " + e.opening_id + " held: no room for it yet.");
+        else if (e.event === "offer_lapsed") bits.push("Offer from " + e.opening_id + " lapsed.");
+        else if (e.event === "gig") bits.push((e.forced ? "Forced to take a gig" : "Took a gig") + (e.pay ? " (" + money(e.pay) + ")" : "") + ".");
+        else if (e.event === "graduated") bits.push("Graduated.");
+        else if (e.event === "hackathon_week") bits.push("Hackathon week at " + e.opening_id + ".");
+        else if (e.event === "spend") bits.push("Spent " + money(e.price) + " of company funds on " + String(e.item).replace(/_/g, " ") + (e.repo ? " for " + repoName(e.repo) : "") + ".");
+      } else if (e.kind === "venture") bits.push(betText(e, wk));
+    });
+    if (m) bits.push("Cash " + money(m.cash) + ".");
+    return bits.join(" ");
+  }
+  // A week is quiet when nothing happened that the page shows: no messages or posts, no decisions, no news,
+  // and the same commitments as the week before. Runs of quiet weeks fold into one row.
+  function labelsAt(w) { var m = money_[w]; return m ? (m.commitments || []).join("|") : ""; }
+  function quiet(w) {
+    if (w === 1) return false;
+    var ws = one(w, "week_start")[0];
+    if (ws && (ws.broke || (ws.news || []).length)) return false;
+    if (labelsAt(w) !== labelsAt(w - 1)) return false;
+    return !evs(w).some(function(e){
+      return e.kind === "message" || e.kind === "post" || e.kind === "referee" || e.kind === "venture" || e.kind === "blocked" ||
+        e.kind === "git_commit" || e.kind === "git_push" || (e.kind === "idea" && (e.source === "reflection" || e.source === "pitch")) ||
+        (e.kind === "life" && e.event !== "gig" && e.event !== "train");
+    });
+  }
+  function holding(w) {
+    var m = money_[w], sw = sumWeeks[w] || {}, labels = m ? (m.commitment_detail || []) : [];
+    var main = labels.filter(function(c){ return c.kind !== "academics"; }).sort(function(a, z){ return (z.time_cost || 0) - (a.time_cost || 0); });
+    var parts = main.length ? [main[0].label + (main.length > 1 ? " and " + plural(main.length - 1, "more", "more") : "")] : [];
+    if (labels.some(function(c){ return c.kind === "academics"; })) parts.push("classes");
+    if (sw.gig) parts.push("gigs");
+    return parts.length ? parts.join(", ") : "no commitment";
+  }
+
+  function digestOf(w) {
+    var we = one(w, "week_end")[0], d = we ? we.digest || "" : "", note = null;
+    d = d.replace(/^\[w\d+\]\s*/, "");
+    var m = d.match(/(?:^|;\s*)note: "([\s\S]*)"\s*$/);
+    if (m) { note = m[1]; d = d.slice(0, m.index); }
+    // the digest shortens the note; the log keeps it whole as the week's wait note
+    var full = one(w, "thought", function(e){ return e.source === "note"; })[0];
+    if (full) note = full.text;
+    return { text: we ? sentence(d) || "Nothing else logged." : "This week didn't finish.", note: note };
+  }
+
+  function bubble(own, label, text, key, after, rule) {
+    return h("div", { class: "msg " + (own ? "own" : "other") },
+      label ? h("div", { class: "who", text: label }) : null,
+      h("div", { class: "bub", style: "--tilt:" + tilt(runId + ":" + key).toFixed(2) + "deg", text: text }),
+      (after || []).filter(Boolean).map(function(a){ return h("div", { class: "after", text: a }); }),
+      rule ? h("div", { class: "rule", text: rule }) : null);
+  }
+  function offerText(o) {
+    if (!o) return null;
+    return "offer: " + (o.kind === "referral" ? "referral to " + o.opening_id : o.kind === "paid_pilot" ? "paid pilot, " + money(o.amount)
+      : o.kind === "money" ? money(o.amount) + " to personal cash" : o.kind === "teammate" ? "teammate for " + o.opening_id
+      : o.kind === "boost" ? "boost to about " + (o.reach || 0).toLocaleString("en-US") + " people" + (o.community ? " (" + o.community + ")" : "") : o.kind);
+  }
+  function siteLines(m) {
+    return (m.sites_seen || []).map(function(n){ return (m.replied ? "opened " : "linked ") + n; })
+      .concat((m.sites_missing || []).map(function(n){ return n + ": no site there"; }), m.private_link ? ["private code-host link: didn't open"] : []);
+  }
+  function bubbles(w) {
+    var out = [], ws = one(w, "week_start")[0], types = meta.opening_types || {};
+    // what came back from openings: news that starts with an opening's id is that opening's own reply
+    ((ws && ws.news) || []).forEach(function(n, i){
+      var m = n.match(/^([a-z]+-\d+) ([^:]+): ([\s\S]+)$/);
+      if (!m || types[m[1]] === undefined) return;
+      // The news line is the opening's letter (written by the referee, logged with its decision) followed by the
+      // world's rule text. Split on the logged letter; if it doesn't match exactly, keep the line whole.
+      var dec = EV.filter(function(e){ return e.kind === "referee" && e.event === "apply" && e.opening_id === m[1] && e.reveal_week === w && e.letter; })[0];
+      var body = m[3], letter = body, rule = null;
+      if (dec && body.indexOf(dec.letter) === 0) { letter = dec.letter; rule = body.slice(dec.letter.length).trim() || null; }
+      out.push(bubble(false, m[1] + ", " + m[2], letter, w + ":news:" + i, null, rule));
+    });
+    evs(w).forEach(function(e){
+      if (e.kind === "message") {
+        out.push(bubble(true, "To " + who(e.contact_id), e.text, e.seq + ":m", siteLines(e)));
+        if (e.replied) out.push(bubble(false, who(e.contact_id), e.reply, e.seq + ":r", [offerText(e.offer), e.offer_problem ? "offer problem: " + e.offer_problem : null]));
+      } else if (e.kind === "post") {
+        out.push(bubble(true, "Posted to the feed" + (e.repo ? ", with " + repoName(e.repo) : ""), e.text, e.seq + ":p",
+          ["about " + (e.reach || 0).toLocaleString("en-US") + " people saw it, " + plural(e.likes || 0, "like", "likes") + ", " + plural(e.replies || 0, "reply", "replies") + ", +" + (e.new_followers || 0) + " followers"]));
+        (e.shown || []).forEach(function(r, i){ out.push(bubble(false, "@" + r.handle, r.text, e.seq + ":pr" + i)); });
+      }
+    });
+    return out;
+  }
+
+  // Everything else logged this week, folded.
+  function more(w) {
+    var wk = evs(w), ws = one(w, "week_start")[0], we = one(w, "week_end")[0], m = money_[w], items = [];
+    function add(label, nodes) { nodes = [].concat(nodes).filter(Boolean); if (nodes.length) items.push(h("dt", { text: label }), h("dd", {}, nodes)); }
+    if (we) add("The week", h("div", { text: "Ended by " + String(we.reason).replace(/_/g, " ") + ". " + (we.used == null ? "" : we.used + " of " + we.actions + " actions used, ") +
+      plural(we.invalid || 0, "invalid call", "invalid calls") + "." + (we.shortfall ? " Shortfall " + money(we.shortfall) + "." : "") +
+      (ws && ws.openings_hidden ? " " + plural(ws.openings_hidden, "opening", "openings") + " hidden from the agent (pending, accepted, or before the reapply week)." : "") }));
+    if (m) add("Money", h("div", { class: "num", text: "Cash " + money(m.cash) + ", income " + money(m.income) + " a week, expenses " + money(m.expenses) + " a week, company funds " +
+      money(m.company_balance != null ? m.company_balance : m.company_funding) + (m.company_spent || m.company_revenue ? " (raised " + money(m.company_funding) + ", customers " + money(m.company_revenue) + ", spent " + money(m.company_spent) + ")" : "") +
+      (m.company_invested ? ", " + money(m.company_invested) + " of savings invested" : "") + (m.followers != null ? ", " + plural(m.followers, "follower", "followers") : "") +
+      (m.train_streak != null ? ", training streak " + plural(m.train_streak, "week", "weeks") : "") + "." }));
+    if (m && (m.commitments || []).length) add("Commitments", h("div", { text: m.commitments.join("; ") }));
+    var sysNews = ((ws && ws.news) || []).filter(function(n){ var x = n.match(/^([a-z]+-\d+) [^:]+: /); return !(x && (meta.opening_types || {})[x[1]] !== undefined); });
+    add("News", sysNews.map(function(n){ return h("div", { class: "t item", text: n }); }));
+    add("Problems carried from last week", ((ws && ws.carried_errors) || []).map(function(n){ return h("div", { class: "t item", text: n }); }));
+    add("Thinking and text", wk.filter(function(e){ return e.kind === "thought" && e.source !== "note"; }).map(function(e){
+      return h("div", { class: "item" }, h("div", { class: "meta", text: e.source === "thinking" ? "thinking (summarized)" : e.nudge ? "nudge" : "text" }), h("div", { class: "t", text: e.text })); }));
+    add("Ideas and writing", wk.filter(function(e){ return e.kind === "idea" && e.source !== "reflection"; }).map(function(e){
+      var lab = { idea: "idea (from wait)", file: "wrote " + (e.path || ""), pitch: "launch pitch" + (e.title ? ", " + e.title : "") }[e.source] || e.source;
+      return h("div", { class: "item" }, h("div", { class: "meta", text: lab }), e.source === "file" ? h("pre", { text: e.text }) : h("div", { class: "t", text: e.text })); }));
+    add("Training", wk.filter(function(e){ return e.kind === "life" && e.event === "train"; }).map(function(e){ return h("div", { text: e.activity + ", streak " + plural(e.streak, "week", "weeks") }); }));
+    add("Referee", wk.filter(function(e){ return e.kind === "referee" && (e.event === "apply" || e.event === "launch" || e.event === "hackathon") || e.kind === "post"; }).map(function(e){
+      var head = e.kind === "post" ? "post " + e.n : e.event === "launch" ? "launch " + repoName(e.repo) : e.opening_id + (e.opening_type ? ", " + e.opening_type : e.event === "hackathon" ? ", hackathon judging" : "");
+      return h("details", { class: "item" }, h("summary", { text: head + ": " + (e.kind === "post" ? "breakout estimate and rationale" : "submission and rationale") }),
+        e.details ? [h("div", { class: "meta", text: "submission" }), h("div", { class: "t", text: e.details })] : null,
+        e.repo ? h("div", { class: "meta", text: "repo: " + e.repo }) : null,
+        e.key ? h("div", { class: "meta", text: "dice key: " + e.key }) : null,
+        e.estimated_chance != null && e.base_rate ? h("div", { class: "meta", text: "estimate ÷ base: " + (e.estimated_chance / e.base_rate).toFixed(2) + "×" }) : null,
+        h("div", { class: "meta", text: "referee rationale" }), h("div", { class: "t", text: e.rationale || "–" }),
+        (e.comments || []).length ? [h("div", { class: "meta", text: "forum comments" }), e.comments.map(function(c){ return h("div", { class: "t", text: c }); })] : null,
+        e.snapshot ? [h("div", { class: "meta", text: "repo as the referee saw it: " + (e.snapshot.commits == null ? "?" : e.snapshot.commits) + " commits, " + (e.snapshot.file_count == null ? "?" : e.snapshot.file_count) + " files" }),
+          (e.snapshot.files || []).length ? h("pre", { text: e.snapshot.files.join("  ") }) : null, e.snapshot.readme ? h("pre", { text: e.snapshot.readme }) : null] : null); }));
+    add("Website", wk.filter(function(e){ return e.kind === "venture" && e.event === "deploy"; }).map(function(d){
+      return h("div", { class: "item" }, h("div", { text: d.url + ", version " + d.version + ", " + plural(d.served, "file", "files") + " served from " + (d.root || "the repo root") + (d.not_served ? ", " + d.not_served + " not served" : "") + (d.sha ? ", " + d.sha.slice(0, 7) : "") }),
+        h("details", {}, h("summary", { text: "what visitors saw" }), h("pre", { text: d.view || "–" }))); }));
+    add("World limits hit", wk.filter(function(e){ return e.kind === "blocked"; }).map(function(b){
+      return h("div", { class: "item" }, h("div", { text: String(b.limit).replace(/_/g, " ") + ", via " + b.via + (b.alternative ? "; the world offered: " + b.alternative : "") }), h("div", { class: "t meta", text: b.evidence })); }));
+    add("Shell", wk.filter(function(e){ return e.kind === "shell_output"; }).map(function(e){
+      return h("div", { class: "item" }, h("div", { class: "meta", text: "exit " + e.exit_code + (e.timed_out ? ", timed out" : "") + (e.stopped ? ", output capped" : "") }), h("pre", { text: "$ " + e.command + "\n" + (e.output || "") })); }));
+    add("Git", wk.filter(function(e){ return e.kind === "git_commit" || e.kind === "git_push"; }).map(function(e){
+      return h("div", { class: "item", text: e.kind === "git_commit" ? "commit " + (e.sha || "(quiet, read from the command)") + ": " + e.message + (e.files != null ? ", " + plural(e.files, "file", "files") + " +" + e.insertions + " −" + e.deletions : "")
+        : (e.first ? "new repo on the code host: " : "push: ") + (e.repo || e.url || "") + ((e.refs || []).length ? " (" + e.refs.join(", ") + ")" : "") }); }));
+    add("Tool calls", wk.filter(function(e){ return e.kind === "tool_call"; }).map(function(e){
+      var a = e.input || {}, brief = String(a.opening_id || a.path || a.command || a.repo || a.note || a.action || a.contact_id || a.text || "").replace(/\s+/g, " ").slice(0, 80);
+      return h("details", { class: "item" }, h("summary", { text: e.tool + (e.is_error ? " (error)" : "") + (brief ? ": " + brief : "") }),
+        h("pre", { text: JSON.stringify(a, null, 2) }), h("div", { class: "meta", text: "result" }), h("pre", { text: e.output || "" })); }));
+    return items.length ? h("details", { class: "more" }, h("summary", { text: "Everything logged this week" }), h("div", { class: "body" }, h("dl", {}, items))) : null;
+  }
+
+  function weekSection(w) {
+    var d = digestOf(w), refl = one(w, "idea", function(e){ return e.source === "reflection"; })[0], lines = refLines(w), f = factLine(w), b = bubbles(w);
+    return h("section", { class: "wk", id: "w" + w, "data-w": w },
+      h("h2", { class: "wk-n", text: "Week " + w }),
+      h("p", { class: "digest", text: d.text }),
+      d.note ? h("p", { class: "said" }, h("span", { class: "who", text: "Its note at the end of the week" }), "“" + d.note + "”") : null,
+      refl ? h("p", { class: "said" }, h("span", { class: "who", text: "Quarterly reflection" }), "“" + refl.text + "”") : null,
+      b.length ? h("div", { class: "bubbles" }, b) : null,
+      lines.length ? h("div", { class: "ref" }, lines.map(function(t){ return h("div", { text: t }); })) : null,
+      f ? h("p", { class: "facts num", text: f }) : null,
+      more(w));
+  }
+  var weeksEl = document.getElementById("weeks"), units = [];
+  for (var w = 1; w <= N; w++) {
+    if (quiet(w) && w < N && quiet(w + 1)) {
+      var a = w; while (w + 1 <= N && quiet(w + 1)) w++;
+      var fold = h("details", { class: "quiet", "data-a": a, "data-b": w },
+        h("summary", {}, h("span", { class: "wk-n", text: "Weeks " + a + "–" + w }), holding(a) + ", no change"));
+      fold.addEventListener("toggle", (function(fold, a, b){ return function(){
+        if (fold.open && !fold.dataset.filled) { fold.dataset.filled = 1; for (var x = a; x <= b; x++) fold.append(weekSection(x)); }
+        measure();
+      }; })(fold, a, w));
+      weeksEl.append(fold);
+    } else weeksEl.append(weekSection(w));
+  }
+
+  // ---------- the header ----------
+  var counts = {}; G.lives.forEach(function(x){ counts[x.end] = (counts[x.end] || 0) + 1; });
+  var strayLine = null;
+  if (L.stray) {
+    strayLine = G.tie
+      ? "A stray: this experiment has no single most common ending (" + G.tied.map(function(e){ return counts[e] + " " + PHRASE[e]; }).join(", " ).replace(/, ([^,]*)$/, " and $1") + "), and this life ended outside every tied one."
+      : "A stray: " + counts[G.most_common_end] + " of " + G.lives.length + " lives in this experiment ended " + PHRASE[G.most_common_end] + ".";
+  }
+  var cost = sm && sm.cost_usd, tokens = sm && sm.tokens_used;
+  var details = [["Run", runId], ["Ended", !sm ? "still running" : sm.reason === "horizon" ? "at its horizon, week " + horizon : String(sm.reason).replace(/_/g, " ")],
+    ["World", meta.illustrative === false ? "sourced numbers" : "illustrative numbers, not sourced"],
+    ["Agent", (meta.models || {}).agent || "–"], ["Referee", (meta.models || {}).referee || "–"],
+    ["Order seed", String(meta.order_seed == null ? "–" : meta.order_seed)], ["Dice seed", String(meta.dice_seed == null ? "–" : meta.dice_seed) + (meta.dice_scheme === "sequential" ? " (sequential)" : "")],
+    ["Code", ((meta.code || {}).git_sha || "–").slice(0, 7) + ((meta.code || {}).dirty ? " (dirty)" : "")], ["Sandbox", meta.sandbox ? "docker" : "none"],
+    ["Tokens", (tokens || 0).toLocaleString("en-US") + (meta.token_budget ? " of " + meta.token_budget.toLocaleString("en-US") : "")],
+    ["Cost", cost != null ? "$" + cost.toFixed(4) : "–"]];
+  var headKids = [
+    h("h1", { text: title }),
+    h("p", {}, "A life of the persona " + (meta.persona || "–") + ", from ", h("a", { href: CFG.runs + "#" + G.id, text: G.title }), ". " + plural(N, "week", "weeks") + (horizon !== N ? " of " + horizon : "") + "."),
+    h("p", {}, L.stray ? h("i", { class: "gold", "aria-hidden": "true" }) : null, "It ended " + PHRASE[L.end] + (L.end === "searching" ? ", near the hut." : ".") + (strayLine ? " " + strayLine : "")),
+    meta.pilot || (sm && sm.reason !== "horizon") ? h("p", { class: "flag", text: [meta.pilot ? "PILOT: uncommitted or unrecorded code" : null, sm && sm.reason !== "horizon" ? "ended: " + sm.reason : null].filter(Boolean).join(". ") }) : null];
+  headKids.push(h("details", { class: "rundetails" }, h("summary", { text: "Run details" }), h("dl", {}, details.map(function(d){ return [h("dt", { text: d[0] }), h("dd", { text: d[1] })]; }))),
+    h("p", { class: "start", text: "Scroll to live it week by week. The gold sheep is this life; the white ones are the other " + plural(G.lives.length - 1, "life", "lives") + " of " + G.title + ", at the same point in their own lives." }));
+  if (G.lives.length === 1) headKids[headKids.length - 1].textContent = "Scroll to live it week by week. The gold sheep is this life, the only one in " + G.title + ".";
+  document.getElementById("head").replaceChildren.apply(document.getElementById("head"), headKids.filter(Boolean));
+
+  // ---------- the valley ----------
+  var heroIdx = G.lives.indexOf(L);
+  var valley = createValley(cv, {
+    lives: G.lives.map(function(x){ return { points: x.points, stray: false }; }),  // gold is this life only; the others are ghosts
+    hero: heroIdx, time: false, ghost: [-2, -1, 3, 4], still: still,
+    chaseSmooth: { weeks: 4, maxTurn: 1 },
+    // above the hut while the header is up, then the ghost cam behind this life from week 1 on
+    shots: [{ p: 0, pos: [150, 95, 170], look: "hut" }, { p: 1 / Math.max(1, G.lives[0] && L.points.length - 1), pos: "chase" }, { p: 1, pos: "chase" }]
+  });
+  window.valley = valley;
+  var heroWeeks = L.points.length - 1;
+  document.getElementById("hudOf").textContent = "of " + heroWeeks;
+
+  // the strip of weeks: one bar per week, the current one outlined; a click goes to that week
+  var stripEl = document.getElementById("strip"), SW = 1000, SH = 14, slot = SW / heroWeeks, mark;
+  (function(){
+    var svg = s("svg", { viewBox: "0 0 " + SW + " " + SH, preserveAspectRatio: "none", role: "img", "aria-label": "Weeks 1 to " + heroWeeks });
+    for (var i = 1; i <= heroWeeks; i++) {
+      var sw = sumWeeks[i], x = (i - 1) * slot, r = s("rect", { x: x + slot * .12, y: 2, width: slot * .76, height: SH - 4, rx: 1, fill: !sw ? "#1b261f" : sw.broke ? "var(--rust)" : KIND[weekKind(sw)][1], "data-w": i });
+      if (sw) { var t = s("title"); t.textContent = "Week " + i + ": " + KIND[weekKind(sw)][0] + (sw.broke ? ", broke" : "") + ", cash " + money(sw.cash); r.append(t); }
+      svg.append(r);
+    }
+    mark = s("rect", { x: 0, y: 0, width: slot, height: SH, fill: "none", stroke: "#fff", "stroke-width": 1.5, "vector-effect": "non-scaling-stroke", rx: 1.5 });
+    svg.append(mark); stripEl.append(svg);
+    stripEl.addEventListener("click", function(e){ var r = stripEl.getBoundingClientRect(); goWeek(Math.max(1, Math.min(heroWeeks, Math.floor((e.clientX - r.left) / r.width * heroWeeks) + 1)), true); });
+  })();
+
+  // ---------- scroll <-> life time ----------
+  // Anchors in page coordinates: the end of the header is week 0 (the hut), a week's middle is that week,
+  // a folded run of quiet weeks spans its first to its last week. The camera and the counter read the
+  // anchor at the activation line (the middle of the screen; on a phone, the middle of the text under the valley).
+  var anchors = [], wide = matchMedia("(min-width: 900px)");
+  function lineY() { var vh = innerHeight; return wide.matches ? vh * .5 : vh * .45 + vh * .55 * .4; }
+  function docTop(el) { return el.getBoundingClientRect().top + scrollY; }
+  function measure() {
+    anchors = [];
+    var head = document.getElementById("head"); anchors.push({ y: docTop(head) + head.offsetHeight * .7, t: 0 });
+    [].forEach.call(weeksEl.children, function(el){
+      if (el.classList.contains("quiet")) {
+        var a = +el.dataset.a, b = +el.dataset.b, top = docTop(el), sum = el.querySelector("summary"), sh = sum.offsetHeight;
+        if (el.open && el.dataset.filled) {
+          anchors.push({ y: top + sh / 2, t: a - .5 });
+          [].forEach.call(el.querySelectorAll(".wk"), function(x){ anchors.push({ y: docTop(x) + x.offsetHeight / 2, t: +x.dataset.w }); });
+        } else { anchors.push({ y: top + sh * .2, t: a }); anchors.push({ y: top + sh * .8 + 1, t: b }); }
+      } else anchors.push({ y: docTop(el) + el.offsetHeight / 2, t: +el.dataset.w });
+    });
+    anchors.sort(function(p, q){ return p.y - q.y; });
+  }
+  function tAt(y) {
+    if (!anchors.length) return 0;
+    if (y <= anchors[0].y) return anchors[0].t;
+    for (var i = 1; i < anchors.length; i++) if (y <= anchors[i].y) { var a = anchors[i - 1], b = anchors[i]; return a.t + (b.t - a.t) * (y - a.y) / (b.y - a.y || 1); }
+    return anchors[anchors.length - 1].t;
+  }
+  function yFor(w) { for (var i = 0; i < anchors.length; i++) if (anchors[i].t >= w) return anchors[i].y; return anchors[anchors.length - 1].y; }
+  function sectionFor(w) { return document.getElementById("w" + w); }
+  function goWeek(w, smooth) {
+    var fold = [].filter.call(weeksEl.querySelectorAll(".quiet"), function(f){ return w >= +f.dataset.a && w <= +f.dataset.b; })[0];
+    if (fold && !fold.open) { fold.open = true; fold.dispatchEvent(new Event("toggle")); }
+    measure();
+    var target = yFor(w) - lineY();
+    scrollTo({ top: Math.max(0, target), behavior: smooth && !still ? "smooth" : "auto" });
+    syncWeek();
+  }
+
+  var shown = -1, lastHash = null, userMoved = false, wantW = null;
+  ["wheel", "touchstart", "keydown", "pointerdown"].forEach(function(t){ addEventListener(t, function(){ userMoved = true; }, { passive: true }); });
+  var hm = location.hash.match(/\?w=(\d+)/); if (hm) wantW = Math.max(1, Math.min(N, +hm[1]));
+  function setWeek(wk) {
+    if (userMoved) { var hs = "#/run/" + encodeURIComponent(runId) + "?w=" + wk; if (hs !== lastHash) { lastHash = hs; history.replaceState(null, "", hs); } }
+    if (wk === shown) return;
+    shown = wk;
+    document.getElementById("hudWeek").textContent = Math.max(1, wk);
+    mark.setAttribute("x", (Math.max(1, wk) - 1) * slot);
+    [].forEach.call(document.querySelectorAll(".wk.on, .quiet.on"), function(x){ x.classList.remove("on"); });
+    var sec = sectionFor(wk); if (sec && sec.offsetParent) sec.classList.add("on");
+    else [].forEach.call(weeksEl.querySelectorAll(".quiet"), function(f){ if (wk >= +f.dataset.a && wk <= +f.dataset.b) f.classList.add("on"); });
+  }
+  addEventListener("hashchange", function(){ var m = location.hash.match(/\?w=(\d+)/); if (m && location.hash !== lastHash) goWeek(Math.max(1, Math.min(N, +m[1])), false); });
+
+  // On wide screens the right third is text: the chased sheep sits in the middle of the left two thirds.
+  function size() {
+    valley.resize();
+    var W = cv.clientWidth, H = cv.clientHeight;
+    if (wide.matches && W && H) valley.camera.setViewOffset(W, H, W / 6, 0, W, H); else valley.camera.clearViewOffset();
+    measure();
+  }
+  var rt; addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(size, 120); });
+  if (typeof ResizeObserver === "function") new ResizeObserver(function(){ measure(); }).observe(document.getElementById("col"));
+
+  // The counter, the week in focus and the address follow the scroll at once; the valley catches up each frame.
+  function lifeT() { var t = tAt(scrollY + lineY()); return still ? Math.round(t) : t; }  // reduced motion: a still frame per week
+  function syncWeek() { setWeek(Math.max(1, Math.min(N, Math.round(lifeT())))); }
+  addEventListener("scroll", syncWeek, { passive: true });
+  var drawn = false;
+  function frame() {
+    valley.update(Math.max(0, Math.min(1, lifeT() / heroWeeks)));
+    syncWeek();
+    if (!drawn) { drawn = true; load.style.opacity = 0; }
+    requestAnimationFrame(frame);
+  }
+  size();
+  if (wantW) goWeek(wantW, false);
+  // ?w=N opens at week N; once the fonts settle the layout, land there again unless the reader has moved
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ size(); if (wantW && !userMoved) goWeek(wantW, false); });
+  requestAnimationFrame(frame);
+
+  // ---------- the whole life, below ----------
+  buildWhole();
+  function buildWhole() {
+    var main = document.getElementById("whole"), kids = [h("h2", { text: "The whole life" })];
+    var weeks = []; for (var i = 1; i <= N; i++) if (money_[i]) weeks.push(Object.assign({}, money_[i], sumWeeks[i] || {}, { week: i,
+      deployed: one(i, "venture", function(e){ return e.event === "deploy"; }).map(function(e){ return e.url; }),
+      bets: one(i, "venture", function(e){ return e.event !== "deploy"; }).map(function(e){ return betText(e, evs(i)); }) }));
+    kids.push(h("p", { text: "Cash at the end of each week, and what each week held. Click a week to go to it." }), cashChart(weeks), keys(weeks));
+
+    var weT = EV.filter(function(e){ return e.kind === "week_end"; }), valid = weT.reduce(function(a, e){ return a + (e.valid || 0); }, 0), invalid = weT.reduce(function(a, e){ return a + (e.invalid || 0); }, 0);
+    var decided = EV.filter(function(e){ return e.kind === "referee" && (e.event === "apply" || e.event === "launch" || e.event === "hackathon"); });
+    var rated = decided.filter(function(e){ return (e.event === "apply" || e.event === "launch") && e.base_rate; });
+    var ratio = rated.length ? rated.reduce(function(a, e){ return a + e.estimated_chance / e.base_rate; }, 0) / rated.length : null;
+    var commits = EV.filter(function(e){ return e.kind === "git_commit"; }), pushes = EV.filter(function(e){ return e.kind === "git_push" && !e.first; }), newRepos = EV.filter(function(e){ return e.kind === "git_push" && e.first; });
+    var launches = EV.filter(function(e){ return e.kind === "referee" && e.event === "launch"; }), shellN = EV.filter(function(e){ return e.kind === "shell_output"; }).length;
+    var msgs = EV.filter(function(e){ return e.kind === "message"; }), posts = EV.filter(function(e){ return e.kind === "post"; });
+    var last = weeks[weeks.length - 1] || {};
+    var T = [["Valid actions", valid + invalid ? pct(valid / (valid + invalid)) + " (" + valid + " of " + (valid + invalid) + " calls)" : "–"],
+      ["Referee estimate ÷ base rate", ratio == null ? "no decisions" : "mean " + ratio.toFixed(2) + "× over " + plural(rated.length, "decision", "decisions")],
+      ["Decisions", plural(decided.length, "decision", "decisions") + " by the hut: " + decided.filter(function(e){ return e.event === "apply"; }).length + " applications, " + plural(launches.length, "launch", "launches") + ", " + plural(decided.filter(function(e){ return e.event === "hackathon"; }).length, "judging", "judgings")],
+      ["Messages", plural(msgs.length, "message", "messages") + " sent, " + msgs.filter(function(m){ return m.replied; }).length + " replied"],
+      ["Projects", plural(commits.length, "commit", "commits") + ", " + plural(newRepos.length, "repo", "repos") + ", " + plural(pushes.length, "push", "pushes") + ", " + plural(launches.length, "launch", "launches") + ", " + plural(shellN, "shell command", "shell commands")]];
+    if (weeks.some(function(w){ return w.train_streak != null; })) {
+      var trained = {}; EV.forEach(function(e){ if (e.kind === "life" && e.event === "train") trained[e.week] = 1; });
+      T.push(["Training", "streak " + plural(last.train_streak || 0, "week", "weeks") + " at the end, best " + Math.max.apply(null, weeks.map(function(w){ return w.train_streak || 0; }).concat(0)) + ", " + Object.keys(trained).length + " of " + weeks.length + " weeks with a session"]);
+    }
+    if (posts.length || weeks.some(function(w){ return w.followers != null; }))
+      T.push(["Feed", plural(posts.length, "post", "posts") + ", " + plural(last.followers || 0, "follower", "followers") + " at the end, " + plural(posts.reduce(function(a, p){ return a + (p.likes || 0); }, 0), "like", "likes") + " in all, " + posts.filter(function(p){ return p.breakout; }).length + " broke out"]);
+    var dep = EV.filter(function(e){ return e.kind === "venture" && e.event === "deploy"; }), bets = EV.filter(function(e){ return e.kind === "venture" && e.event !== "deploy"; }), bl = EV.filter(function(e){ return e.kind === "blocked"; });
+    if (dep.length || bets.length || bl.length) {
+      var byLimit = {}; bl.forEach(function(b){ byLimit[b.limit] = (byLimit[b.limit] || 0) + 1; });
+      T.push(["Website, bets and world limits", plural(dep.length, "deploy", "deploys") + ", " + plural(bets.length, "costly bet", "costly bets") + ", " + plural(bl.length, "world limit", "world limits") + " hit" +
+        (bl.length ? " (" + Object.keys(byLimit).map(function(k){ return byLimit[k] + " " + k.replace(/_/g, " "); }).join(", ") + ")" : "") + ". A world limit is logged when an attempt runs into something the world can't do; plans never attempted don't appear."]);
+    }
+    T.push(["Tokens and cost", (tokens || 0).toLocaleString("en-US") + " tokens, " + (cost != null ? "$" + cost.toFixed(4) : "–")]);
+    kids.push(h("dl", { class: "totals" }, T.map(function(t){ return [h("dt", { text: t[0] }), h("dd", { class: "num", text: t[1] })]; })));
+    if (posts.length) kids.push(feedCharts(weeks, posts));
+    kids.push(trends(weeks, commits));
+
+    kids.push(h("h3", { text: "Every decision the hut made" }),
+      h("p", { text: "The referee only estimates the odds; keyed dice pick the outcome. Success if the roll is under the odds." }),
+      decided.length ? h("div", { class: "tscroll" }, h("table", {},
+        h("thead", {}, h("tr", {}, ["Week", "What", "Base", "Odds", "Odds ÷ base", "Rolled", "Outcome"].map(function(t, i){ return h("th", { class: i > 1 && i < 6 ? "r" : null, text: t }); }))),
+        h("tbody", {}, decided.map(function(e){
+          return h("tr", {}, h("td", {}, h("a", { href: "#/run/" + encodeURIComponent(runId) + "?w=" + e.week, text: String(e.week) })),
+            h("td", {}, e.event === "launch" ? "launch " + repoName(e.repo) : e.opening_id, h("span", { class: "sub", text: e.event === "launch" ? "forum" : e.event === "hackathon" ? "hackathon judging" : e.opening_type || "" })),
+            h("td", { class: "r", text: pct(e.base_rate) }), h("td", { class: "r", text: pct(e.estimated_chance) }),
+            h("td", { class: "r", text: e.base_rate ? (e.estimated_chance / e.base_rate).toFixed(2) + "×" : "–" }), h("td", { class: "r", text: e.draw != null ? e.draw.toFixed(3) : "–" }),
+            h("td", {}, OUT[e.outcome] || e.outcome, h("span", { class: "sub", text: e.event === "launch" ? plural(e.upvotes || 0, "upvote", "upvotes") : e.event === "hackathon" ? (e.prize ? "prize " + money(e.prize) : "") : e.reveal_week != null ? "heard week " + e.reveal_week : "" })));
+        })))) : h("p", { class: "empty", text: "No applications." }));
+
+    kids.push(h("h3", { text: "Repos" }), repos.length ? repos.map(function(b){
+      return h("div", { class: "repo" }, h("div", {}, h("span", { class: "name", text: b.repo }), b.error ? ", " + b.error : ", " + plural((b.commits || []).length, "commit", "commits") + ", " + plural(b.file_count || 0, "file", "files") + (b.bundle_bytes != null ? ", " + b.bundle_bytes.toLocaleString("en-US") + " bytes" : "")),
+        (b.commits || []).map(function(c){ return h("div", { class: "c" }, h("code", { text: c.sha.slice(0, 7) }), " " + c.subject + ", " + plural(c.files, "file", "files") + " +" + c.insertions + " −" + c.deletions); }),
+        (b.files || []).length ? h("pre", { class: "pre", text: b.files.join("  ") }) : null,
+        b.readme ? h("details", { style: "margin-top:8px" }, h("summary", { text: b.readme_path || "README" }), h("pre", { class: "pre", text: b.readme })) : null);
+    }) : h("p", { class: "empty", text: "No repos were exported at the end of this life." }), h("p", { class: "empty", style: "font-size:14.5px", text: "Exported from the private code host when the life ended (runs/<id>/repos/*.bundle)." }));
+
+    kids.push(h("details", { style: "margin-top:48px" }, h("summary", { text: "Every week as a table" }), h("div", { class: "tscroll", style: "margin-top:12px" }, h("table", {},
+      h("thead", {}, h("tr", {}, ["Week", "Cash", "Income", "Company funds", "Commitments", "Gig", "Broke"].map(function(t, i){ return h("th", { class: i && i < 4 ? "r" : null, text: t }); }))),
+      h("tbody", {}, weeks.map(function(w){ return h("tr", {}, h("td", {}, h("a", { href: "#/run/" + encodeURIComponent(runId) + "?w=" + w.week, text: String(w.week) })),
+        h("td", { class: "r", text: money(w.cash) }), h("td", { class: "r", text: money(w.income) }), h("td", { class: "r", text: money(w.company_balance != null ? w.company_balance : w.company_funding) }),
+        h("td", { text: (w.commitments || []).join("; ") || "–" }), h("td", { text: w.gig ? "yes" : "" }), h("td", { text: w.broke ? "broke" : "" })); }))))));
+    kids.push(h("p", { class: "note", text: "Simulated life. Fictional world, organizations and odds; contacts are invented. Not a record of real events, people, or companies." }));
+    main.replaceChildren.apply(main, kids);
+  }
+  function keys(weeks) {
+    var school = weeks.some(function(w){ return w.school; }), el = h("div", { class: "keys" });
+    ["full_time", "part_time", "accelerator", "gig"].concat(school ? ["school"] : [], ["none"]).forEach(function(k){ el.append(h("span", {}, h("i", { style: "background:" + KIND[k][1] }), KIND[k][0])); });
+    el.append(h("span", {}, h("i", { class: "broke", style: "background:var(--rust)" }), "Broke (white dot)"));
+    if (weeks.some(function(w){ return w.deployed.length; })) el.append(h("span", {}, h("i", { style: "width:9px;height:9px;border-radius:50%;background:#fff" }), "Deployed a site"));
+    if (weeks.some(function(w){ return w.bets.length; })) el.append(h("span", {}, h("i", { style: "width:9px;height:9px;transform:rotate(45deg);background:var(--ochre)" }), "Costly bet"));
+    return el;
+  }
+  function cashChart(weeks) {
+    var wrap = h("div", { class: "chart" }), tipEl = h("div", { class: "ctip" });
+    var W = 1200, Hh = 240, pl = 70, pr = 8, pt = 14, pb = 44, n = Math.max(horizon, weeks.length, 1), slot = (W - pl - pr) / n;
+    var vals = weeks.map(function(w){ return w.cash || 0; }), max = Math.max.apply(null, [1].concat(vals)) * 1.08;
+    var x = function(wk){ return pl + (wk - .5) * slot; }, y = function(v){ return Hh - pb - v / max * (Hh - pt - pb); };
+    var svg = s("svg", { viewBox: "0 0 " + W + " " + Hh, role: "img", "aria-label": "Cash by week: " + (weeks.length ? money(vals[0]) + " in week 1, " + money(vals[vals.length - 1]) + " in week " + weeks[weeks.length - 1].week : "no weeks") });
+    var step = Math.pow(10, Math.floor(Math.log10(max / 3 || 1))), nice = [1, 2, 2.5, 5, 10].map(function(m){ return m * step; }).filter(function(v){ return v >= max / 3; })[0] || step * 10, top = nice * Math.floor(max / nice);
+    [0, top].forEach(function(v){ var t = s("text", { x: pl - 12, y: y(v) + 4, "text-anchor": "end", "font-size": 13, fill: "var(--grey-2)" }); t.textContent = money(v); svg.append(t); svg.append(s("line", { x1: pl, x2: W - pr, y1: y(v), y2: y(v), stroke: "var(--line)" })); });
+    if (weeks.length) {
+      svg.append(s("path", { d: weeks.map(function(w, i){ return (i ? "L" : "M") + x(w.week).toFixed(1) + " " + y(w.cash || 0).toFixed(1); }).join(" "), fill: "none", stroke: "#fff", "stroke-width": 1.6, "stroke-linejoin": "round" }));
+      weeks.forEach(function(w){
+        var cx = x(w.week), cy = y(w.cash || 0), dir = cy - 26 < pt ? 1 : -1;
+        if (w.deployed.length) { var c = s("circle", { cx: cx, cy: cy + dir * 11, r: 4.5, fill: "#fff" }), t = s("title"); t.textContent = "Week " + w.week + ": deployed " + w.deployed.join(", "); c.append(t); svg.append(c); }
+        if (w.bets.length) { var by = cy + dir * (w.deployed.length ? 23 : 11), d = s("path", { d: "M" + cx + " " + (by - 5) + " L" + (cx + 5) + " " + by + " L" + cx + " " + (by + 5) + " L" + (cx - 5) + " " + by + " Z", fill: "var(--ochre)" }), t2 = s("title"); t2.textContent = "Week " + w.week + ": " + w.bets.join(" "); d.append(t2); svg.append(d); }
+      });
+    }
+    // the strip of weeks under the line
+    for (var i = 1; i <= n; i++) {
+      var sw = sumWeeks[i], rx = pl + (i - 1) * slot, rr = s("rect", { x: rx + Math.min(1, slot / 4), y: Hh - pb + 12, width: Math.max(slot - Math.min(2, slot / 2), .6), height: 12, rx: 1.5, fill: !sw ? "#1b261f" : sw.broke ? "var(--rust)" : KIND[weekKind(sw)][1] });
+      svg.append(rr);
+      if (sw && sw.broke) svg.append(s("circle", { cx: rx + slot / 2, cy: Hh - pb + 18, r: 1.4, fill: "#fff" }));
+    }
+    [1].concat(n >= 26 ? [13, 26, 39, 52, 65, 78, 91, 104].filter(function(v){ return v <= n; }) : [n]).forEach(function(wk){ var t = s("text", { x: x(wk), y: Hh - 2, "text-anchor": "middle", "font-size": 13, fill: "var(--grey-2)" }); t.textContent = "week " + wk; svg.append(t); });
+    var hair = s("line", { y1: pt, y2: Hh - pb, stroke: "var(--grey-2)", visibility: "hidden" }), hit = s("rect", { x: pl, y: 0, width: W - pl - pr, height: Hh, fill: "transparent", style: "cursor:pointer" });
+    svg.append(hair, hit);
+    function at(ev) { var r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W, wk = Math.floor((px - pl) / slot) + 1; return weeks.filter(function(w){ return w.week === wk; })[0] || null; }
+    hit.addEventListener("pointermove", function(ev){
+      var w = at(ev); if (!w) { tipEl.style.display = "none"; hair.setAttribute("visibility", "hidden"); return; }
+      hair.setAttribute("x1", x(w.week)); hair.setAttribute("x2", x(w.week)); hair.setAttribute("visibility", "visible");
+      var sw = sumWeeks[w.week] || w;
+      tipEl.replaceChildren(h("div", { text: "Week " + w.week + ": " + money(w.cash) + " cash" }), h("div", { text: money(w.income) + " income a week" + (w.company_funding ? ", " + money(w.company_balance != null ? w.company_balance : w.company_funding) + " company funds" : "") }),
+        h("div", { text: KIND[weekKind(sw)][0] + (sw.broke ? ", broke" : "") }), w.deployed.length ? h("div", { text: "deployed " + w.deployed.join(", ") }) : null, w.bets.map(function(b){ return h("div", { text: b }); }));
+      var r = wrap.getBoundingClientRect(); tipEl.style.display = "block"; tipEl.style.left = Math.max(0, Math.min(ev.clientX - r.left + 12, r.width - tipEl.offsetWidth - 4)) + "px";
+    });
+    hit.addEventListener("pointerleave", function(){ tipEl.style.display = "none"; hair.setAttribute("visibility", "hidden"); });
+    hit.addEventListener("click", function(ev){ var w = at(ev); if (w) goWeek(w.week, true); });
+    wrap.append(svg, tipEl);
+    return wrap;
+  }
+  // Two trend lines in the valley's palette: commits so far, and the training streak, week by week.
+  function trendLine(vals, label, color) {
+    var W = 1200, Hh = 56, n = Math.max(horizon, vals.length, 1), slot = W / n, max = Math.max.apply(null, [1].concat(vals));
+    var svg = s("svg", { viewBox: "0 0 " + W + " " + Hh, preserveAspectRatio: "none", style: "width:100%;height:56px;display:block", role: "img", "aria-label": label });
+    svg.append(s("line", { x1: 0, x2: W, y1: Hh - 1, y2: Hh - 1, stroke: "var(--line)", "vector-effect": "non-scaling-stroke" }));
+    svg.append(s("path", { d: vals.map(function(v, i){ return (i ? "L" : "M") + ((i + .5) * slot).toFixed(1) + " " + (Hh - 2 - v / max * (Hh - 6)).toFixed(1); }).join(" "),
+      fill: "none", stroke: color, "stroke-width": 1.5, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke" }));
+    return svg;
+  }
+  function trends(weeks, commits) {
+    var out = h("div", { style: "max-width:900px" }), run = 0;
+    if (commits.length) {
+      var cum = weeks.map(function(w){ return (run += commits.filter(function(c){ return c.week === w.week; }).length); });
+      out.append(h("p", { class: "empty", style: "font-size:14.5px;margin:28px 0 6px", text: "Commits so far, by week (" + plural(commits.length, "commit", "commits") + " in all)" }),
+        trendLine(cum, "Commits so far by week, " + commits.length + " in all", "#eef2ec"));
+    }
+    if (weeks.some(function(w){ return w.train_streak != null; })) {
+      var st = weeks.map(function(w){ return w.train_streak || 0; });
+      out.append(h("p", { class: "empty", style: "font-size:14.5px;margin:28px 0 6px", text: "Training streak by week (longest: " + plural(Math.max.apply(null, st), "week", "weeks") + ")" }),
+        trendLine(st, "Training streak by week, longest " + Math.max.apply(null, st), "#9eaca1"));
+    }
+    return out;
+  }
+  function feedCharts(weeks, posts) {
+    var W = 1200, Hh = 56, n = Math.max(horizon, weeks.length, 1), slot = W / n;
+    var likes = []; for (var i = 1; i <= n; i++) likes.push(posts.filter(function(p){ return p.week === i; }).reduce(function(a, p){ return a + (p.likes || 0); }, 0));
+    var fol = weeks.map(function(w){ return w.followers || 0; }), fmax = Math.max.apply(null, [1].concat(fol)), lmax = Math.max.apply(null, [1].concat(likes));
+    var f = s("svg", { viewBox: "0 0 " + W + " " + Hh, preserveAspectRatio: "none", style: "width:100%;height:56px;display:block", role: "img", "aria-label": "Followers by week, up to " + fmax });
+    f.append(s("path", { d: weeks.map(function(w, i){ return (i ? "L" : "M") + ((w.week - .5) * slot).toFixed(1) + " " + (Hh - 2 - (w.followers || 0) / fmax * (Hh - 6)).toFixed(1); }).join(" "), fill: "none", stroke: "#fff", "stroke-width": 1.5, "vector-effect": "non-scaling-stroke" }));
+    var b = s("svg", { viewBox: "0 0 " + W + " " + Hh, preserveAspectRatio: "none", style: "width:100%;height:56px;display:block", role: "img", "aria-label": "Likes per week; most in one week " + lmax });
+    likes.forEach(function(v, i){ if (!v) return; var bh = Math.max(2, v / lmax * (Hh - 2)), r = s("rect", { x: i * slot + slot * .15, y: Hh - bh, width: slot * .7, height: bh, fill: "#d2dad3" }), t = s("title"); t.textContent = "Week " + (i + 1) + ": " + v + " likes"; r.append(t); b.append(r); });
+    return h("div", { style: "margin-top:28px;max-width:900px" }, h("p", { class: "empty", style: "font-size:14.5px;margin:0 0 6px", text: "Followers by week (most: " + fmax + ")" }), f,
+      h("p", { class: "empty", style: "font-size:14.5px;margin:18px 0 6px", text: "Likes per week (most in one week: " + lmax + ")" }), b);
+  }
+}
+})();
+</script>
+</body>
+</html>

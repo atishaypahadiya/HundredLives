@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runs: every published life of HundredLives</title>
+<meta name="description" content="Every published life of the HundredLives project in one valley: pick an experiment, scrub through its weeks, and open any life.">
+<meta name="theme-color" content="#0f1611">
+<link rel="canonical" href="https://atishaypahadiya.github.io/HundredLives/runs/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HundredLives">
+<meta property="og:title" content="Runs: every published life of HundredLives">
+<meta property="og:description" content="Every published life of the HundredLives project in one valley: pick an experiment, scrub through its weeks, and open any life.">
+<meta property="og:url" content="https://atishaypahadiya.github.io/HundredLives/runs/">
+<meta property="og:image" content="https://atishaypahadiya.github.io/HundredLives/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="The valley from above at the end of experiment 01: every life's trail in white, most bunched in one corner, the strays in gold.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://atishaypahadiya.github.io/HundredLives/og.jpg">
+<!-- the site icon (docs/favicon.svg, inline so no page ever asks for favicon.ico); PNGs for browsers without SVG icons -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%233d6328'/%3E%3Cg fill='%232b2420'%3E%3Crect x='10.5' y='19' width='2.6' height='6.5' rx='1'/%3E%3Crect x='17' y='19' width='2.6' height='6.5' rx='1'/%3E%3Cellipse cx='24.2' cy='13.6' rx='3.3' ry='3.9'/%3E%3C/g%3E%3Cg fill='%23f3f2ee'%3E%3Ccircle cx='10.4' cy='16.4' r='4.4'/%3E%3Ccircle cx='14.6' cy='12.6' r='4.8'/%3E%3Ccircle cx='19.4' cy='14' r='4.4'/%3E%3Ccircle cx='15.6' cy='18.4' r='4.6'/%3E%3Ccircle cx='19.8' cy='18.2' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- The Runs page (docs/runs/index.html), written by `python -m viewer.export --all` from viewer/runs.html.
+     The look follows docs/THEME.md; the world is docs/valley/world.js. Where each life stands comes from
+     docs/data/positions.json (analysis/positions.py); everything in the table comes from runs.json, which the
+     export writes from the run logs. Nothing on this page is typed by hand. Every logged string reaches the
+     page as text, never as HTML. -->
+<style>
+:root{
+  --paper:#0f1611; --gold:#ffc960; --ghost:#ffffff;
+  --rust:#8a543f; --ochre:#a8876b; --grass-light:#6a8338;
+  --sans:"Inter Tight",system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --ink:#eef2ec; --ink-2:#d2dad3; --body:#b9c4bb; --grey:#56645a; --grey-2:#8d9a90; --line:#253129; --card:#162019;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--body);font:17px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration-color:var(--grey);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ink)}
+button{font:inherit;color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+.num{font-variant-numeric:tabular-nums}
+
+/* the valley, held on the final wide shot (docs/THEME.md, Pages: Runs) */
+.stage{position:relative;height:max(520px,74svh);overflow:hidden;background:#bcd3e3;color:#fff}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+.stage::after{content:"";position:absolute;inset:-50%;pointer-events:none;mix-blend-mode:overlay;opacity:.42;animation:grain 1s steps(4) infinite;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 50% 42%,rgba(0,0,0,0) 58%,rgba(8,16,12,.42) 100%)}
+.top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:22px 40px;font-size:15px;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
+.top .mark{display:flex;align-items:center;gap:10px;font-weight:500;font-size:16px;white-space:nowrap;text-decoration:none}
+.top .mark svg{fill:#fff}
+.top nav{display:flex;gap:22px;white-space:nowrap}
+.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+.top nav a[aria-current]{opacity:1;text-decoration:underline;text-decoration-color:rgba(255,255,255,.7)}
+@media (max-width:640px){.top{padding:18px 16px} .top nav{gap:16px} .top .anchor{display:none}}
+.headline{position:absolute;left:0;right:0;top:15%;z-index:2;margin:0;text-align:center;pointer-events:none;padding-inline:16px;
+ font-weight:300;font-size:clamp(28px,5vw,70px);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;text-shadow:0 2px 30px rgba(20,40,60,.35)}
+.headline small{display:table;margin-inline:auto;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-top:18px;padding:7px 11px;
+ background:rgba(20,30,40,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:3px;text-shadow:none}
+.corner{position:absolute;z-index:1;transform:translate(-50%,-100%);text-align:center;pointer-events:none;white-space:nowrap;padding:6px 10px 7px;border-radius:3px;
+ background:rgba(20,30,40,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-variant-numeric:tabular-nums} /* the caption's chip: legible over any trail */
+.corner b{display:block;font:400 24px/1 var(--sans);letter-spacing:-.02em}
+.corner span{display:block;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-top:5px;color:rgba(255,255,255,.92)}
+.tip{position:absolute;z-index:4;transform:translate(-50%,calc(-100% - 14px));padding:8px 11px;border-radius:3px;width:max-content;max-width:min(280px,78vw);
+ background:rgba(20,30,40,.58);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;text-decoration:none;line-height:1.3}
+.tip[hidden]{display:none}
+.tip b{display:block;font-weight:500;font-size:14px}
+.tip span{display:block;font-size:13px;color:rgba(255,255,255,.82);margin-top:2px}
+.tip:hover b{text-decoration:underline;text-underline-offset:3px}
+.load{position:absolute;inset:0;z-index:5;display:grid;place-items:center;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#2a3a33;transition:opacity .8s;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.stage::after{animation:none}.load{transition:none}}
+
+/* under the scene: pick an experiment, scrub its weeks */
+.controls{padding-top:20px}
+.picker{position:relative;display:flex;gap:6px 28px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin:0 -2px}
+.picker::-webkit-scrollbar{display:none}
+.picker button{flex:none;background:none;border:0;padding:6px 2px 8px;cursor:pointer;text-align:left;color:var(--grey-2);border-bottom:2px solid transparent}
+.picker button:hover{color:var(--ink-2)}
+.picker button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.picker b{display:block;font-weight:500;font-size:16px}
+.picker span{display:block;font-size:13.5px;margin-top:1px}
+.scrub{display:flex;align-items:center;gap:16px;margin-top:18px}
+.play{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--grey);background:none;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
+.play:hover{border-color:var(--ink-2)}
+.play svg{fill:currentColor}
+input[type=range]{flex:1;min-width:0;height:28px;margin:0;background:none;-webkit-appearance:none;appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(var(--ink-2),var(--ink-2)) 0/var(--fill,0%) 100% no-repeat,var(--grey)}
+input[type=range]::-moz-range-track{height:2px;background:var(--grey)}
+input[type=range]::-moz-range-progress{height:2px;background:var(--ink-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;margin-top:-7px;border:0}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:0}
+input[type=range]:focus-visible{outline:2px solid var(--ink-2);outline-offset:4px}
+.week{flex:none;min-width:8.5em;text-align:right;font-size:15px;color:var(--grey-2);font-variant-numeric:tabular-nums}
+.week b{font-weight:400;font-size:24px;letter-spacing:-.02em;color:var(--ink);margin:0 2px}
+.reading{margin:14px 0 0;max-width:68ch;font-size:16px;color:var(--body)}
+.reading .g{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin:0 2px 1px 0;vertical-align:middle}
+@media (max-width:640px){.wrap{padding:0 16px}.picker{gap:6px 22px}.scrub{gap:12px}.week{min-width:7.2em}
+ .corner span{white-space:normal;width:10em;margin-inline:auto}}
+
+/* the table of runs */
+main{padding-top:72px}
+h2{font:400 clamp(26px,3.2vw,36px)/1.15 var(--sans);letter-spacing:-.03em;margin:0 0 14px;color:var(--ink)}
+.gline{margin:0 0 24px;max-width:68ch}
+.filters{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 8px}
+.search{flex:1;min-width:220px;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:6px;color:var(--ink);font:inherit;font-size:15px;padding:9px 12px}
+.search::placeholder{color:var(--grey-2)}
+.search:focus{outline:none;border-color:var(--grey-2)}
+.count{font-size:15px;color:var(--grey-2)}
+.group{padding-top:40px}
+.group h2{font-size:24px;letter-spacing:-.02em}
+.group h2 .here{font-size:15px;letter-spacing:0;color:var(--grey-2);margin-left:12px}
+.switch{background:none;border:0;padding:0;font:inherit;letter-spacing:inherit;color:var(--ink);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--grey);text-underline-offset:5px;text-decoration-thickness:1px}
+.switch:hover{text-decoration-color:var(--ink)}
+.batch{padding-top:28px}
+.batch h3{font:500 18px/1.3 var(--sans);letter-spacing:-.01em;margin:0;color:var(--ink)}
+.batch .about{display:block;font-size:14.5px;color:var(--grey-2);margin:2px 0 10px;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;font-weight:400;color:var(--grey-2);font-size:13.5px;padding:0 14px 8px 0;white-space:nowrap}
+td{padding:11px 14px 11px 0;border-top:1px solid var(--line);vertical-align:top;line-height:1.4}
+td .sub{display:block;font-size:13.5px;color:var(--grey-2);margin-top:2px}
+td.life{white-space:nowrap}
+td.life a{color:var(--ink);font-weight:500;text-decoration:none}
+td.life a:hover{text-decoration:underline}
+td.life .g{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:1px}
+td.life .flag{font-size:13px;color:var(--ochre);margin-left:6px}
+td.cash{white-space:nowrap;color:var(--ink-2)}
+td.strip{width:190px;padding-top:15px}
+td.strip svg{display:block;width:100%;height:auto}
+@media (max-width:860px){
+  thead{display:none}
+  table,tbody,tr,td{display:block}
+  tr{border-top:1px solid var(--line);padding:12px 0}
+  td{border:0;padding:2px 0}
+  td.strip{width:auto;padding:8px 0 4px}
+  td[data-k]::before{content:attr(data-k) ": ";color:var(--grey-2)}
+}
+.legend{margin-top:64px}
+.legend h2{font-size:24px;letter-spacing:-.02em}
+.legend dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 18px;margin:0;max-width:760px;font-size:15.5px}
+.legend dt{color:var(--ink-2);white-space:nowrap}
+.legend dd{margin:0}
+.keys{display:flex;flex-wrap:wrap;gap:8px 20px;margin:18px 0 0;font-size:14.5px;color:var(--grey-2)}
+.keys span{display:inline-flex;align-items:center;gap:8px}
+.keys i{display:inline-block;width:14px;height:10px;border-radius:2px;position:relative}
+.keys i.broke::after{content:"";position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px;border-radius:50%;background:#fff}
+.note{margin:40px 0 0;font-size:15px;color:var(--grey-2);max-width:68ch}
+.empty{color:var(--grey-2)}
+footer{margin-top:96px;padding:28px 0 48px;border-top:1px solid var(--line);font-size:15px;color:var(--grey-2)}
+footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px}
+footer .built{color:var(--ink)}
+footer .links{display:flex;gap:18px}
+@media (max-width:600px){body{font-size:16px} main{padding-top:56px}}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+ <canvas id="gl" aria-label="The valley: every life of the chosen experiment, walking from the hut to where it ended. Hover or tap a sheep to see which life it is; the table below lists the same lives."></canvas>
+ <div class="vignette"></div>
+ <div class="top">
+  <a class="mark" href="../"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>HundredLives</a>
+  <nav><a class="anchor" href="../#findings">Findings</a><a href="../replays/self/">Self</a><a class="anchor" href="../#how">How it works</a><a href="./" aria-current="page">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a></nav>
+ </div>
+ <h1 class="headline" id="headline">Runs<small id="caption"></small></h1>
+ <div id="corners"></div>
+ <a class="tip" id="tip" hidden><b></b><span></span></a>
+ <div class="load" id="load">Building the valley</div>
+</div>
+
+<div class="wrap controls">
+ <div class="picker" id="picker" role="group" aria-label="Experiment"></div>
+ <div class="scrub">
+  <button class="play" id="play" type="button" aria-label="Play"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path id="playIcon" d="M3 1.5v11l9.5-5.5z"/></svg></button>
+  <input type="range" id="slider" min="1" max="1" value="1" step="1" aria-label="Week">
+  <span class="week" id="weekLabel" aria-live="off">week <b>1</b> of 1</span>
+ </div>
+ <p class="reading" id="reading"></p>
+</div>
+
+<main class="wrap">
+ <h2 id="gtitle"></h2>
+ <p class="gline" id="gline"></p>
+ <div class="filters">
+  <input class="search" id="search" type="search" placeholder="Filter by run, model, persona…" aria-label="Filter runs">
+  <span class="count" id="count"></span>
+ </div>
+ <div id="tables"></div>
+
+ <section class="legend" id="legend" hidden>
+  <h2>Reading the table</h2>
+  <dl>
+   <dt><i class="g" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold)"></i> Gold</dt><dd>A stray: a life that didn't end where most of its experiment did. The same lives have gold trails in the valley.</dd>
+   <dt>Life</dt><dd>Opens that life's page. Hover the name for its run id.</dd>
+   <dt>Ending</dt><dd>Where the life stands in the valley at its last week. Under it, what its last week held: in paid work (a job, internship, campus job or freelance, full or part time), no paid work (building, studying or between things), or broke in the last week.</dd>
+   <dt>Weeks</dt><dd>One bar per week, coloured by what that week held. Hover a bar for that week's cash.</dd>
+  </dl>
+  <div class="keys" id="keys"></div>
+ </section>
+ <p class="note">Simulated life. Fictional world, organizations and odds; contacts are invented. Not a record of real events, people, or companies.</p>
+</main>
+
+<footer class="wrap">
+  <div class="row">
+    <span class="built">Built by Atishay Pahadiya</span>
+    <span class="links"><a href="https://github.com/atishaypahadiya" rel="me">GitHub</a><a href="https://x.com/_atishay_" rel="me">X</a><a href="https://www.linkedin.com/in/atishaypahadiya" rel="me">LinkedIn</a></span>
+    <span><a href="https://github.com/atishaypahadiya/HundredLives">Source code</a>, MIT license</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script src="../valley/world.js"></script>
+<script>
+"use strict";
+(function(){
+// Old links to a life (#/run/<id>?w=N, e.g. the project page's "following" chip) go to that life's own page.
+var RUN_ID_OK = /^[A-Za-z0-9][A-Za-z0-9._-]{0,200}$/;
+function toLife() {
+  var old = location.hash.match(/^#\/run\/([^?]+)(?:\?w=(\d+))?/), oid = old && decodeURIComponent(old[1]);
+  if (!old || !RUN_ID_OK.test(oid)) return false;
+  location.replace(encodeURIComponent(oid) + "/" + (old[2] ? "#/run/" + encodeURIComponent(oid) + "?w=" + old[2] : ""));
+  return true;
+}
+if (toLife()) return;
+addEventListener("hashchange", toLife);
+
+// Every value from a log reaches the page only as text.
+function h(tag, attrs) {
+  var el = document.createElement(tag), kids = [].slice.call(arguments, 2);
+  for (var k in attrs || {}) { var v = attrs[k]; if (v == null || v === false) continue; if (k === "text") el.textContent = v; else el.setAttribute(k, v); }
+  kids.flat(Infinity).forEach(function(c){ if (c != null && c !== false) el.append(c.nodeType ? c : document.createTextNode(String(c))); });
+  return el;
+}
+var SVG = "http://www.w3.org/2000/svg";
+function s(tag, attrs) { var el = document.createElementNS(SVG, tag); for (var k in attrs) el.setAttribute(k, attrs[k]); return el; }
+function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
+var money = function(v){ return v == null || !isFinite(+v) ? "–" : (v < 0 ? "−$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US"); };
+function store(k, v) { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) { return null; } }
+
+// What a week held, for the strip: the same kinds as the life page, in the valley's colours.
+var KIND = { full_time: ["Full-time job", "#eef2ec"], part_time: ["Part-time", "#9eaca1"], accelerator: ["Accelerator", "var(--grass-light)"],
+             gig: ["Gig week", "var(--ochre)"], school: ["Classes only", "#56645a"], none: ["No commitment", "#2c3a31"] };
+function weekKind(w) { var c = { full_time: 1, part_time: 1, accelerator: 1 }[w.commitment] ? w.commitment : "none"; return c !== "none" ? c : w.gig ? "gig" : w.school ? "school" : "none"; }
+var ENDED = { job: "in paid work", free: "with no paid work", broke: "broke" };
+function endingTone(w) {
+  if (w && w.broke) return "broke";
+  if (w && w.job != null) return w.job ? "job" : "free";
+  return w && (w.commitment === "full_time" || w.commitment === "part_time") ? "job" : "free";
+}
+// Endings in the valley (positions.json): a corner, or still searching around the hut.
+var PHRASE = { job: "in a full-time job", gigs: "in gigs and part-time work", building: "building their own thing", searching: "still searching" };
+var ENDS = ["job", "gigs", "building", "searching"];
+
+var stage = document.getElementById("stage"), cv = document.getElementById("gl"), load = document.getElementById("load");
+var picker = document.getElementById("picker"), slider = document.getElementById("slider"), weekLabel = document.getElementById("weekLabel");
+var playBtn = document.getElementById("play"), playIcon = document.getElementById("playIcon"), reading = document.getElementById("reading");
+var tip = document.getElementById("tip"), cornersEl = document.getElementById("corners"), search = document.getElementById("search");
+var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function fail(what, e) {
+  load.textContent = "The valley could not load";
+  document.getElementById("tables").replaceChildren(h("p", { class: "empty" }, "Couldn't load " + what + " (" + e.message + ").",
+    location.protocol === "file:" ? " Browsers block that from file://; serve the folder over http, e.g. python3 -m http.server -d docs." : ""));
+  console.error(e);
+}
+function json(url) { return fetch(url).then(function(r){ if (!r.ok) throw new Error(url + ": HTTP " + r.status); return r.json(); }); }
+
+Promise.all([json("runs.json"), json("../data/positions.json")]).then(function(res){ start(res[0], res[1]); })
+  .catch(function(e){ fail("the list of runs", e); });
+
+function start(R, P) {
+  var runs = R.runs || [], byId = {};
+  runs.forEach(function(r){ byId[r.run_id] = r; });
+  var pos = {}, titleOf = {};
+  P.groups.forEach(function(g){ pos[g.id] = g; g.lives.forEach(function(L){ titleOf[L.run_id] = L.title; }); });
+  // Experiments first, then Maya's showcase and Self's Track A; each needs its lives in both files.
+  var ORDER = ["exp01", "exp02a", "exp02b", "exp03", "showcase", "tracka"];
+  var groups = (R.groups || []).filter(function(g){ return pos[g.id]; })
+    .sort(function(a, b){ return (ORDER.indexOf(a.id) + 99) % 99 - (ORDER.indexOf(b.id) + 99) % 99; });
+  groups.forEach(function(g){
+    var lives = pos[g.id].lives, n = {};
+    ENDS.forEach(function(e){ n[e] = 0; });
+    lives.forEach(function(L){ n[L.end]++; });
+    // Strays, the most common ending and ties all come from positions.json (analysis/positions.py decides them):
+    // with a tie, no ending wins, and only lives outside every tied corner are strays.
+    g.ends = n; g.modes = pos[g.id].tie ? pos[g.id].tied : [pos[g.id].most_common_end];
+    g.weeks = Math.max.apply(null, lives.map(function(L){ return L.weeks; }));
+    g.persona = (byId[lives[0].run_id] || {}).persona || "";
+    g.lives = lives;
+  });
+
+  // ---------- the valley ----------
+  // The camera keeps the viewing angle of the project page's final wide shot (docs/index.html; its own one on a
+  // narrow screen) and, per experiment, frames the bounding box of all that experiment's paths, with a margin.
+  var HOME = { wide: {pos: [170, 320, 430], look: [-40, 30, -110]}, narrow: {pos: [320, 470, -35], look: [-10, 0, -35]} };
+  var MARGIN = 14, BACK = 45, Hgt = createValley.terrain.height;
+  var cornerAt = { searching: [P.hut.x, P.hut.z] };
+  ["job", "gigs", "building"].forEach(function(e){ cornerAt[e] = [P.corners[e].x, P.corners[e].z]; });
+  function narrowNow() { return cv.clientWidth < 700; }
+  function labelBox() { return narrowNow() ? { h: 84, w: 72 } : { h: 62, w: 114 }; }  // px above and to each side of a label's anchor
+  // A corner's label stands just behind the corner as the camera sees it, so it sits above that corner's flock.
+  function anchor(e, camPos) {
+    var c = cornerAt[e], dx = c[0] - camPos.x, dz = c[1] - camPos.z, dl = Math.hypot(dx, dz) || 1, back = e === "searching" ? 0 : BACK;
+    var x = c[0] + dx / dl * back, z = c[1] + dz / dl * back;
+    return new THREE.Vector3(x, Hgt(x, z) + 9, z);
+  }
+  function headlineBottom() { return document.getElementById("headline").getBoundingClientRect().bottom - cv.getBoundingClientRect().top; }
+  function frameFor(g) {
+    var narrow = narrowNow(), base = HOME[narrow ? "narrow" : "wide"], W = cv.clientWidth, Hh = cv.clientHeight, fov = narrow ? 58 : 42;
+    var dir = new THREE.Vector3().fromArray(base.look).sub(new THREE.Vector3().fromArray(base.pos)).normalize();
+    var up = new THREE.Vector3(0, 1, 0).addScaledVector(dir, -dir.y).normalize();
+    var cam = new THREE.PerspectiveCamera(fov, W / Hh, .5, 6000);
+    var x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
+    g.lives.forEach(function(L){ L.points.forEach(function(q){ x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); z0 = Math.min(z0, q[1]); z1 = Math.max(z1, q[1]); }); });
+    x0 -= MARGIN; x1 += MARGIN; z0 -= MARGIN; z1 += MARGIN;
+    var box = [];  // the box's outline, draped on the ground
+    for (var i = 0; i <= 8; i++) for (var j = 0; j <= 8; j++) if (i % 8 === 0 || j % 8 === 0) {
+      var bx = x0 + (x1 - x0) * i / 8, bz = z0 + (z1 - z0) * j / 8; box.push(new THREE.Vector3(bx, Hgt(bx, bz) + 1, bz));
+    }
+    var cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, center = new THREE.Vector3(cx, Hgt(cx, cz), cz);
+    var labelled = ENDS.filter(function(e){ return g.ends[e] > 0; }), lb = labelBox();
+    var xl = 1 - 2 * 16 / W, lo = -1 + 2 * 18 / Hh, hi = 1 - 2 * (headlineBottom() + 12) / Hh, lh = 2 * lb.h / Hh, lw = 2 * lb.w / W;
+    function place(dist, pan) {
+      var look = center.clone().addScaledVector(up, pan);
+      cam.position.copy(look).addScaledVector(dir, -dist); cam.lookAt(look); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
+      return look;
+    }
+    function extent(dist, pan) {
+      place(dist, pan);
+      var r = { x: 0, y0: 1e9, y1: -1e9 };
+      box.forEach(function(q){ var v = q.clone().project(cam); r.x = Math.max(r.x, Math.abs(v.x)); r.y0 = Math.min(r.y0, v.y); r.y1 = Math.max(r.y1, v.y); });
+      labelled.forEach(function(e){ var v = anchor(e, cam.position).project(cam); r.x = Math.max(r.x, Math.abs(v.x) + lw); r.y1 = Math.max(r.y1, v.y + lh); });
+      return r;
+    }
+    function solve(dist) {  // pan up or down (camera and target together, so the angle stays) to centre it below the headline
+      var pan = 0, half = dist * Math.tan(fov * Math.PI / 360);
+      for (var k = 0; k < 8; k++) { var r = extent(dist, pan); pan += ((r.y0 + r.y1) / 2 - (lo + hi) / 2) * half; }
+      var e = extent(dist, pan);
+      return { pan: pan, ok: e.x <= xl && e.y0 >= lo && e.y1 <= hi };
+    }
+    var a = 40, b = 4000;
+    for (var k = 0; k < 30; k++) { var m = (a + b) / 2; if (solve(m).ok) b = m; else a = m; }
+    var look = place(b, solve(b).pan);
+    return [{ p: 0, pos: cam.position.toArray(), look: look.toArray() }, { p: 1, pos: cam.position.toArray(), look: look.toArray() }];
+  }
+  var g0 = pick0(), valley = createValley(cv, { lives: livesOf(g0), time: false, still: still, shots: frameFor(g0) });
+  window.valley = valley;  // for checks
+  function livesOf(g) { return g.lives.map(function(L){ return { points: L.points, stray: L.stray }; }); }
+  function pick0() {
+    var want = (location.hash.match(/^#(\w+)$/) || [])[1] || store("hl-group") || "exp01";
+    return groups.filter(function(g){ return g.id === want; })[0] || groups[0];
+  }
+
+  var cur = null, week = 1, fweek = 1, playing = false, last = 0, hover = -1, pinned = -1;
+  var cornerEls = {};
+  ENDS.forEach(function(e){
+    var el = h("div", { class: "corner" }, h("b"), h("span", { text: e === "searching" ? P.hut.label : P.corners[e].label }));
+    cornerEls[e] = el; cornersEl.append(el);
+  });
+
+  function select(g, fromUser) {
+    cur = g; store("hl-group", g.id);
+    if (fromUser) history.replaceState(null, "", "#" + g.id);
+    [].forEach.call(picker.children, function(b){
+      b.setAttribute("aria-pressed", String(b.dataset.id === g.id));
+      if (b.dataset.id === g.id && (b.offsetLeft < picker.scrollLeft || b.offsetLeft + b.offsetWidth > picker.scrollLeft + picker.clientWidth))
+        picker.scrollLeft = b.offsetLeft - 16;  // the row scrolls sideways on a phone; never scroll the page for this
+    });
+    document.getElementById("headline").firstChild.textContent = g.short || g.title;
+    document.getElementById("caption").textContent = plural(g.lives.length, "life", "lives") + " of " + g.persona + ", " + g.weeks + " weeks" + (g.lives.length > 1 ? " each" : "");
+    ENDS.forEach(function(e){ cornerEls[e].firstChild.textContent = g.ends[e]; });
+    readingLine(g);
+    slider.max = g.weeks;
+    if (fromUser) valley.setLives(livesOf(g));
+    valley.setShots(frameFor(g));
+    dim();
+    hideTip();
+    if (still) { setWeek(g.weeks); setPlaying(false); } else { setWeek(1); setPlaying(true); }
+    renderTable();
+  }
+  function readingLine(g) {
+    var strays = g.lives.filter(function(L){ return L.stray; }).length, n = g.lives.length, parts = [];
+    if (g.modes.length > 1) {
+      parts.push("No single most common ending: " + g.modes.map(function(e, i){ return g.ends[e] + (i ? " " : (g.ends[e] === 1 ? " life ended " : " lives ended ")) + PHRASE[e]; }).join(" and ") + ".");
+    } else if (strays) {
+      parts.push("Most lives here ended " + PHRASE[g.modes[0]] + " (" + g.ends[g.modes[0]] + " of " + n + ").");
+    } else {
+      parts.push((n === 1 ? "This life ended " : "Every life here ended ") + PHRASE[g.modes[0]] + ".");
+    }
+    var bits = [parts.join(" ") + " "];
+    if (strays) bits.push(h("i", { class: "g", "aria-hidden": "true" }), " Gold marks the " + (strays === 1 ? "one life" : strays + " lives") + " that ended elsewhere. ");
+    bits.push("The numbers in the valley count where lives ended.");
+    reading.replaceChildren.apply(reading, bits);
+  }
+
+  groups.forEach(function(g){
+    picker.append(h("button", { type: "button", "data-id": g.id, "aria-pressed": "false" },
+      h("b", { text: g.short || g.title }), h("span", { text: g.persona + ", " + plural(g.lives.length, "life", "lives") })));
+  });
+  picker.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var g = groups.filter(function(x){ return x.id === b.dataset.id; })[0]; if (g) select(g, true);
+  });
+
+  function setWeek(w) {
+    fweek = Math.max(1, Math.min(cur.weeks, w)); week = Math.max(1, Math.min(cur.weeks, Math.round(fweek)));
+    slider.value = week; slider.style.setProperty("--fill", ((week - 1) / Math.max(1, cur.weeks - 1) * 100) + "%");
+    weekLabel.replaceChildren("week ", h("b", { text: week }), " of " + cur.weeks);
+    slider.setAttribute("aria-valuetext", "week " + week + " of " + cur.weeks);
+  }
+  function setPlaying(on) {
+    playing = on; last = 0;
+    playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+    playIcon.setAttribute("d", on ? "M3 1.5h3v11H3zM8 1.5h3v11H8z" : "M3 1.5v11l9.5-5.5z");
+  }
+  playBtn.addEventListener("click", function(){
+    if (!playing && week >= cur.weeks) setWeek(1);
+    setPlaying(!playing);
+  });
+  slider.addEventListener("input", function(){ setPlaying(false); setWeek(+slider.value); });
+
+  // ---------- which sheep is under the pointer: the nearest within a generous radius ----------
+  var v = new THREE.Vector3();
+  function screenOf(i) {
+    v.copy(valley.sheepPosition(i)); v.y += 1.6; v.project(valley.camera);
+    return [(v.x + 1) / 2 * cv.clientWidth, (1 - v.y) / 2 * cv.clientHeight, v.z < 1];
+  }
+  function nearest(x, y, radius) {
+    var best = -1, bd = radius * radius;
+    for (var i = 0; i < cur.lives.length; i++) { var p = screenOf(i), d = (p[0] - x) * (p[0] - x) + (p[1] - y) * (p[1] - y); if (p[2] && d < bd) { bd = d; best = i; } }
+    return best;
+  }
+  function lifeHref(L) {
+    var w = Math.max(1, Math.min(L.weeks, Math.round(fweek / cur.weeks * L.weeks)));
+    return encodeURIComponent(L.run_id) + "/#/run/" + encodeURIComponent(L.run_id) + "?w=" + w;
+  }
+  function showTip(i) {
+    var L = cur.lives[i]; hover = i;
+    tip.firstChild.textContent = L.title;
+    tip.lastChild.textContent = "Ended " + PHRASE[L.end] + (L.stray ? ", a stray" : "");
+    tip.href = lifeHref(L); tip.hidden = false; placeTip();
+  }
+  function hideTip() { hover = -1; pinned = -1; tip.hidden = true; cv.style.cursor = ""; }
+  function placeTip() {
+    if (hover < 0) return;
+    var p = screenOf(hover), w = tip.offsetWidth / 2 + 8;
+    tip.style.left = Math.max(w, Math.min(cv.clientWidth - w, p[0])) + "px"; tip.style.top = Math.max(tip.offsetHeight + 20, p[1]) + "px";
+    tip.href = lifeHref(cur.lives[hover]);
+  }
+  function local(e) { var r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+  cv.addEventListener("pointermove", function(e){
+    if (e.pointerType !== "mouse") return;
+    var p = local(e), i = nearest(p[0], p[1], 34);
+    if (i < 0) { if (hover >= 0) hideTip(); return; }
+    cv.style.cursor = "pointer"; if (i !== hover) showTip(i);
+  });
+  cv.addEventListener("pointerleave", function(e){ if (e.pointerType === "mouse") hideTip(); });
+  cv.addEventListener("click", function(e){
+    var p = local(e), touch = e.pointerType ? e.pointerType !== "mouse" : matchMedia("(hover: none)").matches;
+    var i = nearest(p[0], p[1], touch ? 48 : 34);
+    if (i < 0) { hideTip(); return; }
+    // a mouse opens the life it is hovering; a finger shows the label first, and a second tap on it opens the life
+    if (!touch || pinned === i) { location.href = lifeHref(cur.lives[i]); return; }
+    showTip(i); pinned = i;
+  });
+
+  // ---------- frame ----------
+  function frame(t) {
+    if (playing) {
+      if (last) setWeek(fweek + (t - last) / 1000 * cur.weeks / 8);  // a whole life in about eight seconds
+      last = t;
+      if (fweek >= cur.weeks) setPlaying(false);
+    }
+    valley.update(Math.min(1, (playing ? fweek : week) / cur.weeks));
+    var W = cv.clientWidth, Hh = cv.clientHeight, lb = labelBox(), hb = headlineBottom();
+    for (var e in cornerEls) {
+      v.copy(anchor(e, valley.camera.position)).project(valley.camera);
+      var x = (v.x + 1) / 2 * W, y = (1 - v.y) / 2 * Hh;
+      // only where lives ended: those corners are always framed, and the check keeps a label from ever leaving the stage
+      cornerEls[e].hidden = !cur.ends[e] || v.z >= 1 || x < lb.w || x > W - lb.w || y - lb.h < hb || y > Hh - 8;
+      cornerEls[e].style.left = x + "px"; cornerEls[e].style.top = y + "px";
+    }
+    placeTip();
+    requestAnimationFrame(frame);
+  }
+  var lastSize = "";
+  addEventListener("resize", function(){
+    valley.resize();
+    var size = cv.clientWidth + "x" + cv.clientHeight;
+    if (size !== lastSize) { lastSize = size; valley.setShots(frameFor(cur)); }
+  });
+
+  // ---------- the table ----------
+  search.value = store("hl-filter") || "";
+  search.addEventListener("input", function(){ store("hl-filter", search.value); renderTable(); dim(); });
+  // with a filter, the valley's lives that don't match it fade to ghosts
+  function dim() {
+    var q = search.value.trim().toLowerCase();
+    valley.setDim(cur.lives.map(function(L){ return !!q && !(byId[L.run_id] && matches(byId[L.run_id], q)); }));
+  }
+  function matches(r, q) {
+    var g = groups.filter(function(x){ return x.id === r.group; })[0];
+    return JSON.stringify([r.run_id, titleOf[r.run_id], r.models, r.persona, r.reason, r.status, r.batch_label, g && g.title]).toLowerCase().indexOf(q) >= 0;
+  }
+  function renderTable() {
+    var q = search.value.trim().toLowerCase(), tables = document.getElementById("tables");
+    // With a filter, every experiment is searched; without one, the table shows the experiment in the valley.
+    var shownGroups = q ? groups : [cur], total = 0;
+    var sections = shownGroups.map(function(g){
+      var rs = runs.filter(function(r){ return r.group === g.id && (!q || matches(r, q)); });
+      total += rs.length;
+      if (!rs.length) return null;
+      var batches = {}, order = [];
+      rs.forEach(function(r){ var b = r.batch || r.run_id.replace(/-\d{3}$/, ""); if (!batches[b]) { batches[b] = []; order.push(b); } batches[b].push(r); });
+      // with a filter, matches from every experiment show under its heading; another experiment's heading puts it in the valley
+      var head = !q ? null : g === cur ? h("h2", {}, g.title, h("span", { class: "here", text: "In the valley" }))
+        : h("h2", {}, h("button", { type: "button", class: "switch", "data-id": g.id, text: g.title }));
+      return h("section", { class: "group" }, head, order.map(function(b){ return batchTable(g, b, batches[b]); }));
+    });
+    document.getElementById("gtitle").textContent = q ? "Lives matching the filter" : cur.title;
+    var gl = document.getElementById("gline");
+    gl.replaceChildren.apply(gl, q ? [] : [cur.line || "", " ", cur.findings ? h("a", { href: "../" + cur.findings.href, text: cur.findings.text }) : ""]);
+    document.getElementById("count").textContent = total + " of " + runs.length + " lives";
+    tables.replaceChildren.apply(tables, sections.filter(Boolean).length ? sections.filter(Boolean) : [h("p", { class: "empty", text: "No lives match." })]);
+  }
+  function modelLine(m) { if (!m) return ""; return m.agent === m.referee ? m.agent : "agent " + m.agent + ", referee " + m.referee; }
+  function batchTable(g, b, rs) {
+    rs.sort(function(a, z){ return a.run_id.localeCompare(z.run_id); });
+    var labelled = !!rs[0].batch_label;
+    return h("section", { class: "batch" },
+      h("h3", { text: rs[0].batch_label || b }),
+      h("span", { class: "about", text: plural(rs.length, labelled ? "life" : "run", labelled ? "lives" : "runs") + ", " + modelLine(rs[0].models) + (labelled ? ", batch " + b : "") }),
+      h("table", {},
+        h("thead", {}, h("tr", {}, ["Life", "Ending", "Cash at the end", "Last week held", "Weeks", "Activity", "Tokens and cost"].map(function(t){ return h("th", { text: t }); }))),
+        h("tbody", {}, rs.map(function(r){ return row(g, r); }))));
+  }
+  function row(g, r) {
+    var L = g.lives.filter(function(x){ return x.run_id === r.run_id; })[0], last = r.last || {};
+    var weeks = r.weeks || [], lw = weeks[weeks.length - 1], tone = endingTone(lw), live = r.status === "live";
+    var labels = last.labels || [];
+    var title = L ? L.title : r.run_id;
+    return h("tr", {},
+      h("td", { class: "life" }, L && L.stray ? h("i", { class: "g", title: "A stray", "aria-label": "A stray" }) : null,
+        h("a", { href: encodeURIComponent(r.run_id) + "/", text: title, title: r.run_id,
+                 "aria-label": title + ": " + (live ? "now" : "ended") + " " + ENDED[tone] + ", week " + weeks.length + ", cash " + money(last.cash) }),
+        r.pilot ? h("span", { class: "flag", title: "uncommitted or unrecorded code", text: "PILOT" }) : null,
+        live ? h("span", { class: "flag", text: "live" }) : r.reason && r.reason !== "horizon" ? h("span", { class: "flag", text: "ended: " + r.reason }) : null,
+        null),
+      h("td", { "data-k": "Ending" }, L ? (L.end === "searching" ? P.hut.label : P.corners[L.end].label) : "",
+        h("span", { class: "sub", text: "week " + weeks.length + " of " + (r.horizon == null ? "?" : r.horizon) + ", " + (live ? "now" : "ended") + " " + ENDED[tone] })),
+      h("td", { class: "cash num", "data-k": "Cash at the end", text: money(last.cash) }),
+      h("td", { "data-k": "Last week held", title: labels.join("; ") }, labels.length ? labels[0] : "no commitment",
+        labels.length > 1 ? h("span", { class: "sub", title: labels.join("; "), text: "and " + (labels.length - 1) + " more" }) : null),
+      h("td", { class: "strip" }, strip(weeks, r.horizon)),
+      h("td", { class: "num", "data-k": "Activity", text: r.applications + " applied, " + r.successes + " accepted, " + r.shell + " shell, " +
+        plural(r.repos, "repo", "repos") + ", " + plural(r.launches, "launch", "launches") }),
+      h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + " tokens, $" + (r.cost_usd || 0).toFixed(4) }));
+  }
+  function strip(weeks, horizon) {
+    var n = Math.max(horizon || 0, weeks.length, 1), W = 230, H = 10, slot = W / n, gap = Math.min(1.2, slot / 4), cw = slot - gap;
+    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Weeks, " + weeks.length + " of " + n });
+    for (var i = 0; i < n; i++) {
+      var w = weeks[i], x = i * slot + gap / 2;
+      var r = s("rect", { x: x, y: 0, width: Math.max(cw, .6), height: H, rx: Math.min(1.5, cw / 2), fill: !w ? "#1b261f" : w.broke ? "var(--rust)" : KIND[weekKind(w)][1] });
+      if (w) { var t = s("title"); t.textContent = "Week " + w.week + ": " + KIND[weekKind(w)][0] + (w.broke ? ", broke" : "") + ", cash " + money(w.cash); r.append(t); }
+      svg.append(r);
+      if (w && w.broke && cw >= 2) svg.append(s("circle", { cx: x + cw / 2, cy: H / 2, r: Math.min(1.2, cw / 3), fill: "#fff", "pointer-events": "none" }));
+    }
+    return svg;
+  }
+  var keys = document.getElementById("keys"), school = runs.some(function(r){ return (r.weeks || []).some(function(w){ return w.school; }); });
+  ["full_time", "part_time", "accelerator", "gig"].concat(school ? ["school"] : [], ["none"]).forEach(function(k){
+    keys.append(h("span", {}, h("i", { style: "background:" + KIND[k][1] }), KIND[k][0]));
+  });
+  keys.append(h("span", {}, h("i", { class: "broke", style: "background:var(--rust)" }), "Broke (white dot)"));
+  document.getElementById("legend").hidden = false;
+
+  document.getElementById("tables").addEventListener("click", function(e){
+    var b = e.target.closest("button.switch"); if (!b) return;
+    var g = groups.filter(function(x){ return x.id === b.dataset.id; })[0]; if (!g) return;
+    select(g, true);
+    stage.scrollIntoView({ behavior: still ? "auto" : "smooth" });
+  });
+  addEventListener("hashchange", function(){
+    var id = (location.hash.match(/^#(\w+)$/) || [])[1], g = groups.filter(function(x){ return x.id === id; })[0];
+    if (g && g !== cur) { valley.setLives(livesOf(g)); select(g, false); }
+  });
+
+  select(g0, false);
+  valley.resize();
+  requestAnimationFrame(frame);
+  load.style.opacity = 0;
+}
+})();
+</script>
+</body>
+</html>
