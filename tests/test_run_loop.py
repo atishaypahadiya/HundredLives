@@ -134,3 +134,10 @@ def test_runs_with_the_same_script_and_seed_are_identical(tmp_path):
     _, a, *_ = play(tmp_path / "a", script, 3, referee=Referee(chance=0.5, weeks=1), seed=3)
     _, b, *_ = play(tmp_path / "b", script, 3, referee=Referee(chance=0.5, weeks=1), seed=3)
     assert strip(a) == strip(b)
+
+
+def test_a_bad_files_call_is_a_tool_error_not_the_end_of_the_run(tmp_path):
+    script = {1: [[call("files", action="write", path="app/main.py", content="x")],
+                  [call("files", action="read", path="app")]]}
+    run, log, *_ = play(tmp_path, script, 2)  # play asserts the run reached the horizon
+    assert "app is not a file" in events(log, "tool_error")[0]["error"]

@@ -443,6 +443,8 @@ def parse_contact(text: str, contact: dict, openings: dict, used: set, term: str
     except (TypeError, ValueError, AttributeError) as e:
         return {"reply": "", "offer": None}, f"unusable contact output: {e}"
     kind = d.get("offer_kind") or "none"
+    if not isinstance(kind, str):
+        return {"reply": reply, "offer": None}, f"offer_kind {kind!r} isn't a kind; dropped"
     if kind == "none":
         return {"reply": reply, "offer": None}, None
     allowed = {o["kind"]: o for o in contact.get("offers") or []}
