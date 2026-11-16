@@ -41,12 +41,13 @@ button{font:inherit;color:inherit}
 /* ---------- the scroll: a sticky valley, the weeks over it ---------- */
 .life{position:relative}
 .chrome{position:sticky;top:0;height:0;z-index:4}
-.top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:.75rem;
+.top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem .75rem;
   padding:1.375rem 2.5rem;font-size:.9375rem;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
 .top .mark{display:flex;align-items:center;gap:.625rem;font-weight:500;font-size:1.0625rem;white-space:nowrap;text-decoration:none}
 .top .mark svg{fill:#fff}
-.top nav{display:flex;gap:1.375rem;white-space:nowrap}
-.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+.top nav{display:flex;flex-wrap:wrap;gap:.25rem 1.375rem}
+.top nav a{white-space:nowrap;text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+@media (max-width:22.4375em){html .top{column-gap:.5rem} html .top nav{column-gap:.75rem}}
 .top nav a[aria-current]{opacity:1;text-decoration:underline;text-decoration-color:rgba(255,255,255,.7)}
 /* the weeks scroll under the nav: on wide screens a dark veil over the column keeps the two apart */
 .veil{position:absolute;top:0;right:0;width:var(--colw);height:112px;z-index:1;pointer-events:none;
@@ -156,18 +157,18 @@ td .sub{display:block;font-size:.875rem;color:var(--grey-2);margin-top:.125rem}
 .repo .name{color:var(--ink);font-weight:500}
 .repo .c{font-size:.875rem;margin-top:.25rem} .repo code{font:.75rem/1.3333 var(--mono);color:var(--grey-2)}
 .note{margin:3.5rem 0 0;font-size:.9375rem;color:var(--grey-2);max-width:68ch}
-.empty{color:var(--grey-2)}
+.empty{color:var(--grey-2);overflow-wrap:anywhere}
 footer{margin-top:6rem;padding:1.75rem 0 3rem;border-top:1px solid var(--line);font-size:.9375rem;color:var(--grey-2)}
 footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.625rem 1.375rem}
 footer .built{color:var(--ink)}
 footer .links{display:flex;gap:1.125rem}
 
 /* phones: the valley in the top 45% of the screen, the weeks scroll under it */
-@media (max-width:899px){
+@media (max-width:56.1875em){
   :root{--colw:100%}
   .wrap{padding:0 1rem}
   .top{padding:1rem 1rem}
-  .top nav{gap:1rem} .top .anchor{display:none}
+  .top nav{gap:.25rem 1rem} .top .anchor{display:none}
   .veil,.scrim{display:none}
   .stage{height:45svh;z-index:3}
   .hud{left:16px;bottom:30px}
@@ -553,7 +554,7 @@ function start(D, PL) {
   // Anchors in page coordinates: the end of the header is week 0 (the hut), a week's middle is that week,
   // a folded run of quiet weeks spans its first to its last week. The camera and the counter read the
   // anchor at the activation line (the middle of the screen; on a phone, the middle of the text under the valley).
-  var anchors = [], wide = matchMedia("(min-width: 900px)");
+  var anchors = [], wide = matchMedia("(min-width: 56.25em)");
   function lineY() { var vh = innerHeight; return wide.matches ? vh * .5 : vh * .45 + vh * .55 * .4; }
   function docTop(el) { return el.getBoundingClientRect().top + scrollY; }
   function measure() {

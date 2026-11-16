@@ -53,7 +53,7 @@ a{color:inherit;text-decoration-color:var(--grey);text-underline-offset:3px}
 a:hover{text-decoration-color:var(--ink)}
 p{margin:0 0 1rem}
 code,pre{font-family:var(--mono)}
-code{font-size:.875rem;background:var(--card);padding:.125rem .25rem;border-radius:3px;color:var(--ink-2)}
+code{overflow-wrap:anywhere;font-size:.875rem;background:var(--card);padding:.125rem .25rem;border-radius:3px;color:var(--ink-2)}
 .wrap{max-width:1120px;margin:0 auto;padding:0 2.5rem}
 .col{max-width:760px;margin:0 auto}
 .prose{max-width:60ch}
@@ -61,22 +61,23 @@ code{font-size:.875rem;background:var(--card);padding:.125rem .25rem;border-radi
 
 /* the valley: a tall scroll track holding a sticky full-screen stage (docs/THEME.md, Building blocks) */
 .track{height:900vh;position:relative}
-.top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:.75rem;
+.top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem .75rem;
   padding:1.375rem max(2.5rem,env(safe-area-inset-left,0));font-size:.9375rem;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
 .top .mark{display:flex;align-items:center;gap:.625rem;font-weight:500;font-size:1.0625rem;white-space:nowrap;text-decoration:none}
 .top .mark svg{fill:#fff}
 /* ?og: the share image (scripts/og_image.sh) is the final wide shot with no text and no clouds */
 .og .top,.og .hud,.og .line,.og .load{display:none}
-.top nav{display:flex;gap:1.375rem;white-space:nowrap}
-.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
-@media (max-width:639px){.top{padding:1.125rem 1rem} .top nav{gap:1rem} .top .anchor{display:none}}
+.top nav{display:flex;flex-wrap:wrap;gap:.25rem 1.375rem}
+.top nav a{white-space:nowrap;text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+@media (max-width:22.4375em){html .top{column-gap:.5rem} html .top nav{column-gap:.75rem}}
+@media (max-width:39.9375em){.top{padding:1.125rem 1rem} .top nav{gap:.25rem 1rem} .top .anchor{display:none}}
 .stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#bcd3e3;color:#fff}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stage::after{content:"";position:absolute;inset:-50%;pointer-events:none;mix-blend-mode:overlay;opacity:.42;animation:grain 1s steps(4) infinite;
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
 .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 50% 42%,rgba(0,0,0,0) 58%,rgba(8,16,12,.42) 100%)}
-.lines{position:absolute;left:0;right:0;top:11%;text-align:center;pointer-events:none}
+.lines{position:absolute;left:0;right:0;top:max(11%,calc(var(--top-h,0px) + .5rem));text-align:center;pointer-events:none}
 .line{position:absolute;left:0;right:0;margin:0;font-weight:300;font-size:clamp(1.75rem,5vw,4.375rem);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;
  text-shadow:0 2px 30px rgba(20,40,60,.35);opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .9s ease;padding-inline:max(1rem,env(safe-area-inset-left,0))}
 .line.on{opacity:1;transform:none}
@@ -107,7 +108,7 @@ code{font-size:.875rem;background:var(--card);padding:.125rem .25rem;border-radi
 .strip a:hover .t{text-decoration:underline;text-decoration-color:var(--grey);text-underline-offset:4px}
 .strip .k{font-size:.875rem;color:var(--grey-2)}
 .strip .t{font:400 1.25rem/1.3 var(--sans);letter-spacing:-.015em;color:var(--ink)}
-@media (max-width:639px){.strip ol{grid-template-columns:minmax(0,1fr);gap:1.125rem}}
+@media (max-width:39.9375em){.strip ol{grid-template-columns:minmax(0,1fr);gap:1.125rem}}
 
 main{padding-bottom:2.5rem}
 main section{padding-top:6rem;scroll-margin-top:16px}
@@ -148,6 +149,7 @@ td{padding:.625rem .75rem .625rem 0;border-top:1px solid var(--line);vertical-al
 .more{font-size:.9375rem;margin-top:.875rem}
 
 .tools td:first-child{white-space:nowrap;width:1%}
+.tscroll{overflow-x:auto}
 pre{margin:1rem 0;padding:1.125rem 1.125rem;background:var(--card);border-radius:6px;overflow-x:auto;font-size:.875rem;line-height:1.5rem;color:var(--ink-2)}
 pre code{background:none;padding:0;font-size:inherit}
 .cap{font-size:.9375rem;color:var(--grey-2);margin:-.25rem 0 0}
@@ -165,7 +167,7 @@ footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.625re
 footer .built{color:var(--ink)}
 footer .links{display:flex;gap:1.125rem}
 
-@media (max-width:639px){
+@media (max-width:39.9375em){
   .score thead{display:none}
   .score tr{display:block;border-top:1px solid var(--line);padding:.625rem 0}
   .score td{display:block;border:0;padding:.125rem 0;overflow-wrap:anywhere}
@@ -185,6 +187,12 @@ footer .links{display:flex;gap:1.125rem}
   <a class="mark" href="#"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>HundredLives</a>
   <nav><a class="anchor" href="#findings">Findings</a><a href="replays/self/">Self</a><a class="anchor" href="#how">How it works</a><a href="runs/">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a></nav>
  </div>
+ <script>
+  // The story lines start below the nav, however many rows it wraps to at large text.
+  (function () { var t = document.querySelector('.top'), r = document.documentElement;
+    function set() { r.style.setProperty('--top-h', t.offsetHeight + 'px'); }
+    set(); if (window.ResizeObserver) new ResizeObserver(set).observe(t); })();
+ </script>
  <div class="stage">
   <canvas id="gl"></canvas>
   <div class="vignette"></div>
@@ -289,7 +297,7 @@ footer .links{display:flex;gap:1.125rem}
     <p>Each life runs in its own Docker container on its own internal network, next to a local Gitea code host, with no route to the internet. World v3 adds a mock web: deploying publishes a repo's static files, and when a message, application or post links the site, the reader sees what a visitor would. Nothing on it runs. Every action and outcome goes into one JSONL log per life, and the Runs pages and the charts above read only those logs.</p>
     <p>In world v3 the agent has <span data-fact="tools.n">16</span> tools.</p>
   </div>
-  <table class="tools">
+  <div class="tscroll"><table class="tools">
     <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
     <tbody>
       <tr data-tool="files"><td><code>files</code></td><td>Read and write files in its workspace</td></tr>
@@ -309,7 +317,7 @@ footer .links{display:flex;gap:1.125rem}
       <tr data-tool="decline_offer"><td><code>decline_offer</code></td><td>Turn down an offer it accepted</td></tr>
       <tr data-tool="wait"><td><code>wait</code></td><td>End the week</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="prose" style="margin-top:2.5rem">
     <p>Every life starts from a persona file. Here is part of Self's. The contacts are fictional people. The agent sees their names and how it knows them, but not how they talk, how often they reply, or what they can offer.</p>

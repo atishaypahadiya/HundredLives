@@ -50,21 +50,22 @@ button{font:inherit;color:inherit}
 .num{font-variant-numeric:tabular-nums}
 
 /* the valley, held on the final wide shot (docs/THEME.md, Pages: Runs) */
-.stage{position:relative;height:max(520px,74svh);overflow:hidden;background:#bcd3e3;color:#fff}
+.stage{position:relative;height:max(32.5rem,74svh);overflow:hidden;background:#bcd3e3;color:#fff}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
 .stage::after{content:"";position:absolute;inset:-50%;pointer-events:none;mix-blend-mode:overlay;opacity:.42;animation:grain 1s steps(4) infinite;
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-1%,3%)}100%{transform:translate(0,0)}}
 .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 95% at 50% 42%,rgba(0,0,0,0) 58%,rgba(8,16,12,.42) 100%)}
-.top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:.75rem;
+.top{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem .75rem;
   padding:1.375rem 2.5rem;font-size:.9375rem;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
 .top .mark{display:flex;align-items:center;gap:.625rem;font-weight:500;font-size:1.0625rem;white-space:nowrap;text-decoration:none}
 .top .mark svg{fill:#fff}
-.top nav{display:flex;gap:1.375rem;white-space:nowrap}
-.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+.top nav{display:flex;flex-wrap:wrap;gap:.25rem 1.375rem}
+.top nav a{white-space:nowrap;text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+@media (max-width:22.4375em){html .top{column-gap:.5rem} html .top nav{column-gap:.75rem}}
 .top nav a[aria-current]{opacity:1;text-decoration:underline;text-decoration-color:rgba(255,255,255,.7)}
-@media (max-width:639px){.top{padding:1.125rem 1rem} .top nav{gap:1rem} .top .anchor{display:none}}
-.headline{position:absolute;left:0;right:0;top:15%;z-index:2;margin:0;text-align:center;pointer-events:none;padding-inline:1rem;
+@media (max-width:39.9375em){.top{padding:1.125rem 1rem} .top nav{gap:.25rem 1rem} .top .anchor{display:none}}
+.headline{position:absolute;left:0;right:0;top:max(15%,calc(var(--top-h,0px) + .5rem));z-index:2;margin:0;text-align:center;pointer-events:none;padding-inline:1rem;
  font-weight:300;font-size:clamp(1.75rem,5vw,4.375rem);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;text-shadow:0 2px 30px rgba(20,40,60,.35)}
 .headline small{display:table;margin-inline:auto;font:500 .75rem/1.3333 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-top:1.125rem;padding:.5rem .625rem;
  background:rgba(20,30,40,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:3px;text-shadow:none}
@@ -90,7 +91,7 @@ button{font:inherit;color:inherit}
 .picker button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .picker b{display:block;font-weight:500;font-size:1.0625rem}
 .picker span{display:block;font-size:.875rem;margin-top:.125rem}
-.scrub{display:flex;align-items:center;gap:1rem;margin-top:1.125rem}
+.scrub{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-top:1.125rem}
 .play{flex:none;padding:0;width:40px;height:40px;border-radius:50%;border:1px solid var(--grey);background:none;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
 .play:hover{border-color:var(--ink-2)}
 .play svg{fill:currentColor}
@@ -105,7 +106,7 @@ input[type=range]:focus-visible{outline:2px solid var(--ink-2);outline-offset:4p
 .week b{line-height:1;font-weight:400;font-size:1.5rem;letter-spacing:-.02em;color:var(--ink);margin:0 .125rem}
 .reading{margin:.875rem 0 0;max-width:68ch;font-size:1.0625rem;color:var(--body)}
 .reading .g{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin:0 .125rem .125rem 0;vertical-align:middle}
-@media (max-width:639px){.wrap{padding:0 1rem}.picker{gap:.375rem 1.375rem}.scrub{gap:.75rem}.week{min-width:7.2em}
+@media (max-width:39.9375em){.wrap{padding:0 1rem}.picker{gap:.375rem 1.375rem}.scrub{gap:.75rem}.week{min-width:7.2em}
  .corner span{white-space:normal;width:10em;margin-inline:auto}}
 
 /* the table of runs */
@@ -137,11 +138,12 @@ td.life .flag{font-size:.875rem;color:var(--ochre);margin-left:.375rem}
 td.cash{white-space:nowrap;color:var(--ink-2)}
 td.strip{width:190px;padding-top:1rem}
 td.strip svg{display:block;width:100%;height:8px}
-@media (max-width:899px){
+@media (max-width:56.1875em){
   thead{display:none}
   table,tbody,tr,td{display:block}
   tr{border-top:1px solid var(--line);padding:.75rem 0}
   td{border:0;padding:.125rem 0}
+  td.life,td.cash{white-space:normal}
   td.strip{width:auto;padding:.5rem 0 .25rem}
   td[data-k]::before{content:attr(data-k) ": ";color:var(--grey-2)}
 }
@@ -160,7 +162,7 @@ footer{margin-top:6rem;padding:1.75rem 0 3rem;border-top:1px solid var(--line);f
 footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.625rem 1.375rem}
 footer .built{color:var(--ink)}
 footer .links{display:flex;gap:1.125rem}
-@media (max-width:639px){main{padding-top:3.5rem}}
+@media (max-width:39.9375em){main{padding-top:3.5rem}}
 </style>
 </head>
 <body>
@@ -172,6 +174,12 @@ footer .links{display:flex;gap:1.125rem}
   <a class="mark" href="../"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>HundredLives</a>
   <nav><a class="anchor" href="../#findings">Findings</a><a href="../replays/self/">Self</a><a class="anchor" href="../#how">How it works</a><a href="./" aria-current="page">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a></nav>
  </div>
+ <script>
+  // The headline starts below the nav, however many rows it wraps to at large text.
+  (function () { var t = document.querySelector('.top'), r = document.documentElement;
+    function set() { r.style.setProperty('--top-h', t.offsetHeight + 'px'); }
+    set(); if (window.ResizeObserver) new ResizeObserver(set).observe(t); })();
+ </script>
  <h1 class="headline" id="headline">Runs<small id="caption"></small></h1>
  <div id="corners"></div>
  <a class="tip" id="tip" hidden><b></b><span></span></a>
@@ -490,6 +498,15 @@ function start(R, P) {
       cornerEls[e].hidden = !cur.ends[e] || v.z >= 1 || x < lb.w || x > W - lb.w || y - lb.h < hb || y > Hh - 8;
       cornerEls[e].style.left = x + "px"; cornerEls[e].style.top = y + "px";
     }
+    // At large text a label can reach the headline or another label: measured, the corner where more lives ended keeps its label
+    // (where each life ended is also in the table, under Ending).
+    var kept = [document.getElementById("headline").getBoundingClientRect()];
+    ENDS.slice().sort(function(a, b){ return (cur.ends[b] || 0) - (cur.ends[a] || 0); }).forEach(function(e){
+      var el = cornerEls[e]; if (!el || el.hidden) return;
+      var r = el.getBoundingClientRect(), sr = cv.getBoundingClientRect(), dx = Math.max(0, sr.left + 8 - r.left) - Math.max(0, r.right - (sr.right - 8));
+      if (dx) { el.style.left = (parseFloat(el.style.left) + dx) + "px"; r = el.getBoundingClientRect(); }  // kept inside the stage
+      if (kept.some(function(k){ return r.left < k.right && r.right > k.left && r.top < k.bottom && r.bottom > k.top; })) el.hidden = true; else kept.push(r);
+    });
     placeTip();
     requestAnimationFrame(frame);
   }
@@ -551,20 +568,20 @@ function start(R, P) {
     var title = L ? L.title : r.run_id;
     return h("tr", {},
       h("td", { class: "life" }, L && L.stray ? h("i", { class: "g", title: "A stray", "aria-label": "A stray" }) : null,
-        h("a", { href: encodeURIComponent(r.run_id) + "/", text: title, title: r.run_id,
+        h("a", { href: encodeURIComponent(r.run_id) + "/", text: title.replace(/ (?=\d)/g, "\u00a0"), title: r.run_id,
                  "aria-label": title + ": " + (live ? "now" : "ended") + " " + ENDED[tone] + ", week " + weeks.length + ", cash " + money(last.cash) }),
         r.pilot ? h("span", { class: "flag", title: "uncommitted or unrecorded code", text: "PILOT" }) : null,
         live ? h("span", { class: "flag", text: "live" }) : r.reason && r.reason !== "horizon" ? h("span", { class: "flag", text: "ended: " + r.reason }) : null,
         null),
       h("td", { "data-k": "Ending" }, L ? (L.end === "searching" ? P.hut.label : P.corners[L.end].label) : "",
-        h("span", { class: "sub", text: "week " + weeks.length + " of " + (r.horizon == null ? "?" : r.horizon) + ", " + (live ? "now" : "ended") + " " + ENDED[tone] })),
+        h("span", { class: "sub", text: "week\u00a0" + weeks.length + " of\u00a0" + (r.horizon == null ? "?" : r.horizon) + ", " + (live ? "now" : "ended") + " " + ENDED[tone] })),
       h("td", { class: "cash num", "data-k": "Cash at the end", text: money(last.cash) }),
       h("td", { "data-k": "Last week held", title: labels.join("; ") }, labels.length ? labels[0] : "no commitment",
         labels.length > 1 ? h("span", { class: "sub", title: labels.join("; "), text: "and " + (labels.length - 1) + " more" }) : null),
       h("td", { class: "strip" }, strip(weeks, r.horizon)),
       h("td", { class: "num", "data-k": "Activity", text: r.applications + " applied, " + r.successes + " accepted, " + r.shell + " shell, " +
         plural(r.repos, "repo", "repos") + ", " + plural(r.launches, "launch", "launches") }),
-      h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + " tokens, $" + (r.cost_usd || 0).toFixed(4) }));
+      h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + "\u00a0tokens, $" + (r.cost_usd || 0).toFixed(4) }));
   }
   // Each week is a tick as wide as it is in the 176 px column; in a wider column (the cards below 900 px)
   // the ticks keep that width and the gaps between them grow, from the first tick at the left edge to the last at the right.
