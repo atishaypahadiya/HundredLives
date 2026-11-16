@@ -62,7 +62,7 @@ button{font:inherit;color:inherit}
 .top nav{display:flex;gap:1.375rem;white-space:nowrap}
 .top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
 .top nav a[aria-current]{opacity:1;text-decoration:underline;text-decoration-color:rgba(255,255,255,.7)}
-@media (max-width:640px){.top{padding:1.125rem 1rem} .top nav{gap:1rem} .top .anchor{display:none}}
+@media (max-width:639px){.top{padding:1.125rem 1rem} .top nav{gap:1rem} .top .anchor{display:none}}
 .headline{position:absolute;left:0;right:0;top:15%;z-index:2;margin:0;text-align:center;pointer-events:none;padding-inline:1rem;
  font-weight:300;font-size:clamp(28px,5vw,70px);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;text-shadow:0 2px 30px rgba(20,40,60,.35)}
 .headline small{display:table;margin-inline:auto;font:500 12px/1.3333 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-top:1.125rem;padding:.5rem .625rem;
@@ -104,7 +104,7 @@ input[type=range]:focus-visible{outline:2px solid var(--ink-2);outline-offset:4p
 .week b{line-height:1;font-weight:400;font-size:24px;letter-spacing:-.02em;color:var(--ink);margin:0 .125rem}
 .reading{margin:.875rem 0 0;max-width:68ch;font-size:17px;color:var(--body)}
 .reading .g{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin:0 .125rem .125rem 0;vertical-align:middle}
-@media (max-width:640px){.wrap{padding:0 1rem}.picker{gap:.375rem 1.375rem}.scrub{gap:.75rem}.week{min-width:7.2em}
+@media (max-width:639px){.wrap{padding:0 1rem}.picker{gap:.375rem 1.375rem}.scrub{gap:.75rem}.week{min-width:7.2em}
  .corner span{white-space:normal;width:10em;margin-inline:auto}}
 
 /* the table of runs */
@@ -135,8 +135,8 @@ td.life .g{display:inline-block;width:8px;height:8px;border-radius:50%;backgroun
 td.life .flag{font-size:14px;color:var(--ochre);margin-left:.375rem}
 td.cash{white-space:nowrap;color:var(--ink-2)}
 td.strip{width:190px;padding-top:1rem}
-td.strip svg{display:block;width:100%;height:auto}
-@media (max-width:860px){
+td.strip svg{display:block;width:100%;height:8px}
+@media (max-width:899px){
   thead{display:none}
   table,tbody,tr,td{display:block}
   tr{border-top:1px solid var(--line);padding:.75rem 0}
@@ -159,7 +159,7 @@ footer{margin-top:6rem;padding:1.75rem 0 3rem;border-top:1px solid var(--line);f
 footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.625rem 1.375rem}
 footer .built{color:var(--ink)}
 footer .links{display:flex;gap:1.125rem}
-@media (max-width:600px){main{padding-top:3.5rem}}
+@media (max-width:639px){main{padding-top:3.5rem}}
 </style>
 </head>
 <body>
@@ -565,15 +565,17 @@ function start(R, P) {
         plural(r.repos, "repo", "repos") + ", " + plural(r.launches, "launch", "launches") }),
       h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + " tokens, $" + (r.cost_usd || 0).toFixed(4) }));
   }
+  // Each week is a tick as wide as it is in the 176 px column; in a wider column (the cards below 900 px)
+  // the ticks keep that width and the gaps between them grow, from the first tick at the left edge to the last at the right.
   function strip(weeks, horizon) {
-    var n = Math.max(horizon || 0, weeks.length, 1), W = 230, H = 10, slot = W / n, gap = Math.min(1.2, slot / 4), cw = slot - gap;
-    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Weeks, " + weeks.length + " of " + n });
+    var n = Math.max(horizon || 0, weeks.length, 1), B = 176, H = 8, slot = B / n, cw = Math.max(slot - Math.min(.92, slot / 4), .5);
+    var svg = s("svg", { height: H, role: "img", "aria-label": "Weeks, " + weeks.length + " of " + n });
     for (var i = 0; i < n; i++) {
-      var w = weeks[i], x = i * slot + gap / 2;
-      var r = s("rect", { x: x, y: 0, width: Math.max(cw, .6), height: H, rx: Math.min(1.5, cw / 2), fill: !w ? "#1b261f" : w.broke ? "var(--rust)" : KIND[weekKind(w)][1] });
+      var w = weeks[i], k = n > 1 ? i / (n - 1) : 0, x = k * 100 + "%", back = -k * cw;
+      var r = s("rect", { x: x, y: 0, width: cw, height: H, rx: Math.min(1.15, cw / 2), transform: "translate(" + back + " 0)", fill: !w ? "#1b261f" : w.broke ? "var(--rust)" : KIND[weekKind(w)][1] });
       if (w) { var t = s("title"); t.textContent = "Week " + w.week + ": " + KIND[weekKind(w)][0] + (w.broke ? ", broke" : "") + ", cash " + money(w.cash); r.append(t); }
       svg.append(r);
-      if (w && w.broke && cw >= 2) svg.append(s("circle", { cx: x + cw / 2, cy: H / 2, r: Math.min(1.2, cw / 3), fill: "#fff", "pointer-events": "none" }));
+      if (w && w.broke && cw >= 1.5) svg.append(s("circle", { cx: x, cy: H / 2, r: Math.min(.92, cw / 3), transform: "translate(" + (back + cw / 2) + " 0)", fill: "#fff", "pointer-events": "none" }));
     }
     return svg;
   }
