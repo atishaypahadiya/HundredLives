@@ -48,8 +48,9 @@ The voice: half technical paper, half human story. Exact numbers set in a quiet,
 Type:
 - Story line over the scene: Inter Tight 300, `clamp(28px,5vw,70px)`, line-height 1.04, letter-spacing -0.035em, white, soft text-shadow, centred, balanced wrap.
 - Caption under a story line: Geist Mono 500, 12px, uppercase, letter-spacing .14em, on a small blurred dark chip (`rgba(20,30,40,.38)`, 6px blur, 3px radius).
-- HUD (week counter, "following" chip): bottom corners, Geist Mono 11.5px uppercase, with the number in Inter Tight 28px.
-- Body text below the scene: Inter Tight 400, 16–18px, line-height 1.55, `#b9c4bb` on `--paper`, max 60ch.
+- HUD (week counter, "following" chip): bottom corners, Geist Mono 500, 12px uppercase, letter-spacing .14em, with the number in Inter Tight 28px.
+- Body text below the scene: Inter Tight 400, 17px with 26px lines at every width, `#b9c4bb` on `--paper`, max 60ch.
+- Every size and line height is a step in `itten.system.json`: 12, 14, 15, 17, 20, 24 and 28px, and fluid ranges for the dek, headings, the life title and the story line.
 
 Grain overlay (copy exactly):
 ```css
