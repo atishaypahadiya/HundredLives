@@ -38,7 +38,7 @@
           "system-ui",
           "sans-serif"
         ],
-        "source": "Google Fonts, weights 300, 400, 500"
+        "source": "docs/fonts/InterTight.woff2, weights 300 to 500"
       },
       {
         "name": "Geist Mono",
@@ -48,7 +48,7 @@
           "Menlo",
           "monospace"
         ],
-        "source": "Google Fonts, weights 400, 500"
+        "source": "docs/fonts/GeistMono.woff2, weights 400 to 500"
       }
     ],
     "scale": [
