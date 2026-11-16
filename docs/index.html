@@ -173,6 +173,7 @@ footer .links{display:flex;gap:1.125rem}
   .score td{display:block;border:0;padding:.125rem 0;overflow-wrap:anywhere}
   .score{table-layout:fixed}
   .score td.v{width:auto;white-space:normal}
+  .score{font-size:1.0625rem} .score td{line-height:1.5294}  /* stacked into cards: the body step, 17/26 */
   .wrap{padding:0 1rem}
   .intro{padding-top:3.5rem}
   main section{padding-top:4.5rem}
@@ -493,7 +494,7 @@ contacts:
     if (!P || !P.length) return;
     var good = function(v){ return /^(held|met)\b/i.test(v); };
     var n = P.filter(function(p){ return good(p.verdict); }).length;
-    var h = '<table class="score"><caption>' + esc(title) + ': ' + n + ' of ' + P.length + ' held</caption>' +
+    var h = '<table class="score"><caption>' + esc(title) + ': ' + n + '\u00a0of\u00a0' + P.length + '\u00a0held</caption>' +
       '<thead><tr><th>Prediction</th><th>Result</th><th class="v">Verdict</th></tr></thead><tbody>';
     P.forEach(function(p){
       h += '<tr><td>' + esc(p.plain || words(p.text)) + (p.plain ? '<span class="verb">As written: ' + esc(words(p.text)) + '</span>' : '') + (p.provisional ? '<span class="note">Provisional: coded by an AI model, not yet checked by a person.</span>' : '') +
