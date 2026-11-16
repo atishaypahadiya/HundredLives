@@ -86,13 +86,26 @@ Transitions: story lines fade .7 s and move .9 s, chips .6 s, the loading note .
 
 ## Carry into the system
 
-Into `itten.system.json`:
+Into `itten.system.json` (version 2, approved 16 November 2026):
 
-- Spacing on a 4 px rhythm with 2 and 6 for fine work: 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 56, 72, 96 (14 steps, from 36 values).
-- Type sizes 12, 14, 15, 16, 17, 20, 24, 28 and three fluid ranges (story, heading, life title), from 36 declared values. Every line height a whole pixel.
-- Radii 3 and 6, plus full rounding for dots.
-- Colour roles from the tokens, with More values for the two text colours under 7:1.
-- Breakpoints 640 and 900, from four.
+- Spacing on 16 steps fitted to the pages: 2, 4, 6, 8, 10, 12, 14, 16, 18, 22, 28, 40, 48, 56, 72, 96 px, written in rem. Each candidate scale was scored by how far it moves the declared values, weighted by use (236 declarations, 31 distinct values):
+
+  | Scale | Steps | px moved | Values moved | Uses moved |
+  |---|--:|--:|--:|--:|
+  | Fitted (above) | 16 | 107 | 15 | 44 |
+  | 4n | 16 | 209 | 16 | 113 |
+  | 4n+2 to 34, then 8n | 17 | 215 | 15 | 119 |
+  | 4n with 2 and 6 | 14 | 233 | 18 | 103 |
+  | 8n with 4 and 12 | 14 | 269 | 19 | 128 |
+  | 4n+2 | 17 | 271 | 22 | 148 |
+  | 6n | 14 | 375 | 22 | 175 |
+
+  The fitted scale is the best of 16 steps (an exact search over whole-pixel steps). The pages use every even value up to 18, then 22 and 28, then multiples of 8. A 17th step saves 16 px more (112 or 64); the 112 px it would keep is the life column's top, which moves to 96.
+- Type sizes 12, 14, 15, 17, 20, 24 and 28 px, and five fluid ranges: the dek 19 to 21 px, headings and the pull quote 28 to 38 px, the life title 32 to 44 px, the story line 28 to 70 px. 16 px is folded into 15 (tables) and 17 (prose, the site mark, run names, and phone body, which is now the desktop's 17). Steps at one size differ only in line height and weight, where an element sets them: table cells, tooltips and one-line labels sit tighter than running text. Body leading is 26/17, so text that inherits it lands within half a pixel of a step at 12, 14 and 15 px.
+- Radii 3 and 6, plus full rounding for dots; 2 and 4 become 3.
+- Colour roles from the tokens, with Increase Contrast values for the two text colours under 7:1.
+- Breakpoints 640 and 900, from four. The home page's Findings strip stays three columns down to 640.
+- The life page's viewport-relative paddings are logged as overrides (`itten.overrides.json`).
 
 ## Deliberately not carried
 

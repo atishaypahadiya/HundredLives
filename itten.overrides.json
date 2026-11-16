@@ -1,0 +1,49 @@
+{
+  "$schema": "itten/schema/overrides.schema.json",
+  "overrides": [
+    {
+      "rule": "CRF-01",
+      "check": "spacing-scale",
+      "selector": ".head",
+      "value": "a step of the spacing scale",
+      "instead": "padding-bottom: 38svh (22svh below 900 px)",
+      "reason": "How far the reader scrolls past the header before the first week arrives. It is a share of the screen so the valley stays in view at any screen height; it does not space text.",
+      "floors": true,
+      "date": "2026-11-16",
+      "itten": "0.3.4"
+    },
+    {
+      "rule": "CRF-30",
+      "check": "spacing-unit",
+      "selector": ".head",
+      "value": "spacing in rem",
+      "instead": "padding-bottom: 38svh (22svh below 900 px)",
+      "reason": "The same padding follows the screen height, not the text size, for the same reason.",
+      "floors": true,
+      "date": "2026-11-16",
+      "itten": "0.3.4"
+    },
+    {
+      "rule": "CRF-01",
+      "check": "spacing-scale",
+      "selector": ".col",
+      "value": "a step of the spacing scale",
+      "instead": "margin-top: -100svh",
+      "reason": "Pulls the weeks column up by one screen so it scrolls over the sticky stage. It places the column over the scene; it does not space text.",
+      "floors": true,
+      "date": "2026-11-16",
+      "itten": "0.3.4"
+    },
+    {
+      "rule": "CRF-30",
+      "check": "spacing-unit",
+      "selector": ".col",
+      "value": "spacing in rem",
+      "instead": "margin-top: -100svh",
+      "reason": "The same margin has to match the stage, which is one screen tall whatever the text size.",
+      "floors": true,
+      "date": "2026-11-16",
+      "itten": "0.3.4"
+    }
+  ]
+}
