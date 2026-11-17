@@ -66,6 +66,7 @@ button{font:inherit;color:inherit}
 /* the week counter (the spine) and the strip of weeks, bottom left */
 .hud{position:absolute;left:40px;bottom:58px;z-index:2;font:500 .75rem/1.3333 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#fff;
   text-shadow:0 1px 10px rgba(20,40,60,.5);display:flex;align-items:baseline;gap:.625rem;pointer-events:none}
+.life .hud{text-shadow:none;padding:.375rem .625rem;border-radius:3px;background:rgba(11,17,13,.66);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}  /* the counter on a caption chip */
 .hud b{font:400 1.75rem/1 var(--sans);letter-spacing:-.02em;text-transform:none}
 .strip{position:absolute;left:40px;right:calc(var(--colw) + 48px);bottom:30px;z-index:2;height:14px;cursor:pointer}
 .strip svg{display:block;width:100%;height:100%;overflow:visible}
