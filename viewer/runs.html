@@ -583,7 +583,7 @@ function start(R, P) {
       h("td", { class: "strip" }, strip(weeks, r.horizon)),
       h("td", { class: "num", "data-k": "Activity", text: r.applications + " applied, " + r.successes + " accepted, " + r.shell + " shell, " +
         plural(r.repos, "repo", "repos") + ", " + plural(r.launches, "launch", "launches") }),
-      h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + "\u00a0tokens, $" + (r.cost_usd || 0).toFixed(4) }));
+      h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + " tokens, $" + (r.cost_usd || 0).toFixed(4) }));
   }
   // Each week is a tick as wide as it is in the 176 px column; in a wider column (the cards below 900 px)
   // the ticks keep that width and the gaps between them grow, from the first tick at the left edge to the last at the right.
