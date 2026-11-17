@@ -150,6 +150,7 @@ td.strip svg{display:block;width:100%;height:8px}
   td.strip{width:auto;padding:.5rem 0 .25rem}
   td[data-k]::before{content:attr(data-k) ": ";color:var(--grey-2)}
 }
+@media (min-width:64em){td.tokens{white-space:nowrap}}   /* wide table layout only: the tokens cell keeps its line; below it, and at 200% text, it wraps */
 .legend{margin-top:3.5rem}
 .legend h2{font-size:1.5rem;letter-spacing:-.02em}
 .legend dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:.5rem 1.125rem;margin:0;max-width:760px;font-size:.9375rem}
@@ -584,7 +585,7 @@ function start(R, P) {
       h("td", { class: "strip" }, strip(weeks, r.horizon)),
       h("td", { class: "num", "data-k": "Activity", text: r.applications + " applied, " + r.successes + " accepted, " + r.shell + " shell, " +
         plural(r.repos, "repo", "repos") + ", " + plural(r.launches, "launch", "launches") }),
-      h("td", { class: "num", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + " tokens, $" + (r.cost_usd || 0).toFixed(4) }));
+      h("td", { class: "num tokens", "data-k": "Tokens and cost", text: (r.tokens_used || 0).toLocaleString("en-US") + " tokens, $" + (r.cost_usd || 0).toFixed(4) }));
   }
   // Each week is a tick as wide as it is in the 176 px column; in a wider column (the cards below 900 px)
   // the ticks keep that width and the gaps between them grow, from the first tick at the left edge to the last at the right.
