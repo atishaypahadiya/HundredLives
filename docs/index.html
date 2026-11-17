@@ -63,6 +63,7 @@ code{overflow-wrap:anywhere;font-size:.875rem;background:var(--card);padding:.12
 .track{height:900vh;position:relative}
 .top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.5rem .75rem;
   padding:1.375rem max(2.5rem,env(safe-area-inset-left,0));font-size:.9375rem;color:#fff;text-shadow:0 1px 10px rgba(20,40,60,.45)}
+.top::before{content:"";position:absolute;inset:0 0 -70% 0;z-index:-1;pointer-events:none;background:linear-gradient(rgba(11,17,13,.8),rgba(11,17,13,.62) 55%,rgba(11,17,13,0))}  /* the nav over cloud: the 10th percentile reaches 4.6:1 */
 .top .mark{display:flex;align-items:center;gap:.625rem;font-weight:500;font-size:1.0625rem;white-space:nowrap;text-decoration:none}
 .top .mark svg{fill:#fff}
 /* ?og: the share image (scripts/og_image.sh) is the final wide shot with no text and no clouds */
