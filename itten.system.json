@@ -1,0 +1,518 @@
+{
+  "$schema": "itten/schema/system.schema.json",
+  "name": "HundredLives",
+  "version": "2",
+  "source": {
+    "teardown": "docs/itten/teardown.md",
+    "brief": "docs/THEME.md",
+    "overrides": "docs/itten-overrides.md"
+  },
+  "spacing": {
+    "scale": [
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14,
+      16,
+      18,
+      22,
+      28,
+      40,
+      48,
+      56,
+      72,
+      96
+    ],
+    "groupRatioMin": 2,
+    "note": "Fitted to the site: of the scales scored (4n, 4n+2, 6n, 8n with half-steps, and the best scale of each size), these 16 steps move the three pages least, 107 px over 236 declarations. Written in rem, 16 px to the rem."
+  },
+  "type": {
+    "families": [
+      {
+        "name": "Inter Tight",
+        "role": "text",
+        "fallback": [
+          "system-ui",
+          "sans-serif"
+        ],
+        "source": "docs/fonts/InterTight.woff2, weights 300 to 500"
+      },
+      {
+        "name": "Geist Mono",
+        "role": "mono",
+        "fallback": [
+          "ui-monospace",
+          "Menlo",
+          "monospace"
+        ],
+        "source": "docs/fonts/GeistMono.woff2, weights 400 to 500"
+      }
+    ],
+    "scale": [
+      {
+        "name": "label",
+        "size": 12,
+        "lineHeight": 16,
+        "weight": 500,
+        "family": "Geist Mono",
+        "tracking": 0.14
+      },
+      {
+        "name": "mono-tight",
+        "size": 12,
+        "lineHeight": 16,
+        "weight": 400,
+        "family": "Geist Mono"
+      },
+      {
+        "name": "mono",
+        "size": 12,
+        "lineHeight": 18,
+        "weight": 400,
+        "family": "Geist Mono"
+      },
+      {
+        "name": "referee",
+        "size": 12,
+        "lineHeight": 20,
+        "weight": 400,
+        "family": "Geist Mono"
+      },
+      {
+        "name": "code-table",
+        "size": 14,
+        "lineHeight": 20,
+        "weight": 400,
+        "family": "Geist Mono"
+      },
+      {
+        "name": "code-inline",
+        "size": 14,
+        "lineHeight": 21,
+        "weight": 400,
+        "family": "Geist Mono"
+      },
+      {
+        "name": "code",
+        "size": 14,
+        "lineHeight": 24,
+        "weight": 400,
+        "family": "Geist Mono"
+      },
+      {
+        "name": "tip",
+        "size": 14,
+        "lineHeight": 18,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "tip-strong",
+        "size": 14,
+        "lineHeight": 18,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "table-small",
+        "size": 14,
+        "lineHeight": 20,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "table-small-strong",
+        "size": 14,
+        "lineHeight": 20,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "small",
+        "size": 14,
+        "lineHeight": 21,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "small-strong",
+        "size": 14,
+        "lineHeight": 21,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "label-sans",
+        "size": 15,
+        "lineHeight": 18,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "table",
+        "size": 15,
+        "lineHeight": 22,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "table-strong",
+        "size": 15,
+        "lineHeight": 22,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "caption",
+        "size": 15,
+        "lineHeight": 23,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "caption-strong",
+        "size": 15,
+        "lineHeight": 23,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "body",
+        "size": 17,
+        "lineHeight": 26,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "body-strong",
+        "size": 17,
+        "lineHeight": 26,
+        "weight": 500,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "lead",
+        "size": 20,
+        "lineHeight": 26,
+        "weight": 400,
+        "family": "Inter Tight",
+        "tracking": -0.015
+      },
+      {
+        "name": "subhead",
+        "size": 20,
+        "lineHeight": 26,
+        "weight": 500,
+        "family": "Inter Tight",
+        "tracking": -0.01
+      },
+      {
+        "name": "heading-fixed",
+        "size": 24,
+        "lineHeight": 28,
+        "weight": 400,
+        "family": "Inter Tight",
+        "tracking": -0.02
+      },
+      {
+        "name": "title",
+        "size": 24,
+        "lineHeight": 30,
+        "weight": 500,
+        "family": "Inter Tight",
+        "tracking": -0.02
+      },
+      {
+        "name": "count",
+        "size": 24,
+        "lineHeight": 24,
+        "weight": 400,
+        "family": "Inter Tight",
+        "tracking": -0.02
+      },
+      {
+        "name": "count-large",
+        "size": 28,
+        "lineHeight": 28,
+        "weight": 400,
+        "family": "Inter Tight",
+        "tracking": -0.02
+      },
+      {
+        "name": "dek",
+        "fluid": {
+          "min": 19,
+          "max": 21,
+          "minWidth": 640,
+          "maxWidth": 1120
+        },
+        "leading": 1.5,
+        "weight": 400,
+        "family": "Inter Tight"
+      },
+      {
+        "name": "heading",
+        "fluid": {
+          "min": 28,
+          "max": 38,
+          "minWidth": 820,
+          "maxWidth": 1120
+        },
+        "leading": 1.15,
+        "weight": 400,
+        "family": "Inter Tight",
+        "tracking": -0.03
+      },
+      {
+        "name": "quote",
+        "fluid": {
+          "min": 28,
+          "max": 38,
+          "minWidth": 820,
+          "maxWidth": 1120
+        },
+        "leading": 1.2,
+        "weight": 400,
+        "family": "Inter Tight",
+        "tracking": -0.025
+      },
+      {
+        "name": "life-title",
+        "fluid": {
+          "min": 32,
+          "max": 44,
+          "minWidth": 1000,
+          "maxWidth": 1400
+        },
+        "leading": 1.06,
+        "weight": 300,
+        "family": "Inter Tight",
+        "tracking": -0.03
+      },
+      {
+        "name": "story",
+        "fluid": {
+          "min": 28,
+          "max": 70,
+          "minWidth": 560,
+          "maxWidth": 1400
+        },
+        "leading": 1.04,
+        "weight": 300,
+        "family": "Inter Tight",
+        "tracking": -0.035
+      }
+    ]
+  },
+  "grid": {
+    "breakpoints": [
+      {
+        "minWidth": 0,
+        "columns": 1,
+        "gutter": 20,
+        "margin": 16
+      },
+      {
+        "minWidth": 640,
+        "columns": 1,
+        "gutter": 20,
+        "margin": 40,
+        "maxWidth": 1280
+      },
+      {
+        "minWidth": 900,
+        "columns": 3,
+        "gutter": 32,
+        "margin": 40,
+        "maxWidth": 1280
+      }
+    ],
+    "note": "One content column on every page. The home page's essay is capped at 1120 px and the Runs and life pages at 1280 px. From 640 px the home page's Findings strip is three columns; from 900 px the Runs table is a table (cards below) and a life page's weeks become a column over the right third of the stage. The stage itself is full-screen at every width."
+  },
+  "radius": {
+    "scale": [
+      3,
+      6
+    ],
+    "capsule": true,
+    "nesting": "concentric"
+  },
+  "colour": {
+    "roles": {
+      "ground": {
+        "light": "#0f1611",
+        "dark": "#0f1611",
+        "source": "--paper. The site has one appearance; both values are the same."
+      },
+      "card": {
+        "light": "#162019",
+        "dark": "#162019",
+        "source": "--card, code and the search field"
+      },
+      "edge": {
+        "light": "#253129",
+        "dark": "#253129",
+        "source": "--line, table rules"
+      },
+      "heading": {
+        "light": "#eef2ec",
+        "dark": "#eef2ec",
+        "source": "--ink"
+      },
+      "text-strong": {
+        "light": "#d2dad3",
+        "dark": "#d2dad3",
+        "source": "--ink-2"
+      },
+      "text": {
+        "light": "#b9c4bb",
+        "dark": "#b9c4bb",
+        "source": "--body"
+      },
+      "chart": {
+        "light": "#9eaca1",
+        "dark": "#9eaca1",
+        "source": "figure.chart --ink"
+      },
+      "secondary": {
+        "light": "#8d9a90",
+        "dark": "#8d9a90",
+        "source": "--grey-2",
+        "lightMore": "#a3afa6",
+        "darkMore": "#a3afa6"
+      },
+      "underline": {
+        "light": "#56645a",
+        "dark": "#56645a",
+        "source": "--grey, link underlines only"
+      },
+      "ghost": {
+        "light": "#ffffff",
+        "dark": "#ffffff",
+        "source": "--ghost: other lives, and text over the scene"
+      },
+      "gold": {
+        "light": "#ffc960",
+        "dark": "#ffc960",
+        "source": "--gold: the followed life and the strays, in the scene only"
+      },
+      "ochre": {
+        "light": "#a8876b",
+        "dark": "#a8876b",
+        "source": "--ochre: the stray flag on a life page",
+        "lightMore": "#c2a68d",
+        "darkMore": "#c2a68d"
+      },
+      "bubble": {
+        "light": "#f3eee3",
+        "dark": "#f3eee3",
+        "source": "--bubble"
+      },
+      "bubble-text": {
+        "light": "#2b2420",
+        "dark": "#2b2420",
+        "source": "--bubble-ink"
+      },
+      "chip": {
+        "light": "rgba(20,30,40,.38)",
+        "dark": "rgba(20,30,40,.38)",
+        "source": "THEME.md caption chip, over the scene"
+      }
+    },
+    "pairs": [
+      {
+        "fg": "text",
+        "bg": "ground",
+        "min": 4.5,
+        "use": "body"
+      },
+      {
+        "fg": "heading",
+        "bg": "ground",
+        "min": 4.5,
+        "use": "text"
+      },
+      {
+        "fg": "text-strong",
+        "bg": "ground",
+        "min": 4.5,
+        "use": "text"
+      },
+      {
+        "fg": "secondary",
+        "bg": "ground",
+        "min": 4.5,
+        "use": "text"
+      },
+      {
+        "fg": "secondary",
+        "bg": "card",
+        "min": 4.5,
+        "use": "text"
+      },
+      {
+        "fg": "chart",
+        "bg": "ground",
+        "min": 3,
+        "use": "non-text"
+      },
+      {
+        "fg": "ochre",
+        "bg": "ground",
+        "min": 4.5,
+        "use": "text"
+      },
+      {
+        "fg": "bubble-text",
+        "bg": "bubble",
+        "min": 4.5,
+        "use": "text"
+      },
+      {
+        "fg": "edge",
+        "bg": "ground",
+        "min": 1.2,
+        "use": "display"
+      },
+      {
+        "fg": "underline",
+        "bg": "ground",
+        "min": 1.2,
+        "use": "display"
+      },
+      {
+        "fg": "ghost",
+        "bg": "chip",
+        "min": 4.5,
+        "use": "text"
+      }
+    ]
+  },
+  "motion": {
+    "durations": {
+      "turn": 180,
+      "fade": 300,
+      "reveal": 800,
+      "grain": 1000
+    },
+    "easings": {
+      "ease": "ease",
+      "grain": "steps(4)"
+    },
+    "reducedMotion": "instant"
+  },
+  "targets": {
+    "minimum": 24,
+    "comfortable": 44
+  },
+  "hairline": {
+    "width": 1,
+    "dpr": [
+      1,
+      2
+    ]
+  }
+}

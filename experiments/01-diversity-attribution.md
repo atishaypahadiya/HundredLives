@@ -109,7 +109,7 @@ Contacts can only *give* what the offer list allows (a referral, a paid pilot), 
 
 ## Predictions
 
-Written by Claude before any experiment-01 run, from the pilot and showcase runs. The request asked for "my predictions" but didn't include them; if the user adds theirs, it'll be in a separate commit (git dates it) before `analysis/diversity.py` is run on these logs.
+Written before any experiment-01 run, from the pilot and showcase runs. The request asked for "my predictions" but didn't include them; if the user adds theirs, it'll be in a separate commit (git dates it) before `analysis/diversity.py` is run on these logs.
 
 1. Sampling alone carries most of the diversity: in (d), path edit distance / horizon is at least half of (c)'s.
 2. Application sets: order share > dice share (b − d > a − d). Which openings she applies to depends on what she reads first.
