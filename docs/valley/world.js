@@ -97,6 +97,10 @@ function landMaterial(){
   '#include <color_fragment>\n'+
   'vec3 P=vWP;vec3 WN=normalize(vWN);float slope=1.-WN.y;float n=fb(P*.012);float n2=fb(P*.06);\n'+
   'float band=.5+.5*sin(P.y*.06+n*9.+P.x*.003);\n'+
+  // the meadow: far away its big light and dark patches flatten toward one green (up close they read as cloud
+  // shadows, from a height as blur), and up close a fine grain so the grass isn't smooth paint
+  'float gd=length(vViewPosition);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.33,.45,.19)*(.94+.12*fb(P*.05)),smoothstep(160.,650.,gd)*.6);\n'+
+  'diffuseColor.rgb*=.95+.1*fb(P*.8)*(1.-smoothstep(60.,260.,gd));\n'+
   'vec3 rust=vec3(.52,.33,.26),ochre=vec3(.66,.53,.42),grey=vec3(.52,.5,.49),dark=vec3(.30,.24,.22);\n'+
   'vec3 rock=mix(rust,ochre,smoothstep(.25,.85,band)*.6);rock=mix(rock,grey,smoothstep(300.,650.,P.y+(n-.5)*200.)*.6);rock=mix(rock,dark,smoothstep(.5,.85,slope)*.3);\n'+
   'rock*=.88+.24*n2;\n'+

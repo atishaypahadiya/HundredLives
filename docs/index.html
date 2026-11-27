@@ -67,7 +67,7 @@ code{font-size:.84em;background:var(--card);padding:1px 5px;border-radius:4px;co
 /* ?og: the share image (scripts/og_image.sh) is the final wide shot with no text and no clouds */
 .og .top,.og .hud,.og .line,.og .load{display:none}
 .top nav{display:flex;gap:22px;white-space:nowrap}
-.top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+.top nav a{text-decoration:none;opacity:.95;text-shadow:0 1px 10px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4)} .top .mark{text-shadow:0 1px 10px rgba(0,0,0,.5)} .top nav a:hover{opacity:1;text-decoration:underline}
 @media (max-width:640px){.top{padding:18px 16px} .top nav{gap:16px} .top .anchor{display:none}}
 .stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#bcd3e3;color:#fff}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -79,10 +79,29 @@ code{font-size:.84em;background:var(--card);padding:1px 5px;border-radius:4px;co
 .line{position:absolute;left:0;right:0;margin:0;font-weight:300;font-size:clamp(28px,5vw,70px);line-height:1.04;letter-spacing:-.035em;text-wrap:balance;
  text-shadow:0 2px 30px rgba(20,40,60,.35);opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .9s ease;padding-inline:max(16px,env(safe-area-inset-left,0px))}
 .line.on{opacity:1;transform:none}
-.line small{display:table;margin-inline:auto;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-top:18px;padding:7px 11px;background:rgba(20,30,40,.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:3px;text-shadow:none}
-.hud{position:absolute;left:max(20px,env(safe-area-inset-left,0px));right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;pointer-events:none}
+.line small{display:block;max-width:34em;margin:14px auto 0;font:400 clamp(15px,1.4vw,18px)/1.4 var(--sans);letter-spacing:0;opacity:.95;text-shadow:0 1px 14px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.35)}
+.hud{position:absolute;left:max(20px,env(safe-area-inset-left,0px));right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;gap:16px;font:400 14px var(--sans);color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;pointer-events:none}
 .hud b{white-space:nowrap;font:400 28px/1 var(--sans);letter-spacing:-.02em;display:block;text-transform:none;margin-top:4px}
-.hud .of{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-left:6px;color:rgba(255,255,255,.7)}
+.hud .of{font:400 14px var(--sans);margin-left:6px;color:rgba(255,255,255,.75)}
+
+.corners{position:absolute;inset:0;pointer-events:none}
+.cl{position:absolute;transform:translate(-50%,-100%);text-align:center;color:#fff;opacity:0;transition:opacity .8s;text-shadow:0 1px 12px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4);white-space:nowrap}
+.cl.on{opacity:1}
+.cl b{display:block;font:300 clamp(34px,4.2vw,64px)/1 var(--sans);letter-spacing:-.03em}
+.cl.small b{font-size:clamp(26px,2.6vw,38px)}
+.cl span{display:block;font:400 16px var(--sans);margin-top:4px}
+.cl::after{content:"";display:block;width:1px;height:34px;margin:8px auto 0;background:rgba(255,255,255,.8)}
+.cl.gold b{color:var(--gold)}
+.seam{position:absolute;left:0;right:0;bottom:0;height:45%;pointer-events:none;background:linear-gradient(to bottom,rgba(15,22,17,0),var(--paper));opacity:0}
+.big{margin:6px 0 26px;font:300 clamp(64px,10vw,120px)/.95 var(--sans);letter-spacing:-.04em;color:var(--ink)}
+.big small{display:block;font:400 18px/1.45 var(--sans);letter-spacing:0;color:var(--body);margin-top:10px;max-width:40ch}
+.fold{margin:6px 0 0}
+.fold summary{cursor:pointer;color:var(--ink-2);padding:10px 0;font-size:17px}
+.fold summary:hover{color:var(--ink)}
+.fold[open] summary{margin-bottom:8px}
+.snd{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0;opacity:.95;text-shadow:0 1px 10px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4)}
+.snd:hover{text-decoration:underline}
+.snd[aria-pressed="true"]::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:1px}
 .chip{display:flex;align-items:center;gap:8px;opacity:0;transition:opacity .6s;color:inherit;text-decoration:none;text-align:right;pointer-events:none}
 .chip.on{opacity:1;pointer-events:auto}
 .chip:hover{text-decoration:underline;text-underline-offset:3px}
@@ -184,7 +203,7 @@ footer .links{display:flex;gap:18px}
 <div class="track" id="track">
  <div class="top">
   <a class="mark" href="#"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>HundredLives</a>
-  <nav><a class="anchor" href="#findings">Findings</a><a href="replays/self/">Self</a><a class="anchor" href="#how">How it works</a><a href="runs/">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a></nav>
+  <nav><a class="anchor" href="#findings">Findings</a><a href="replays/self/">Self</a><a class="anchor" href="#how">How it works</a><a href="runs/">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a><button class="snd" id="snd" type="button" aria-pressed="false">Sound</button></nav>
  </div>
  <div class="stage">
   <canvas id="gl"></canvas>
@@ -199,7 +218,8 @@ footer .links{display:flex;gap:18px}
    <p class="line" data-a=".84" data-b=".93">She joined an accelerator in week <span data-fact="hero.acc_start">49</span><small>One of <span data-fact="e01.strays">3</span> lives that didn't end in a full-time job</small></p>
    <p class="line" data-a=".95" data-b="1.1">Every one of them can be replayed<small>There are <span data-fact="lives.published">114</span> lives so far</small></p>
   </div>
-  <div class="hud"><div>week<b><span id="wk">1</span><span class="of">of <span data-fact="hero.weeks">52</span></span></b></div><a class="chip" id="chip" data-link="hero.title" href="runs/#/run/maya-exp01d-20261029-025455-010"><i></i><span>Following <span data-fact="hero.title">Maya, exp 01 d life 10</span></span></a></div>
+  <div class="corners" id="corners"></div><div class="seam" id="seam"></div>
+  <div class="hud"><div>Week<b><span id="wk">1</span><span class="of">of <span data-fact="hero.weeks">52</span></span></b></div><a class="chip" id="chip" data-link="hero.title" href="runs/#/run/maya-exp01d-20261029-025455-010"><i></i><span>Following <span data-fact="hero.title">Maya, exp 01 d life 10</span></span></a></div>
  </div>
 </div>
 
@@ -242,6 +262,7 @@ footer .links{display:flex;gap:18px}
 
   <article id="exp01">
     <h3>Experiment 01: Maya, one-year lives</h3>
+    <p class="big"><span data-fact="e01.jobs">77</span> of <span data-fact="e01.n">80</span><small>lives ended the year in a full-time job, whatever happened along the way</small></p>
     <div class="prose">
       <p>Maya is a fictional new graduate in San Jose whose goal is to run a company worth a billion dollars. I ran <span data-fact="e01.n">80</span> one-year lives of her in <span data-fact="e01.groups">4</span> groups of <span data-fact="e01.per_cond">20</span>, changing what was held fixed: the dice, the order she saw openings in, both, or neither. Each group took between <span data-fact="e01.types_min">6</span> and <span data-fact="e01.types_max">14</span> different paths through jobs, part-time work and accelerators. Yet <span data-fact="e01.jobs">77</span> of the <span data-fact="e01.n">80</span> lives ended the year in a full-time job.</p>
     </div>
@@ -288,8 +309,9 @@ footer .links{display:flex;gap:18px}
   <div class="prose">
     <p>Each turn is one simulated week, <span data-fact="horizon.maya">52</span> of them for Maya and <span data-fact="horizon.self">104</span> for Self. The agent, <span data-fact="model.self">Claude Sonnet 5.5</span> for Self and <span data-fact="model.maya">Claude Haiku 5.5</span> for Maya, starts every week in a fresh conversation holding its persona, the state of its life, a record of past weeks kept by code, and the openings it can apply to. It acts through tools until it ends the week. Anything uncertain, like an application or a launch, goes to a referee model, <span data-fact="model.referee">Claude Haiku 5.5</span>, which estimates the odds without seeing the agent's goal or thinking. Seeded dice then pick the outcome, so lives that share a dice seed get the same draw for the same choice. Every <span data-fact="reflect.every">13</span> weeks the agent writes itself a short reflection, and those reflections are where the quotes on this page come from.</p>
     <p>Each life runs in its own Docker container on its own internal network, next to a local Gitea code host, with no route to the internet. World v3 adds a mock web: deploying publishes a repo's static files, and when a message, application or post links the site, the reader sees what a visitor would. Nothing on it runs. Every action and outcome goes into one JSONL log per life, and the Runs pages and the charts above read only those logs.</p>
-    <p>In world v3 the agent has <span data-fact="tools.n">16</span> tools.</p>
   </div>
+  <details class="fold">
+  <summary>In world v3 the agent has <span data-fact="tools.n">16</span> tools</summary>
   <table class="tools">
     <thead><tr><th>Tool</th><th>What it does</th></tr></thead>
     <tbody>
@@ -311,6 +333,7 @@ footer .links{display:flex;gap:18px}
       <tr data-tool="wait"><td><code>wait</code></td><td>End the week</td></tr>
     </tbody>
   </table>
+  </details>
 
   <div class="prose" style="margin-top:36px">
     <p>Every life starts from a persona file. Here is part of Self's. The contacts are fictional people. The agent sees their names and how it knows them, but not how they talk, how often they reply, or what they can offer.</p>
@@ -512,6 +535,7 @@ contacts:
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
 <script src="valley/world.js"></script>
+<script src="valley/sound.js"></script>
 <script>
 // The valley: experiment 01's lives from docs/data/positions.json, following the life the chip links to.
 if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og');
@@ -583,12 +607,60 @@ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og
         {p: .86, pos: [300, 420, -30], look: [-10, 0, -35]},
         {p: 1,   pos: [320, 470, -35], look: [-10, 0, -35]}
       ] : [
-        {p: .72, pos: [-10, 110, 200], look: [-100, 0, 10]},
-        {p: .86, pos: [150, 230, 370], look: [-20, 30, -90]},
-        {p: 1,   pos: [170, 320, 430], look: [-40, 30, -110]}
+        {p: .72, pos: [-40, 95, 175],  look: [-140, 0, 35]},
+        {p: .86, pos: [-55, 125, 215], look: [-50, 0, -25]},
+        {p: 1,   pos: [-40, 155, 250], look: [-45, 0, -40]}
       ])
     });
     window.valley = valley;  // for the shot checks
+    // Sound (docs/valley/sound.js): every cue is driven by what the scene is doing this frame, and the story beats
+    // take their weeks from the same facts the lines show, so nothing here is typed by hand.
+    var snd=document.getElementById('snd'), heroI=hero, lastSW=0, lastP=0, prevPos=[], beatsDone={};
+    function fact(k){var e=document.querySelector('[data-fact="'+k+'"]');return e?+e.textContent:NaN;}
+    var jobEnd=fact('hero.job_end'), accStart=fact('hero.acc_start'), weeks=fact('hero.weeks')||52;
+    var convergeAt=+(document.querySelector('.line [data-fact="e01.jobs"]')||{closest:function(){return {dataset:{a:2}}}}).closest('.line').dataset.a;
+    function syncSnd(){snd.setAttribute('aria-pressed',HLSound.isOn());snd.textContent=HLSound.isOn()?'Sound on':'Sound';}
+    snd.addEventListener('click',function(){HLSound.toggle();syncSnd();});syncSnd();
+    var V2=new THREE.Vector3();
+    function score(s){
+      if(!HLSound.running()){lastSW=s.week;lastP=s.progress;return;}
+      var cam=valley.camera, fwd=s.progress>lastP+1e-5;
+      HLSound.wind(cam.position.y);
+      // one tock per week the counter moves forward, at most one a frame
+      if(s.week>lastSW&&fwd) HLSound.week(s.week/weeks);
+      // the flock: bells as often as its sheep are moving; ghosts ring quieter
+      var n=g.lives.length,moving=0;
+      for(var i=0;i<n;i++){var q=valley.sheepPosition(i);if(prevPos[i]&&q.distanceTo(prevPos[i])>.15)moving++;prevPos[i]=q;}
+      var ghost=s.progress>.3&&s.progress<.66;
+      if(Math.random()<Math.min(.7,moving/n*1.6)) HLSound.flock(ghost?.35:1);
+      // her own bell, panned to where she stands on screen
+      if(heroI>=0&&s.progress>.27&&prevPos[heroI]){V2.copy(prevPos[heroI]).project(cam);
+        if(moving&&Math.random()<.12) HLSound.hero(Math.max(-1,Math.min(1,V2.x)));}
+      // story beats, forward only, once each until you scroll back past them
+      [['job',jobEnd],['acc',accStart]].forEach(function(b){
+        if(s.week>=b[1]&&lastSW<b[1]&&fwd&&!beatsDone[b[0]]){beatsDone[b[0]]=1;HLSound[b[0]==='job'?'jobEnds':'accelerator']();}
+        if(s.week<b[1]-1)beatsDone[b[0]]=0;});
+      if(s.progress>=convergeAt&&lastP<convergeAt){HLSound.converge();}
+      lastSW=s.week;lastP=s.progress;
+    }
+    (function(){var t=document.querySelector('#chip [data-fact="hero.title"]');if(t){t.textContent=t.textContent.replace(/,\s*exp\s+\S+\s+\S+\s+life\s+/i,' · life ');}})();
+    // the end states, written into the landscape, with how many lives ended there
+    var ends={}; g.lives.forEach(function(L){ ends[L.end]=(ends[L.end]||0)+1; });
+    var cdata=[].concat(Object.keys(P.corners).map(function(k){var c=P.corners[k];return {k:k,label:c.label,x:c.x,z:c.z,n:ends[k]||0};}),
+      [{k:'searching',label:P.hut.label,x:P.hut.x,z:P.hut.z,n:ends.searching||0}]);
+    var cwrap=document.getElementById('corners'), seam=document.getElementById('seam');
+    cdata.forEach(function(c){ var el=document.createElement('div'); el.className='cl'+(c.k==='job'?'':' small');
+      el.innerHTML='<b></b><span></span>'; el.querySelector('b').textContent=c.n+(c.k==='job'?' of '+g.lives.length:'');
+      el.querySelector('span').textContent=c.label; cwrap.appendChild(el); c.el=el; });
+    var V=new THREE.Vector3();
+    function placeCorners(p){
+      var on=p>.69; var cam=valley.camera, W=cv.clientWidth, Hc=cv.clientHeight;
+      cdata.forEach(function(c){ V.set(c.x, createValley.terrain.height(c.x,c.z)+4, c.z).project(cam);
+        var vis=on&&V.z<1&&Math.abs(V.x)<.9&&V.y>-.9&&V.y<.8&&(c.n>0);
+        c.el.classList.toggle('on',vis);
+        if(vis){var hw=(c.el.offsetWidth||120)/2+12;c.el.style.left=Math.min(W-hw,Math.max(hw,(V.x+1)/2*W))+'px';c.el.style.top=Math.max(Hc*.27+c.el.offsetHeight,(1-V.y)/2*Hc)+'px';} });
+      seam.style.opacity=Math.max(0,Math.min(1,(p-.955)/.045));
+    }
     var target = 0, lastWeek = 0;
     function readScroll(){
       var r = track.getBoundingClientRect(), max = track.offsetHeight - innerHeight, p = Math.min(1, Math.max(0, -r.top / max));
@@ -603,6 +675,8 @@ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add('og
       if (s.week !== lastWeek) { lastWeek = s.week; wk.textContent = s.week; chip.href = base + '?w=' + s.week; }
       lines.forEach(function(l){ l.classList.toggle('on', s.progress >= +l.dataset.a && s.progress < +l.dataset.b); });
       chip.classList.toggle('on', s.progress > .3);
+      placeCorners(s.progress);
+      score(s);
       requestAnimationFrame(frame);
     }
     valley.resize(); readScroll(); requestAnimationFrame(frame);
