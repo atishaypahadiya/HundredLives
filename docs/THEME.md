@@ -42,13 +42,13 @@ The voice: half technical paper, half human story. Exact numbers set in a quiet,
 --grass:#3d6328; --grass-light:#6a8338;
 --rust:#8a543f; --ochre:#a8876b; --snow:#f2f4f7;
 --sans:"Inter Tight",system-ui,sans-serif;     /* everything people read */
---mono:"Geist Mono",ui-monospace,Menlo,monospace; /* labels, weeks, numbers in the HUD only */
+--mono:"Geist Mono",ui-monospace,Menlo,monospace; /* referee lines, tool names and code only */
 ```
 
 Type:
 - Story line over the scene: Inter Tight 300, `clamp(28px,5vw,70px)`, line-height 1.04, letter-spacing -0.035em, white, soft text-shadow, centred, balanced wrap.
-- Caption under a story line: Geist Mono 500, 12px, uppercase, letter-spacing .14em, on a small blurred dark chip (`rgba(20,30,40,.38)`, 6px blur, 3px radius).
-- HUD (week counter, "following" chip): bottom corners, Geist Mono 11.5px uppercase, with the number in Inter Tight 28px.
+- Caption under a story line: Inter Tight 400, `clamp(15px,1.4vw,18px)`, sentence case, white with the same soft shadow as the line. No chip, no capitals, no mono: over grass and rock they read slower than plain text.
+- HUD (week counter, "following" chip): bottom corners, Inter Tight 14px sentence case ("Week 31 of 52", "Following Maya · life 10"), with the number in Inter Tight 28px. The following chip stays on one line on a phone.
 - Body text below the scene: Inter Tight 400, 16–18px, line-height 1.55, `#b9c4bb` on `--paper`, max 60ch.
 
 Grain overlay (copy exactly):
@@ -65,6 +65,8 @@ Grain overlay (copy exactly):
 - **Ghost cam:** while chasing one life, everyone else drops to ~38% opacity and the followed life stays solid, with its trail in gold.
 - **Terrain:** eroded-noise mountains with per-pixel rock, strata and snow. Reuse it as is, don't rebuild it per page.
 - **The world lives in `docs/valley/world.js`,** and every page reuses it: noise, terrain and its shader, sky, lights, clouds, the hut, ground scatter, sheep, trails and the camera rails. A page calls `createValley(canvas, {lives, hero, strays, corner, weeks, time, ghost, shots})` and gets back `{update(progress), resize()}`; the options are documented at the top of the file. Pages keep their own story lines, HUD and scroll handling.
+- **End states in the landscape:** on the wide shots each corner of the meadow (and the hut, for still searching) carries its label and how many lives ended there, counted from `positions.json`, as white text on a thin pin above the ground. The job corner's count is large ("77 of 80"). Labels stay inside the screen edge and only show while their corner is in frame.
+- **Into the essay:** over the last few percent of the scroll the bottom of the stage fades to `--paper`, so the valley and the essay read as one place.
 - **Message bubbles:** for a life's actual messages, grainy paper bubbles (warm off-white, the same grain, slight rotation). Never chat-app UI.
 
 ## Pages
@@ -74,13 +76,28 @@ Grain overlay (copy exactly):
 - **One life (`docs/runs/<id>/`, template `viewer/life.html`):** the valley is a sticky full-screen stage, and the life's weeks scroll in a column over its right third (on a phone the stage is the top 45% and the weeks scroll underneath). The header gives the life's title, persona, experiment, ending and whether it's a stray. Each week is one section: the week number in mono, the digest as a plain sentence, the life's note and reflections quoted, its messages and replies as paper bubbles (its own on one side, everyone else's on the other; an opening's letter is a bubble and the world's rule text after it is a mono line), one mono referee line per decision (`applied to job-04 · odds 0.32 · rolled 0.18 · accepted`), and one line for commitments and cash. Everything else logged that week sits in a fold under it. Runs of quiet weeks (no messages, decisions or news, and no change in commitments) fold into one row ("Weeks 42–43: gigs, no change"). As a week reaches the middle of the screen, the ghost cam follows the life to that week, with the experiment's other lives as ghosts at the same point in their own lives. `?w=N` opens at week N. Below the weeks, the whole life: cash chart, totals, trend lines, every decision, repos, every week as a table.
 - **Self replay (`docs/replays/self/`):** the same template, with its data embedded in the page. Its header shows what it always did: the title and the run details.
 
+## Sound
+
+Optional, off until the reader presses **Sound** in the nav (browsers only start audio after a tap or key, and a scroll doesn't count; the choice is remembered). Everything is synthesized in `docs/valley/sound.js`, no audio files, and every cue is fired by something on screen, so sound follows the same rule as the numbers: it comes from the data.
+
+| On screen | Sound |
+|---|---|
+| camera height | wind, thin and airy up high, warm down in the meadow |
+| the week counter moves forward | a soft wooden tock, rising slowly over the year; silent when scrolling back |
+| sheep moving | bells, as often as the flock is moving, all in one key; ghosts ring quieter |
+| the followed life moves | her own bell, panned to where she stands on screen |
+| a story beat (her job ends, she joins the accelerator) | a dull low bell, a bright chord; the weeks come from the page's facts |
+| most lives reach one corner | the flock's bells strum into one chord |
+| a referee decision reaches the middle (life pages) | a dice rattle, then a rising tone (accepted, placed, traction) or a falling one |
+
 ## What position means
 
 Corners of the meadow are end states (full-time job, founded something, freelance, still searching). Each week, a sheep moves toward the corner that matches what the logs say it's doing that week. Its sideways wobble comes from an embedding of that week's actions, so similar lives walk close together. The mapping lives in one script (`analysis/positions.py`) that writes `positions.json`. Pages only read that file.
 
 ## Don't
 
-- Purple or neon gradients, glassy cards, pills and tags, section numbers, small labels above headings, emoji.
+- Purple or neon gradients, glassy cards, pills and tags, section numbers, small labels above headings, emoji, mono capitals on chips.
+- Sound that plays without the reader turning it on, or that isn't tied to something on screen.
 - More than one accent colour.
 - Free-orbit 3D controls.
 - Hand-typed numbers.

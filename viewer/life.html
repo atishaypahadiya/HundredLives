@@ -46,6 +46,9 @@ button{font:inherit;color:inherit}
 .top .mark svg{fill:#fff}
 .top nav{display:flex;gap:22px;white-space:nowrap}
 .top nav a{text-decoration:none;opacity:.92} .top nav a:hover{opacity:1;text-decoration:underline}
+.snd{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0;opacity:.92}
+.snd:hover{text-decoration:underline}
+.snd[aria-pressed="true"]::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:1px}
 .top nav a[aria-current]{opacity:1;text-decoration:underline;text-decoration-color:rgba(255,255,255,.7)}
 /* the weeks scroll under the nav: on wide screens a dark veil over the column keeps the two apart */
 .veil{position:absolute;top:0;right:0;width:var(--colw);height:112px;z-index:1;pointer-events:none;
@@ -61,7 +64,7 @@ button{font:inherit;color:inherit}
   background:linear-gradient(to left,rgba(var(--shade),.86) 0,rgba(var(--shade),.8) calc(var(--colw) - 30px),rgba(var(--shade),0) 100%)}
 .load{position:absolute;inset:0;z-index:5;display:grid;place-items:center;font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#2a3a33;transition:opacity .8s;pointer-events:none}
 /* the week counter (the spine) and the strip of weeks, bottom left */
-.hud{position:absolute;left:40px;bottom:58px;z-index:2;font:500 11.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#fff;
+.hud{position:absolute;left:40px;bottom:58px;z-index:2;font:400 14px var(--sans);color:#fff;
   text-shadow:0 1px 10px rgba(20,40,60,.5);display:flex;align-items:baseline;gap:10px;pointer-events:none}
 .hud b{font:400 28px/1 var(--sans);letter-spacing:-.02em;text-transform:none}
 .strip{position:absolute;left:40px;right:calc(var(--colw) + 48px);bottom:30px;z-index:2;height:14px;cursor:pointer}
@@ -190,7 +193,7 @@ footer .links{display:flex;gap:18px}
  <div class="chrome">
   <div class="top">
    <a class="mark" href="../../"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="2.6"/><circle cx="18.20" cy="11.00" r="2.4"/><circle cx="16.09" cy="16.09" r="2.4"/><circle cx="11.00" cy="18.20" r="2.4"/><circle cx="5.91" cy="16.09" r="2.4"/><circle cx="3.80" cy="11.00" r="2.4"/><circle cx="5.91" cy="5.91" r="2.4"/><circle cx="11.00" cy="3.80" r="2.4"/><circle cx="16.09" cy="5.91" r="2.4"/></svg>HundredLives</a>
-   <nav><a class="anchor" href="../../#findings">Findings</a><a id="navSelf" href="../../replays/self/">Self</a><a class="anchor" href="../../#how">How it works</a><a id="navRuns" href="../../runs/">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a></nav>
+   <nav><a class="anchor" href="../../#findings">Findings</a><a id="navSelf" href="../../replays/self/">Self</a><a class="anchor" href="../../#how">How it works</a><a id="navRuns" href="../../runs/">Runs</a><a href="https://github.com/atishaypahadiya/HundredLives">Source ↗</a><button class="snd" id="snd" type="button" aria-pressed="false">Sound</button></nav>
   </div>
   <div class="veil"></div>
  </div>
@@ -222,6 +225,7 @@ footer .links{display:flex;gap:18px}
 <!--CONFIG-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
 <script src="../../valley/world.js"></script>
+<script src="../../valley/sound.js"></script>
 <script>
 "use strict";
 (function(){
@@ -595,6 +599,11 @@ function start(D, PL) {
   function setWeek(wk) {
     if (userMoved) { var hs = "#/run/" + encodeURIComponent(runId) + "?w=" + wk; if (hs !== lastHash) { lastHash = hs; history.replaceState(null, "", hs); } }
     if (wk === shown) return;
+    // the referee's dice, when a week with decisions reaches the middle of the screen going forward (docs/valley/sound.js)
+    if (window.HLSound && shown > 0 && wk === shown + 1) {
+      var dec = evs(wk).filter(function(e){ return e.kind === "referee" && (e.event === "apply" || e.event === "launch" || e.event === "hackathon"); })[0];
+      if (dec) HLSound.dice({ success: "win", placed: "win", traction: "win", failure: "lose", not_placed: "lose", quiet: "lose" }[dec.outcome] || "none");
+    }
     shown = wk;
     document.getElementById("hudWeek").textContent = Math.max(1, wk);
     mark.setAttribute("x", (Math.max(1, wk) - 1) * slot);
@@ -780,6 +789,11 @@ function start(D, PL) {
   }
 }
 })();
+</script>
+<script>
+(function(){ var b = document.getElementById("snd"); if (!b || !window.HLSound) return;
+  function sync(){ b.setAttribute("aria-pressed", HLSound.isOn()); b.textContent = HLSound.isOn() ? "Sound on" : "Sound"; }
+  b.addEventListener("click", function(){ HLSound.toggle(); sync(); }); sync(); })();
 </script>
 </body>
 </html>
